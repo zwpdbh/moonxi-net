@@ -40,7 +40,8 @@ fn gpu_llm_coords(
 }
 
 ///|
-fn gpu_llm_index(
+/// Compute a flat row-major index for the reference gather implementation.
+pub fn gpu_llm_index(
   coords : FixedArray[Int32],
   shape : FixedArray[Int32],
 ) -> Int32 {
@@ -52,25 +53,86 @@ fn gpu_llm_index(
 }
 
 ///|
-fn gpu_llm_gather(
+/// Reference gather implementation using a host-generated index map.
+pub fn gpu_llm_gather(
   input : GpuTensor,
   output_shape : Array[Int32],
   source_index : (FixedArray[Int32]) -> Int32,
 ) -> GpuTensor {
-  let count = gpu_llm_shape_size(output_shape)
-  let shape = FixedArray::from_array(output_shape)
-  let strides = gpu_llm_strides(shape)
-  let indices = FixedArray::makei(count, index => {
-    source_index(gpu_llm_coords(index, shape, strides))
+  let profiler = llm_profiler()
+  profiler.host("gather_total_ms", () => {
+    let count = gpu_llm_shape_size(output_shape)
+    profiler.count("gather_calls", 1L)
+    profiler.count("gather_index_elements", Int64::from_int(count))
+    let shape = FixedArray::from_array(output_shape)
+    let strides = gpu_llm_strides(shape)
+    let indices = profiler.host("gather_index_build_ms", () => {
+      FixedArray::makei(count, index => {
+        source_index(gpu_llm_coords(index, shape, strides))
+      })
+    })
+    let index_buffer = profiler.host("gather_index_alloc_ms", () => {
+      profiler.count("gather_index_allocations", 1L)
+      @cuda.alloc(Int64::from_int(count * 4))
+    })
+    profiler.host("gather_index_h2d_ms", () => {
+      profiler.count("gather_index_h2d_bytes", Int64::from_int(count * 4))
+      check_cuda(@cuda.raw_h2d(index_buffer, indices), "copy LLM indices")
+    })
+    let output = GpuTensor::alloc_shape(output_shape)
+    profiler.cuda("gather_kernel_cuda_ms", () => {
+      check_cuda(
+        @cuda.llm_gather(input.data, index_buffer, output.data, count),
+        "LLM gather",
+      )
+    })
+    profiler.host("gather_index_free_ms", () => {
+      profiler.count("gather_index_frees", 1L)
+      check_cuda(@cuda.free(index_buffer), "free LLM indices")
+    })
+    output
   })
-  let index_buffer = @cuda.alloc(Int64::from_int(count * 4))
-  check_cuda(@cuda.raw_h2d(index_buffer, indices), "copy LLM indices")
+}
+
+///|
+fn gpu_llm_direct_layout(
+  input : GpuTensor,
+  output_shape : Array[Int32],
+  operation : Int32,
+  dim : Int32,
+  argument : Int32,
+  axes : Array[Int32],
+) -> GpuTensor {
+  let rank = input.ndim()
+  if rank > 4 || output_shape.length() != rank {
+    abort("direct layout currently supports ranks 0 through 4")
+  }
+  let metadata = FixedArray::make(16, 1)
+  metadata[0] = rank
+  metadata[1] = operation
+  metadata[2] = dim
+  metadata[3] = argument
+  for axis in 0..<rank {
+    metadata[4 + axis] = input.dim(axis)
+    metadata[8 + axis] = output_shape[axis]
+  }
+  for axis in 0..<axes.length() {
+    metadata[12 + axis] = axes[axis]
+  }
+  let count = gpu_llm_shape_size(output_shape)
+  let profiler = llm_profiler()
+  profiler.count("direct_layout_calls", 1L)
+  profiler.count("direct_layout_output_elements", Int64::from_int(count))
+  let metadata_buffer = @cuda.alloc(64L)
+  check_cuda(@cuda.raw_h2d(metadata_buffer, metadata), "copy layout metadata")
   let output = GpuTensor::alloc_shape(output_shape)
-  check_cuda(
-    @cuda.llm_gather(input.data, index_buffer, output.data, count),
-    "LLM gather",
-  )
-  check_cuda(@cuda.free(index_buffer), "free LLM indices")
+  profiler.cuda("direct_layout_cuda_ms", () => {
+    check_cuda(
+      @cuda.llm_direct_layout(input.data, output.data, metadata_buffer, count),
+      "direct layout",
+    )
+  })
+  check_cuda(@cuda.free(metadata_buffer), "free layout metadata")
   output
 }
 
@@ -90,13 +152,7 @@ pub fn GpuTensor::permute(self : GpuTensor, axes : Array[Int32]) -> GpuTensor {
     axis
   })
   let output_shape = axes.map(axis => self.dim(axis))
-  gpu_llm_gather(self, output_shape, output_coords => {
-    let input_coords = FixedArray::make(rank, 0)
-    for out_dim in 0..<rank {
-      input_coords[axes[out_dim]] = output_coords[out_dim]
-    }
-    gpu_llm_index(input_coords, self.shape.shape)
-  })
+  gpu_llm_direct_layout(self, output_shape, 0, 0, 0, axes)
 }
 
 ///|
@@ -132,11 +188,7 @@ pub fn GpuTensor::narrow(
   }
   let output_shape = self.shape.shape.iter().collect()
   output_shape[dim] = length
-  gpu_llm_gather(self, output_shape, output_coords => {
-    let input_coords = output_coords.copy()
-    input_coords[dim] = input_coords[dim] + start
-    gpu_llm_index(input_coords, self.shape.shape)
-  })
+  gpu_llm_direct_layout(self, output_shape, 1, dim, start, [])
 }
 
 ///|
@@ -184,18 +236,21 @@ pub fn GpuTensor::concat(tensors : Array[GpuTensor], dim~ : Int32) -> GpuTensor 
     inner = inner * left.dim(axis)
   }
   let output = GpuTensor::alloc_shape(output_shape)
-  check_cuda(
-    @cuda.llm_concat2(
-      left.data,
-      right.data,
-      output.data,
-      outer,
-      left.dim(dim),
-      right.dim(dim),
-      inner,
-    ),
-    "LLM concat",
-  )
+  llm_profiler().count("concat_calls", 1L)
+  llm_profiler().cuda("concat_cuda_ms", () => {
+    check_cuda(
+      @cuda.llm_concat2(
+        left.data,
+        right.data,
+        output.data,
+        outer,
+        left.dim(dim),
+        right.dim(dim),
+        inner,
+      ),
+      "LLM concat",
+    )
+  })
   output
 }
 
@@ -209,15 +264,7 @@ pub fn GpuTensor::expand(self : GpuTensor, shape : Array[Int32]) -> GpuTensor {
       abort("expand shape mismatch")
     }
   }
-  gpu_llm_gather(self, shape, output_coords => {
-    let input_coords = output_coords.copy()
-    for axis in 0..<shape.length() {
-      if self.dim(axis) == 1 {
-        input_coords[axis] = 0
-      }
-    }
-    gpu_llm_index(input_coords, self.shape.shape)
-  })
+  gpu_llm_direct_layout(self, shape, 2, 0, 0, [])
 }
 
 ///|
@@ -232,11 +279,7 @@ pub fn GpuTensor::repeat_interleave(
   }
   let output_shape = self.shape.shape.iter().collect()
   output_shape[dim] = output_shape[dim] * repeats
-  gpu_llm_gather(self, output_shape, output_coords => {
-    let input_coords = output_coords.copy()
-    input_coords[dim] = input_coords[dim] / repeats
-    gpu_llm_index(input_coords, self.shape.shape)
-  })
+  gpu_llm_direct_layout(self, output_shape, 3, dim, repeats, [])
 }
 
 ///|
@@ -254,22 +297,25 @@ pub fn GpuTensor::linear(input : GpuTensor, weight : GpuTensor) -> GpuTensor {
   output_shape[input.ndim() - 1] = output_size
   let output = GpuTensor::alloc_shape(output_shape)
   let context = @cuda.get_context(0)
-  check_cuda(
-    @cuda.matmul(
-      context.cublas,
-      input.data,
-      weight.data,
-      output.data,
-      rows,
-      input_size,
-      output_size,
-      false,
-      true,
-      1.0F,
-      0.0F,
-    ),
-    "LLM linear",
-  )
+  llm_profiler().count("linear_calls", 1L)
+  llm_profiler().cuda("linear_cuda_ms", () => {
+    check_cuda(
+      @cuda.matmul(
+        context.cublas,
+        input.data,
+        weight.data,
+        output.data,
+        rows,
+        input_size,
+        output_size,
+        false,
+        true,
+        1.0F,
+        0.0F,
+      ),
+      "LLM linear",
+    )
+  })
   output
 }
 
@@ -299,20 +345,23 @@ pub fn GpuTensor::batched_matmul(
   output_shape[rank - 1] = p
   let output = GpuTensor::alloc_shape(output_shape)
   let context = @cuda.get_context(0)
-  check_cuda(
-    @cuda.llm_batched_matmul(
-      context.cublas,
-      left.data,
-      right.data,
-      output.data,
-      batch,
-      m,
-      k,
-      p,
-      0,
-    ),
-    "LLM batched matmul",
-  )
+  llm_profiler().count("batched_matmul_calls", 1L)
+  llm_profiler().cuda("batched_matmul_cuda_ms", () => {
+    check_cuda(
+      @cuda.llm_batched_matmul(
+        context.cublas,
+        left.data,
+        right.data,
+        output.data,
+        batch,
+        m,
+        k,
+        p,
+        0,
+      ),
+      "LLM batched matmul",
+    )
+  })
   output
 }
 
@@ -324,10 +373,13 @@ pub fn GpuTensor::softmax_last(input : GpuTensor) -> GpuTensor {
   let width = input.dim(input.ndim() - 1)
   let rows = if width == 0 { 0 } else { input.numel() / width }
   let output = GpuTensor::alloc_st(input.shape)
-  check_cuda(
-    @cuda.llm_softmax(input.data, output.data, width, rows),
-    "LLM softmax",
-  )
+  llm_profiler().count("softmax_calls", 1L)
+  llm_profiler().cuda("softmax_cuda_ms", () => {
+    check_cuda(
+      @cuda.llm_softmax(input.data, output.data, width, rows),
+      "LLM softmax",
+    )
+  })
   output
 }
 
@@ -340,6 +392,11 @@ pub fn GpuTensor::embedding(
     abort("embedding weight must have rank 2")
   }
   let width = weight.dim(1)
+  llm_profiler().count("embedding_calls", 1L)
+  llm_profiler().count(
+    "embedding_index_h2d_bytes",
+    Int64::from_int(token_ids.length() * width * 4),
+  )
   let indices = FixedArray::makei(token_ids.length() * width, index => {
     let row = index / width
     let column = index % width
@@ -348,10 +405,12 @@ pub fn GpuTensor::embedding(
   let index_buffer = @cuda.alloc(Int64::from_int(indices.length() * 4))
   check_cuda(@cuda.raw_h2d(index_buffer, indices), "copy embedding IDs")
   let output = GpuTensor::alloc_shape([token_ids.length(), width])
-  check_cuda(
-    @cuda.llm_gather(weight.data, index_buffer, output.data, indices.length()),
-    "embedding",
-  )
+  llm_profiler().cuda("embedding_cuda_ms", () => {
+    check_cuda(
+      @cuda.llm_gather(weight.data, index_buffer, output.data, indices.length()),
+      "embedding",
+    )
+  })
   check_cuda(@cuda.free(index_buffer), "free embedding IDs")
   output
 }
@@ -359,7 +418,13 @@ pub fn GpuTensor::embedding(
 ///|
 pub fn GpuTensor::silu(input : GpuTensor) -> GpuTensor {
   let output = GpuTensor::alloc_st(input.shape)
-  check_cuda(@cuda.llm_silu(input.data, output.data, input.numel()), "LLM SiLU")
+  llm_profiler().count("silu_calls", 1L)
+  llm_profiler().cuda("silu_cuda_ms", () => {
+    check_cuda(
+      @cuda.llm_silu(input.data, output.data, input.numel()),
+      "LLM SiLU",
+    )
+  })
   output
 }
 
@@ -378,10 +443,13 @@ pub fn GpuTensor::rms_norm(
   }
   let rows = input.numel() / width
   let output = GpuTensor::alloc_st(input.shape)
-  check_cuda(
-    @cuda.llm_rms_norm(input.data, weight.data, output.data, width, rows, eps),
-    "LLM RMSNorm",
-  )
+  llm_profiler().count("rms_norm_calls", 1L)
+  llm_profiler().cuda("rms_norm_cuda_ms", () => {
+    check_cuda(
+      @cuda.llm_rms_norm(input.data, weight.data, output.data, width, rows, eps),
+      "LLM RMSNorm",
+    )
+  })
   output
 }
 
@@ -395,17 +463,20 @@ pub fn GpuTensor::masked_fill(
     abort("masked_fill mask is not broadcast-compatible")
   }
   let output = GpuTensor::alloc_st(input.shape)
-  check_cuda(
-    @cuda.llm_masked_fill(
-      input.data,
-      mask.data,
-      output.data,
-      input.numel(),
-      mask.numel(),
-      value,
-    ),
-    "LLM masked fill",
-  )
+  llm_profiler().count("masked_fill_calls", 1L)
+  llm_profiler().cuda("masked_fill_cuda_ms", () => {
+    check_cuda(
+      @cuda.llm_masked_fill(
+        input.data,
+        mask.data,
+        output.data,
+        input.numel(),
+        mask.numel(),
+        value,
+      ),
+      "LLM masked fill",
+    )
+  })
   output
 }
 
@@ -421,32 +492,38 @@ pub fn GpuTensor::argmax_last(input : GpuTensor) -> GpuTensor {
   let rows = input.numel() / width
   let output_shape = input.shape.shape.iter().take(input.ndim() - 1).collect()
   let output = GpuTensor::alloc_shape(output_shape)
-  check_cuda(@cuda.argmax(input.data, output.data, rows, width), "LLM argmax")
+  llm_profiler().count("argmax_calls", 1L)
+  llm_profiler().cuda("argmax_cuda_ms", () => {
+    check_cuda(@cuda.argmax(input.data, output.data, rows, width), "LLM argmax")
+  })
   output
 }
 
 ///|
 pub fn gpu_llm_mul_elem(left : GpuTensor, right : GpuTensor) -> GpuTensor {
   let output = GpuTensor::alloc_st(left.shape)
-  if left.numel() == right.numel() {
-    check_cuda(
-      @cuda.mul_elem(left.data, right.data, output.data, left.numel()),
-      "LLM elementwise multiplication",
-    )
-  } else {
-    if left.numel() % right.numel() != 0 {
-      abort("multiplication operands are not broadcast-compatible")
+  llm_profiler().count("mul_elem_calls", 1L)
+  llm_profiler().cuda("mul_elem_cuda_ms", () => {
+    if left.numel() == right.numel() {
+      check_cuda(
+        @cuda.mul_elem(left.data, right.data, output.data, left.numel()),
+        "LLM elementwise multiplication",
+      )
+    } else {
+      if left.numel() % right.numel() != 0 {
+        abort("multiplication operands are not broadcast-compatible")
+      }
+      check_cuda(
+        @cuda.llm_mul_broadcast(
+          left.data,
+          right.data,
+          output.data,
+          left.numel(),
+          right.numel(),
+        ),
+        "LLM broadcast multiplication",
+      )
     }
-    check_cuda(
-      @cuda.llm_mul_broadcast(
-        left.data,
-        right.data,
-        output.data,
-        left.numel(),
-        right.numel(),
-      ),
-      "LLM broadcast multiplication",
-    )
-  }
+  })
   output
 }

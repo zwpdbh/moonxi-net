@@ -32,6 +32,10 @@ pub fn gpu_is_inference() -> Bool
 
 pub fn gpu_linear(GpuTensor, GpuTensor, GpuTensor, @cuda.CublasHandle) -> GpuTensor
 
+pub fn gpu_llm_gather(GpuTensor, Array[Int32], (FixedArray[Int32]) -> Int32) -> GpuTensor
+
+pub fn gpu_llm_index(FixedArray[Int32], FixedArray[Int32]) -> Int32
+
 pub fn gpu_llm_mul_elem(GpuTensor, GpuTensor) -> GpuTensor
 
 pub fn gpu_maxpool2d(GpuTensor, Int32, Int32, Int32, @cuda.CudnnHandle) -> GpuTensor
@@ -51,6 +55,8 @@ pub fn gpu_softmax_cross_entropy(GpuTensor, GpuTensor, @cuda.CublasHandle) -> Gp
 pub fn[T] gpu_with_inference(Bool, () -> T) -> T
 
 pub fn gpu_workspace_reset() -> Unit
+
+pub fn llm_profiler() -> LlmProfiler
 
 pub fn multi_tensor_sgd_step(MultiTensorOptimState, Array[GpuTensor], Float, Float, Float, Float) -> Unit
 
@@ -157,6 +163,18 @@ pub impl @optimizer.BatchAdamAutoclip for GpuTensor
 pub impl @optimizer.BatchRmspropAutoclip for GpuTensor
 pub impl @optimizer.BatchSgdMomentumAutoclip for GpuTensor
 pub impl Add for GpuTensor
+
+pub struct LlmProfiler {
+  mut enabled : Bool
+  mut counts : Map[String, Int64]
+  mut host_ms : Map[String, Double]
+  mut cuda_ms : Map[String, Float]
+}
+pub fn LlmProfiler::count(Self, String, Int64) -> Unit
+pub fn LlmProfiler::cuda(Self, String, () -> Unit) -> Unit
+pub fn[T] LlmProfiler::host(Self, String, () -> T) -> T
+pub fn LlmProfiler::print(Self) -> Unit
+pub fn LlmProfiler::reset(Self, enabled~ : Bool) -> Unit
 
 pub(all) struct MultiTensorOptimState {
   d_param_ptrs : @cuda.GpuBuffer

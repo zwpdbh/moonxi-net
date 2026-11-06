@@ -116,6 +116,8 @@ pub fn llm_batched_matmul(CublasHandle, GpuBuffer, GpuBuffer, GpuBuffer, Int32, 
 
 pub fn llm_concat2(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Int32, Int32) -> Int32
 
+pub fn llm_direct_layout(GpuBuffer, GpuBuffer, GpuBuffer, Int32) -> Int32
+
 pub fn llm_gather(GpuBuffer, GpuBuffer, GpuBuffer, Int32) -> Int32
 
 pub fn llm_masked_fill(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Float) -> Int32

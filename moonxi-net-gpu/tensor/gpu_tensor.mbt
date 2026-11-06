@@ -273,13 +273,17 @@ pub fn GpuTensor::alloc_shape(shape : Array[Int32]) -> GpuTensor {
 pub fn GpuTensor::alloc_st(shape : @ts.ShapeTensor) -> GpuTensor {
   let n = @ts.ShapeTensor::size(shape)
   let bytes = Int64::from_int(n * 4)
-  let ptr = if gpu_pool_state.use_pool {
-    match gpu_pool_state.pool {
-      Some(p) => @cuda.pool_alloc(p, bytes)
-      None => @cuda.alloc(bytes)
+  llm_profiler().count("tensor_allocations", 1L)
+  llm_profiler().count("tensor_allocated_bytes", bytes)
+  let ptr = llm_profiler().host("tensor_alloc_ms", () => {
+    if gpu_pool_state.use_pool {
+      match gpu_pool_state.pool {
+        Some(p) => @cuda.pool_alloc(p, bytes)
+        None => @cuda.alloc(bytes)
+      }
+    } else {
+      @cuda.alloc(bytes)
     }
-  } else {
-    @cuda.alloc(bytes)
-  }
+  })
   { data: ptr, shape, }
 }

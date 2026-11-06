@@ -178,6 +178,25 @@ pub fn llm_concat2(
 }
 
 ///|
+#borrow(input, output, metadata)
+extern "c" fn moonbit_cuda_llm_direct_layout(
+  input : GpuBuffer,
+  output : GpuBuffer,
+  metadata : GpuBuffer,
+  n : Int32,
+) -> Int32 = "moonbit_cuda_llm_direct_layout"
+
+///|
+pub fn llm_direct_layout(
+  input : GpuBuffer,
+  output : GpuBuffer,
+  metadata : GpuBuffer,
+  n : Int32,
+) -> Int32 {
+  moonbit_cuda_llm_direct_layout(input, output, metadata, n)
+}
+
+///|
 extern "c" fn moonbit_cuda_free(ptr : GpuBuffer) -> Int32 = "moonbit_cuda_free"
 
 ///|

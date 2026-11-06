@@ -2684,6 +2684,65 @@ CUDA_EXPORT int cuda_llm_concat2(
   return (int)cudaGetLastError();
 }
 
+__device__ void llm_decode_coords(int index, const int* shape, int rank, int* coords) {
+  for (int dim = rank - 1; dim >= 0; dim--) {
+    coords[dim] = shape[dim] == 0 ? 0 : index % shape[dim];
+    if (shape[dim] != 0) index /= shape[dim];
+  }
+}
+
+__device__ int llm_coords_offset(const int* coords, const int* shape, int rank) {
+  int offset = 0;
+  for (int dim = 0; dim < rank; dim++) offset = offset * shape[dim] + coords[dim];
+  return offset;
+}
+
+__global__ void llm_direct_layout_kernel(
+  const float* input, float* output, const int* metadata, int n
+) {
+  int index = blockIdx.x * blockDim.x + threadIdx.x;
+  if (index >= n) return;
+
+  int rank = metadata[0];
+  int operation = metadata[1];
+  int dim = metadata[2];
+  int argument = metadata[3];
+  const int* input_shape = metadata + 4;
+  const int* output_shape = metadata + 8;
+  const int* axes = metadata + 12;
+  int output_coords[4] = {0, 0, 0, 0};
+  int input_coords[4] = {0, 0, 0, 0};
+  llm_decode_coords(index, output_shape, rank, output_coords);
+
+  switch (operation) {
+    case 0:
+      for (int out_dim = 0; out_dim < rank; out_dim++)
+        input_coords[axes[out_dim]] = output_coords[out_dim];
+      break;
+    case 1:
+      for (int i = 0; i < rank; i++) input_coords[i] = output_coords[i];
+      input_coords[dim] += argument;
+      break;
+    case 2:
+      for (int i = 0; i < rank; i++)
+        input_coords[i] = input_shape[i] == 1 ? 0 : output_coords[i];
+      break;
+    case 3:
+      for (int i = 0; i < rank; i++) input_coords[i] = output_coords[i];
+      input_coords[dim] /= argument;
+      break;
+  }
+  output[index] = input[llm_coords_offset(input_coords, input_shape, rank)];
+}
+
+CUDA_EXPORT int cuda_llm_direct_layout(
+  const float* input, float* output, const int* metadata, int n
+) {
+  if (n == 0) return 0;
+  llm_direct_layout_kernel<<<(n + 255) / 256, 256>>>(input, output, metadata, n);
+  return (int)cudaGetLastError();
+}
+
 CUDA_EXPORT int cuda_free_buffer(void* ptr) {
   return (int)cudaFree(ptr);
 }

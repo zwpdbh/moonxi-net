@@ -69,6 +69,16 @@ int32_t moonbit_cuda_llm_concat2(
                             outer, left_width, right_width, inner);
 }
 
+extern int cuda_llm_direct_layout(const float*, float*, const int*, int);
+
+MOONBIT_FFI_EXPORT
+int32_t moonbit_cuda_llm_direct_layout(
+    void* input, void* output, void* metadata, int32_t n
+) {
+    return cuda_llm_direct_layout((const float*)input, (float*)output,
+                                  (const int*)metadata, n);
+}
+
 MOONBIT_FFI_EXPORT
 int32_t moonbit_cuda_free(void* ptr) {
     return cuda_free_buffer(ptr);

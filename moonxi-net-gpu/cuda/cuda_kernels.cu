@@ -2540,4 +2540,152 @@ CUDA_EXPORT int cuda_mt_rmsprop_autoclip(
     return 0;
 }
 
+__global__ void llm_gather_kernel(const float* input, const int* indices, float* output, int n) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < n) output[i] = input[indices[i]];
+}
+
+CUDA_EXPORT int cuda_llm_gather(const float* input, const int* indices, float* output, int n) {
+  if (n == 0) return 0;
+  llm_gather_kernel<<<(n + 255) / 256, 256>>>(input, indices, output, n);
+  return (int)cudaGetLastError();
+}
+
+CUDA_EXPORT int cuda_llm_batched_matmul(
+  void* handle, float* left, float* right, float* output,
+  int batch, int m, int k, int p, int transpose_right
+) {
+  for (int i = 0; i < batch; i++) {
+    int status = cuda_matmul(
+      handle,
+      left + i * m * k,
+      right + i * k * p,
+      output + i * m * p,
+      m, k, p, 0, transpose_right, 1.0f, 0.0f
+    );
+    if (status != 0) return status;
+  }
+  return 0;
+}
+
+__global__ void llm_softmax_kernel(const float* input, float* output, int width, int rows) {
+  int row = blockIdx.x * blockDim.x + threadIdx.x;
+  if (row >= rows) return;
+  int base = row * width;
+  float maximum = input[base];
+  for (int i = 1; i < width; i++) maximum = fmaxf(maximum, input[base + i]);
+  float total = 0.0f;
+  for (int i = 0; i < width; i++) {
+    float value = expf(input[base + i] - maximum);
+    output[base + i] = value;
+    total += value;
+  }
+  for (int i = 0; i < width; i++) output[base + i] /= total;
+}
+
+CUDA_EXPORT int cuda_llm_softmax(const float* input, float* output, int width, int rows) {
+  if (rows == 0) return 0;
+  llm_softmax_kernel<<<(rows + 31) / 32, 32>>>(input, output, width, rows);
+  return (int)cudaGetLastError();
+}
+
+__global__ void llm_silu_kernel(const float* input, float* output, int n) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < n) output[i] = input[i] / (1.0f + expf(-input[i]));
+}
+
+CUDA_EXPORT int cuda_llm_silu(const float* input, float* output, int n) {
+  if (n == 0) return 0;
+  llm_silu_kernel<<<(n + 255) / 256, 256>>>(input, output, n);
+  return (int)cudaGetLastError();
+}
+
+__global__ void llm_rms_norm_kernel(
+  const float* input, const float* weight, float* output, int width, int rows, float eps
+) {
+  int row = blockIdx.x * blockDim.x + threadIdx.x;
+  if (row >= rows) return;
+  int base = row * width;
+  float mean = 0.0f;
+  for (int i = 0; i < width; i++) {
+    float value = input[base + i];
+    mean += value * value;
+  }
+  float scale = sqrtf(mean / width + eps);
+  for (int i = 0; i < width; i++) output[base + i] = input[base + i] / scale * weight[i];
+}
+
+CUDA_EXPORT int cuda_llm_rms_norm(
+  const float* input, const float* weight, float* output, int width, int rows, float eps
+) {
+  if (rows == 0) return 0;
+  llm_rms_norm_kernel<<<(rows + 31) / 32, 32>>>(input, weight, output, width, rows, eps);
+  return (int)cudaGetLastError();
+}
+
+__global__ void llm_masked_fill_kernel(
+  const float* input, const float* mask, float* output, int n, int mask_size, float value
+) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < n) output[i] = mask[i % mask_size] != 0.0f ? value : input[i];
+}
+
+CUDA_EXPORT int cuda_llm_masked_fill(
+  const float* input, const float* mask, float* output, int n, int mask_size, float value
+) {
+  if (n == 0) return 0;
+  llm_masked_fill_kernel<<<(n + 255) / 256, 256>>>(input, mask, output, n, mask_size, value);
+  return (int)cudaGetLastError();
+}
+
+__global__ void llm_mul_broadcast_kernel(
+  const float* left, const float* right, float* output, int n, int right_size
+) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < n) output[i] = left[i] * right[i % right_size];
+}
+
+CUDA_EXPORT int cuda_llm_mul_broadcast(
+  const float* left, const float* right, float* output, int n, int right_size
+) {
+  if (n == 0) return 0;
+  llm_mul_broadcast_kernel<<<(n + 255) / 256, 256>>>(left, right, output, n, right_size);
+  return (int)cudaGetLastError();
+}
+
+__global__ void llm_concat2_kernel(
+  const float* left, const float* right, float* output,
+  int outer, int left_width, int right_width, int inner
+) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+  int width = left_width + right_width;
+  int total = outer * width * inner;
+  if (i >= total) return;
+  int inner_index = i % inner;
+  int outer_index = i / (width * inner);
+  int column = (i / inner) % width;
+  if (column < left_width) {
+    output[i] = left[(outer_index * left_width + column) * inner + inner_index];
+  } else {
+    int right_column = column - left_width;
+    output[i] = right[(outer_index * right_width + right_column) * inner + inner_index];
+  }
+}
+
+CUDA_EXPORT int cuda_llm_concat2(
+  const float* left, const float* right, float* output,
+  int outer, int left_width, int right_width, int inner
+) {
+  int total = outer * (left_width + right_width) * inner;
+  if (total == 0) return 0;
+  llm_concat2_kernel<<<(total + 255) / 256, 256>>>(
+    left, right, output, outer, left_width, right_width, inner
+  );
+  return (int)cudaGetLastError();
+}
+
+CUDA_EXPORT int cuda_free_buffer(void* ptr) {
+  return (int)cudaFree(ptr);
+}
+
 } // extern "C"

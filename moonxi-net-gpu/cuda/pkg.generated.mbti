@@ -102,6 +102,8 @@ pub fn event_synchronize(CudaEvent) -> Int32
 
 pub fn fill(GpuBuffer, Int32, Float) -> Int32
 
+pub fn free(GpuBuffer) -> Int32
+
 pub fn gather(GpuBuffer, GpuBuffer, GpuBuffer, Int32, GpuBuffer) -> Int32
 
 pub fn get_context(Int32) -> GpuContext
@@ -109,6 +111,22 @@ pub fn get_context(Int32) -> GpuContext
 pub fn get_time_ms() -> Double
 
 pub fn gpu_init(Int32) -> Unit
+
+pub fn llm_batched_matmul(CublasHandle, GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Int32, Int32, Int32) -> Int32
+
+pub fn llm_concat2(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Int32, Int32) -> Int32
+
+pub fn llm_gather(GpuBuffer, GpuBuffer, GpuBuffer, Int32) -> Int32
+
+pub fn llm_masked_fill(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Float) -> Int32
+
+pub fn llm_mul_broadcast(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32) -> Int32
+
+pub fn llm_rms_norm(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Float) -> Int32
+
+pub fn llm_silu(GpuBuffer, GpuBuffer, Int32) -> Int32
+
+pub fn llm_softmax(GpuBuffer, GpuBuffer, Int32, Int32) -> Int32
 
 pub fn matmul(CublasHandle, GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Int32, Bool, Bool, Float, Float) -> Int32
 

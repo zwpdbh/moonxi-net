@@ -61,9 +61,7 @@ pub impl @ts.Tensor for GpuTensor with fn scale(gt : GpuTensor, s : Float) -> Gp
 
 ///|
 pub impl @ts.Tensor for GpuTensor with fn mul_elem(a : GpuTensor, b : GpuTensor) -> GpuTensor {
-  let out = GpuTensor::alloc_st(a.shape)
-  check_cuda(@cuda.mul_elem(a.data, b.data, out.data, a.numel()), "mul_elem")
-  out
+  gpu_llm_mul_elem(a, b)
 }
 
 ///|

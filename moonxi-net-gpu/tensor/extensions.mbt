@@ -2,6 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 ///|
+pub impl Add for GpuTensor with fn add(left, right) {
+  gpu_add(left, right)
+}
+
+///|
 pub extend GpuTensor with @ts.Tensor::{
   broadcast_to,
   scale,

@@ -32,6 +32,8 @@ pub fn gpu_is_inference() -> Bool
 
 pub fn gpu_linear(GpuTensor, GpuTensor, GpuTensor, @cuda.CublasHandle) -> GpuTensor
 
+pub fn gpu_llm_mul_elem(GpuTensor, GpuTensor) -> GpuTensor
+
 pub fn gpu_maxpool2d(GpuTensor, Int32, Int32, Int32, @cuda.CudnnHandle) -> GpuTensor
 
 pub fn gpu_pool_peak() -> Int64
@@ -86,14 +88,17 @@ pub fn GpuTensor::add_into(Self, Self) -> Unit
 pub fn GpuTensor::alloc_shape(Array[Int32]) -> Self
 pub fn GpuTensor::alloc_st(@moonxi-net.ShapeTensor) -> Self
 pub fn GpuTensor::argmax(Self) -> Self
+pub fn GpuTensor::argmax_last(Self) -> Self
 pub fn GpuTensor::batch_adam_autoclip(Array[Self], Array[Self], Array[Self], Array[Self], @optimizer.AdamConfig) -> Unit
 pub fn GpuTensor::batch_rmsprop_autoclip(Array[Self], Array[Self], Array[Self], Array[Self], @optimizer.RmspropConfig) -> Unit
 pub fn GpuTensor::batch_sgd_momentum_autoclip(Array[Self], Array[Self], Array[Self], @optimizer.SgdMomentumConfig) -> Unit
+pub fn GpuTensor::batched_matmul(Self, Self) -> Self
 pub fn GpuTensor::batchnorm_backward(Self, Self, Self, Self, Self, Float) -> (Self, Self, Self)
 pub fn GpuTensor::batchnorm_inference(Self, Self, Self, Self, Self, Float) -> Self
 pub fn GpuTensor::batchnorm_training(Self, Self, Self, Self, Self, Float, Float) -> (Self, Self, Self)
 pub fn GpuTensor::broadcast_to(Self, FixedArray[Int32]) -> Self
 pub fn GpuTensor::compute_stride(Array[Int32]) -> Array[Int32]
+pub fn GpuTensor::concat(Array[Self], dim~ : Int32) -> Self
 pub fn GpuTensor::conv2d(Self, Self, Self, Int32, Int32) -> Self
 pub fn GpuTensor::conv2d_backward_bias(Self) -> Self
 pub fn GpuTensor::conv2d_backward_data(Self, Self, Self, Int32, Int32) -> Self
@@ -102,31 +107,43 @@ pub fn GpuTensor::cross_entropy_with_labels(Self, Self, Int32) -> Self
 pub fn GpuTensor::dim(Self, Int32) -> Int32
 pub fn GpuTensor::dims(Self) -> FixedArray[Int32]
 pub fn GpuTensor::div_elem(Self, Self) -> Self
+pub fn GpuTensor::embedding(Self, Array[Int32]) -> Self
+pub fn GpuTensor::expand(Self, Array[Int32]) -> Self
 pub fn GpuTensor::from_host(FixedArray[Float], Array[Int32]) -> Self
 pub fn GpuTensor::item(Self) -> Float
+pub fn GpuTensor::linear(Self, Self) -> Self
+pub fn GpuTensor::masked_fill(Self, Self, value~ : Float) -> Self
 pub fn GpuTensor::matmul(Self, Self) -> Self
 pub fn GpuTensor::maxpool2d(Self, Int32, Int32) -> Self
 pub fn GpuTensor::maxpool2d_backward(Self, Self, Int32, Int32) -> Self
 pub fn GpuTensor::mean(Self) -> Self
 pub fn GpuTensor::mul_elem(Self, Self) -> Self
+pub fn GpuTensor::narrow(Self, dim~ : Int32, start~ : Int32, length~ : Int32) -> Self
 pub fn GpuTensor::ndim(Self) -> Int32
 pub fn GpuTensor::numel(Self) -> Int32
+pub fn GpuTensor::permute(Self, Array[Int32]) -> Self
 pub fn GpuTensor::reduce_sum_to(Self, FixedArray[Int32]) -> Self
 pub fn GpuTensor::relu(Self) -> Self
 pub fn GpuTensor::relu_backward(Self, Self) -> Self
+pub fn GpuTensor::repeat_interleave(Self, repeats~ : Int32, dim~ : Int32) -> Self
+pub fn GpuTensor::rms_norm(Self, Self, eps~ : Float) -> Self
 pub fn GpuTensor::scalar(Float) -> Self
 pub fn GpuTensor::scale(Self, Float) -> Self
+pub fn GpuTensor::select(Self, dim~ : Int32, index~ : Int32) -> Self
 pub fn GpuTensor::shape_numel(Array[Int32]) -> Int32
+pub fn GpuTensor::silu(Self) -> Self
 pub fn GpuTensor::size(Self) -> Int32
 pub fn GpuTensor::softmax_ce_backward(Self, Self) -> Self
 pub fn GpuTensor::softmax_ce_backward_labels(Self, Self, Int32) -> Self
 pub fn GpuTensor::softmax_cross_entropy(Self, Self) -> Self
+pub fn GpuTensor::softmax_last(Self) -> Self
 pub fn GpuTensor::sqrt(Self) -> Self
 pub fn GpuTensor::square(Self) -> Self
 pub fn GpuTensor::stride(Self) -> Array[Int32]
 pub fn GpuTensor::sub(Self, Self) -> Self
 pub fn GpuTensor::to_host(Self) -> FixedArray[Float]
 pub fn GpuTensor::transpose(Self) -> Self
+pub fn GpuTensor::unsqueeze(Self, dim~ : Int32) -> Self
 pub fn GpuTensor::value(Self) -> @moonxi-net.TensorData
 pub fn GpuTensor::view(Self, Array[Int32]) -> Self
 pub fn GpuTensor::zeros(Array[Int32]) -> Self
@@ -139,6 +156,7 @@ pub impl @moonxi-net.Tensor for GpuTensor
 pub impl @optimizer.BatchAdamAutoclip for GpuTensor
 pub impl @optimizer.BatchRmspropAutoclip for GpuTensor
 pub impl @optimizer.BatchSgdMomentumAutoclip for GpuTensor
+pub impl Add for GpuTensor
 
 pub(all) struct MultiTensorOptimState {
   d_param_ptrs : @cuda.GpuBuffer

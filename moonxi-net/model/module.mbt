@@ -57,8 +57,8 @@ pub fn[T] fn_module(f : (T) -> T) -> Module[T] {
 /// Lift a Conv2d into a Module with fixed stride/padding.
 pub fn[T : @tensor.ImageTensor] Conv2d::as_module(
   self : Conv2d[T],
-  stride? : Int = 1,
-  padding? : Int = 0,
+  stride~ : Int32 = 1,
+  padding~ : Int32 = 0,
 ) -> Module[T] {
   {
     forward: fn(input : T, _is_training : Bool) -> T {
@@ -73,8 +73,8 @@ pub fn[T : @tensor.ImageTensor] Conv2d::as_module(
 /// training (updates running stats) and inference (uses running stats).
 pub fn[T : @tensor.ImageTensor] BatchNorm2d::as_module(
   self : BatchNorm2d[T],
-  momentum? : Float = 0.1,
-  eps? : Float = 0.00001,
+  momentum~ : Float = 0.1,
+  eps~ : Float = 0.00001,
 ) -> Module[T] {
   {
     forward: fn(input : T, is_training : Bool) -> T {
@@ -108,7 +108,7 @@ pub fn[T : @tensor.Tensor + @tensor.BlasTensor] Linear::as_module(
 ) -> Module[T] {
   {
     forward: fn(input : T, _is_training : Bool) -> T {
-      input.matmul(self.w).add(self.b)
+      @tensor.Tensor::add(@tensor.BlasTensor::matmul(input, self.w), self.b)
     },
     trainable_params: fn() -> Array[T] { [self.w, self.b] },
   }

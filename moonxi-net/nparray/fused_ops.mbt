@@ -39,8 +39,8 @@ pub fn fused_linear_relu(
     }
   }
   (
-    { shape: out_shape, data: output_data },
-    { shape: out_shape, data: pre_relu_data },
+    { shape: out_shape, data: output_data, },
+    { shape: out_shape, data: pre_relu_data, },
   )
 }
 
@@ -74,5 +74,5 @@ pub fn fused_linear(
       output_data[c_base + j] = sum
     }
   }
-  { shape: out_shape, data: output_data }
+  { shape: out_shape, data: output_data, }
 }

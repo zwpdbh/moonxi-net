@@ -5,45 +5,47 @@
 /// Tensor, BlasTensor, ImageTensor implementations for GpuTensor.
 /// Wraps gpu_ops functions as trait methods on GpuTensor.
 /// Note: Add and Sub impls are in gpu/tensor/gpu_tensor.mbt (to avoid circular deps).
-pub impl @ts.Tensor for GpuTensor with dims(gt : GpuTensor) -> FixedArray[Int] {
+pub impl @ts.Tensor for GpuTensor with fn dims(gt : GpuTensor) -> FixedArray[
+  Int32,
+] {
   gt.shape.shape
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with zeros(dims : FixedArray[Int]) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn zeros(dims : FixedArray[Int32]) -> GpuTensor {
   let shape = dims.iter().collect()
   GpuTensor::zeros(shape)
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with zeros_like(gt : GpuTensor) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn zeros_like(gt : GpuTensor) -> GpuTensor {
   GpuTensor::zeros_st(gt.shape)
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with from_host(
+pub impl @ts.Tensor for GpuTensor with fn from_host(
   data : FixedArray[Float],
-  shape : Array[Int],
+  shape : Array[Int32],
 ) -> GpuTensor {
   GpuTensor::from_host(data, shape)
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with square(gt : GpuTensor) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn square(gt : GpuTensor) -> GpuTensor {
   let out = GpuTensor::alloc_st(gt.shape)
   check_cuda(@cuda.square(gt.data, out.data, gt.numel()), "square")
   out
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with sqrt(gt : GpuTensor) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn sqrt(gt : GpuTensor) -> GpuTensor {
   let out = GpuTensor::alloc_st(gt.shape)
   check_cuda(@cuda.sqrt(gt.data, out.data, gt.numel()), "sqrt")
   out
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with mean(gt : GpuTensor) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn mean(gt : GpuTensor) -> GpuTensor {
   let host = gt.to_host()
   let sum = host.fold(init=(0.0 : Float), fn(acc, v) { acc + v })
   let n = Float::from_int(gt.numel())
@@ -51,40 +53,40 @@ pub impl @ts.Tensor for GpuTensor with mean(gt : GpuTensor) -> GpuTensor {
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with scale(gt : GpuTensor, s : Float) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn scale(gt : GpuTensor, s : Float) -> GpuTensor {
   let out = GpuTensor::alloc_st(gt.shape)
   check_cuda(@cuda.scale_out(gt.data, out.data, gt.numel(), s), "scale_out")
   out
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with mul_elem(a : GpuTensor, b : GpuTensor) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn mul_elem(a : GpuTensor, b : GpuTensor) -> GpuTensor {
   let out = GpuTensor::alloc_st(a.shape)
   check_cuda(@cuda.mul_elem(a.data, b.data, out.data, a.numel()), "mul_elem")
   out
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with div_elem(a : GpuTensor, b : GpuTensor) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn div_elem(a : GpuTensor, b : GpuTensor) -> GpuTensor {
   let out = GpuTensor::alloc_st(a.shape)
   check_cuda(@cuda.div_elem(a.data, b.data, out.data, a.numel()), "div_elem")
   out
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with scalar(v : Float) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn scalar(v : Float) -> GpuTensor {
   GpuTensor::_from_host_unchecked(FixedArray::make(1, v), [1])
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with size(gt : GpuTensor) -> Int {
+pub impl @ts.Tensor for GpuTensor with fn size(gt : GpuTensor) -> Int32 {
   gt.numel()
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with reduce_sum_to(
+pub impl @ts.Tensor for GpuTensor with fn reduce_sum_to(
   gt : GpuTensor,
-  target_dims : FixedArray[Int],
+  target_dims : FixedArray[Int32],
 ) -> GpuTensor {
   let gd = @ts.ShapeTensor::to_array(gt.shape)
   let xd = gd.length()
@@ -181,7 +183,7 @@ pub impl @ts.Tensor for GpuTensor with reduce_sum_to(
     }
   }
   if shapes_match {
-    { data: current_data, shape: @ts.ShapeTensor::from_array(target_shape) }
+    { data: current_data, shape: @ts.ShapeTensor::from_array(target_shape), }
   } else {
     // This shouldn't happen if the reduction logic is correct, but handle it
     let n = GpuTensor::shape_numel(current_shape)
@@ -192,38 +194,41 @@ pub impl @ts.Tensor for GpuTensor with reduce_sum_to(
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with value(gt : GpuTensor) -> @ts.TensorData {
+pub impl @ts.Tensor for GpuTensor with fn value(gt : GpuTensor) -> @ts.TensorData {
   let s = gt.shape.shape
-  { dims: FixedArray::makei(s.length(), fn(i) { s[i] }), data: gt.to_host() }
+  { dims: FixedArray::makei(s.length(), fn(i) { s[i] }), data: gt.to_host(), }
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with view(
+pub impl @ts.Tensor for GpuTensor with fn view(
   gt : GpuTensor,
-  new_shape : FixedArray[Int],
+  new_shape : FixedArray[Int32],
 ) -> GpuTensor {
   gt.view(new_shape.iter().collect())
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with add(a : GpuTensor, b : GpuTensor) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn add(a : GpuTensor, b : GpuTensor) -> GpuTensor {
   gpu_add(a, b)
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with add_into(a : GpuTensor, b : GpuTensor) -> Unit {
+pub impl @ts.Tensor for GpuTensor with fn add_into(a : GpuTensor, b : GpuTensor) -> Unit {
   a.add_into(b)
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with sub(a : GpuTensor, b : GpuTensor) -> GpuTensor {
+pub impl @ts.Tensor for GpuTensor with fn sub(a : GpuTensor, b : GpuTensor) -> GpuTensor {
   let out = GpuTensor::alloc_st(a.shape)
   check_cuda(@cuda.sub(a.data, b.data, out.data, a.numel()), "sub")
   out
 }
 
 ///|
-pub impl @ts.BlasTensor for GpuTensor with matmul(a : GpuTensor, b : GpuTensor) -> GpuTensor {
+pub impl @ts.BlasTensor for GpuTensor with fn matmul(
+  a : GpuTensor,
+  b : GpuTensor,
+) -> GpuTensor {
   let out_shape = @ts.ShapeTensor::matmul(a.shape, b.shape)
   let out = GpuTensor::alloc_st(out_shape)
   let n = a.dim(0)
@@ -250,7 +255,7 @@ pub impl @ts.BlasTensor for GpuTensor with matmul(a : GpuTensor, b : GpuTensor) 
 }
 
 ///|
-pub impl @ts.BlasTensor for GpuTensor with transpose(gt : GpuTensor) -> GpuTensor {
+pub impl @ts.BlasTensor for GpuTensor with fn transpose(gt : GpuTensor) -> GpuTensor {
   let out_shape = @ts.ShapeTensor::transpose(gt.shape)
   let out = GpuTensor::alloc_st(out_shape)
   let n = gt.dim(0)
@@ -261,37 +266,37 @@ pub impl @ts.BlasTensor for GpuTensor with transpose(gt : GpuTensor) -> GpuTenso
 
 ///|
 /// ImageTensor impl for GpuTensor
-pub impl @ts.ImageTensor for GpuTensor with relu(gt : GpuTensor) -> GpuTensor {
+pub impl @ts.ImageTensor for GpuTensor with fn relu(gt : GpuTensor) -> GpuTensor {
   let ctx = @cuda.get_context(0)
   gpu_relu(gt, ctx.cudnn)
 }
 
 ///|
-pub impl @ts.ImageTensor for GpuTensor with conv2d(
+pub impl @ts.ImageTensor for GpuTensor with fn conv2d(
   input : GpuTensor,
   weight : GpuTensor,
   bias : GpuTensor,
-  stride : Int,
-  padding : Int,
+  stride : Int32,
+  padding : Int32,
 ) -> GpuTensor {
   let ctx = @cuda.get_context(0)
   gpu_conv2d(input, weight, bias, ctx.cudnn, stride, padding)
 }
 
 ///|
-pub impl @ts.ImageTensor for GpuTensor with maxpool2d(
+pub impl @ts.ImageTensor for GpuTensor with fn maxpool2d(
   gt : GpuTensor,
-  kernel_size : Int,
-  stride : Int,
+  kernel_size : Int32,
+  stride : Int32,
 ) -> GpuTensor {
   let ctx = @cuda.get_context(0)
   gpu_maxpool2d(gt, kernel_size, stride, 1, ctx.cudnn)
 }
 
 ///|
-pub impl @ts.ImageTensor for GpuTensor with adaptive_avg_pool2d(
+pub impl @ts.ImageTensor for GpuTensor with fn adaptive_avg_pool2d(
   gt : GpuTensor,
-  output_size : Int,
+  output_size : Int32,
 ) -> GpuTensor {
   // Note: gpu_adaptive_avg_pool2d doesn't take ctx, output_size is ignored (always 1x1)
   ignore(output_size)
@@ -299,7 +304,7 @@ pub impl @ts.ImageTensor for GpuTensor with adaptive_avg_pool2d(
 }
 
 ///|
-pub impl @ts.ImageTensor for GpuTensor with batchnorm_training(
+pub impl @ts.ImageTensor for GpuTensor with fn batchnorm_training(
   input : GpuTensor,
   gamma : GpuTensor,
   beta : GpuTensor,
@@ -322,7 +327,7 @@ pub impl @ts.ImageTensor for GpuTensor with batchnorm_training(
 }
 
 ///|
-pub impl @ts.ImageTensor for GpuTensor with batchnorm_inference(
+pub impl @ts.ImageTensor for GpuTensor with fn batchnorm_inference(
   input : GpuTensor,
   gamma : GpuTensor,
   beta : GpuTensor,
@@ -343,7 +348,7 @@ pub impl @ts.ImageTensor for GpuTensor with batchnorm_inference(
 }
 
 ///|
-pub impl @ts.ImageTensor for GpuTensor with softmax_cross_entropy(
+pub impl @ts.ImageTensor for GpuTensor with fn softmax_cross_entropy(
   logits : GpuTensor,
   targets : GpuTensor,
 ) -> GpuTensor {
@@ -352,10 +357,10 @@ pub impl @ts.ImageTensor for GpuTensor with softmax_cross_entropy(
 }
 
 ///|
-pub impl @ts.ImageTensor for GpuTensor with cross_entropy_with_labels(
+pub impl @ts.ImageTensor for GpuTensor with fn cross_entropy_with_labels(
   logits : GpuTensor,
   labels : GpuTensor,
-  num_classes : Int,
+  num_classes : Int32,
 ) -> GpuTensor {
   gpu_cross_entropy_with_labels(logits, labels, num_classes)
 }
@@ -365,12 +370,12 @@ pub impl @ts.ImageTensor for GpuTensor with cross_entropy_with_labels(
 // =============================================================================
 
 ///|
-pub impl @ts.ImageBackwardOps for GpuTensor with conv2d_backward_data(
+pub impl @ts.ImageBackwardOps for GpuTensor with fn conv2d_backward_data(
   grad_output : GpuTensor,
   weight : GpuTensor,
   input : GpuTensor,
-  stride : Int,
-  padding : Int,
+  stride : Int32,
+  padding : Int32,
 ) -> GpuTensor {
   let ctx = @cuda.get_context(0)
   let n = input.dim(0)
@@ -398,12 +403,12 @@ pub impl @ts.ImageBackwardOps for GpuTensor with conv2d_backward_data(
 }
 
 ///|
-pub impl @ts.ImageBackwardOps for GpuTensor with conv2d_backward_weight(
+pub impl @ts.ImageBackwardOps for GpuTensor with fn conv2d_backward_weight(
   grad_output : GpuTensor,
   input : GpuTensor,
   weight : GpuTensor,
-  stride : Int,
-  padding : Int,
+  stride : Int32,
+  padding : Int32,
 ) -> GpuTensor {
   let ctx = @cuda.get_context(0)
   let n = input.dim(0)
@@ -431,7 +436,7 @@ pub impl @ts.ImageBackwardOps for GpuTensor with conv2d_backward_weight(
 }
 
 ///|
-pub impl @ts.ImageBackwardOps for GpuTensor with conv2d_backward_bias(
+pub impl @ts.ImageBackwardOps for GpuTensor with fn conv2d_backward_bias(
   grad_output : GpuTensor,
 ) -> GpuTensor {
   let bias_shape = @ts.ImageBackwardOps::conv2d_backward_bias(grad_output.shape)
@@ -457,7 +462,7 @@ pub impl @ts.ImageBackwardOps for GpuTensor with conv2d_backward_bias(
 }
 
 ///|
-pub impl @ts.ImageBackwardOps for GpuTensor with relu_backward(
+pub impl @ts.ImageBackwardOps for GpuTensor with fn relu_backward(
   grad_output : GpuTensor,
   input : GpuTensor,
 ) -> GpuTensor {
@@ -478,7 +483,7 @@ pub impl @ts.ImageBackwardOps for GpuTensor with relu_backward(
 }
 
 ///|
-pub impl @ts.ImageBackwardOps for GpuTensor with batchnorm_backward(
+pub impl @ts.ImageBackwardOps for GpuTensor with fn batchnorm_backward(
   grad_output : GpuTensor,
   input : GpuTensor,
   gamma : GpuTensor,
@@ -523,11 +528,11 @@ pub impl @ts.ImageBackwardOps for GpuTensor with batchnorm_backward(
 }
 
 ///|
-pub impl @ts.ImageBackwardOps for GpuTensor with maxpool2d_backward(
+pub impl @ts.ImageBackwardOps for GpuTensor with fn maxpool2d_backward(
   grad_output : GpuTensor,
   input : GpuTensor,
-  kernel_size : Int,
-  stride : Int,
+  kernel_size : Int32,
+  stride : Int32,
 ) -> GpuTensor {
   let ctx = @cuda.get_context(0)
   let n = input.dim(0)
@@ -552,7 +557,7 @@ pub impl @ts.ImageBackwardOps for GpuTensor with maxpool2d_backward(
 }
 
 ///|
-pub impl @ts.ImageBackwardOps for GpuTensor with adaptive_avg_pool2d_backward(
+pub impl @ts.ImageBackwardOps for GpuTensor with fn adaptive_avg_pool2d_backward(
   grad_output : GpuTensor,
   input : GpuTensor,
 ) -> GpuTensor {
@@ -576,7 +581,7 @@ pub impl @ts.ImageBackwardOps for GpuTensor with adaptive_avg_pool2d_backward(
 }
 
 ///|
-pub impl @ts.ImageBackwardOps for GpuTensor with softmax_ce_backward(
+pub impl @ts.ImageBackwardOps for GpuTensor with fn softmax_ce_backward(
   logits : GpuTensor,
   targets : GpuTensor,
 ) -> GpuTensor {
@@ -597,18 +602,18 @@ pub impl @ts.ImageBackwardOps for GpuTensor with softmax_ce_backward(
 }
 
 ///|
-pub impl @ts.ImageBackwardOps for GpuTensor with softmax_ce_backward_labels(
+pub impl @ts.ImageBackwardOps for GpuTensor with fn softmax_ce_backward_labels(
   logits : GpuTensor,
   labels : GpuTensor,
-  num_classes : Int,
+  num_classes : Int32,
 ) -> GpuTensor {
   gpu_softmax_ce_backward_labels(logits, labels, num_classes)
 }
 
 ///|
-pub impl @ts.Tensor for GpuTensor with broadcast_to(
+pub impl @ts.Tensor for GpuTensor with fn broadcast_to(
   gt : GpuTensor,
-  target_shape : FixedArray[Int],
+  target_shape : FixedArray[Int32],
 ) -> GpuTensor {
   let out_shape = @ts.ShapeTensor::broadcast_to(gt.shape, target_shape)
   let n = @ts.ShapeTensor::size(out_shape)

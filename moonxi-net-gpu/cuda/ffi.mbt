@@ -5,22 +5,22 @@
 // All extern functions map to cuda_stub.c MOONBIT_FFI_EXPORT symbols.
 
 ///|
-extern "c" fn moonbit_cuda_device_count() -> Int = "moonbit_cuda_device_count"
+extern "c" fn moonbit_cuda_device_count() -> Int32 = "moonbit_cuda_device_count"
 
 ///|
-extern "c" fn moonbit_cuda_check_error() -> Int = "moonbit_cuda_check_error"
+extern "c" fn moonbit_cuda_check_error() -> Int32 = "moonbit_cuda_check_error"
 
 ///|
-extern "c" fn moonbit_cuda_peek_error() -> Int = "moonbit_cuda_peek_error"
+extern "c" fn moonbit_cuda_peek_error() -> Int32 = "moonbit_cuda_peek_error"
 
 ///|
 extern "c" fn moonbit_cuda_device_name() -> Bytes = "moonbit_cuda_device_name"
 
 ///|
-extern "c" fn moonbit_cuda_compute_capability_major() -> Int = "moonbit_cuda_compute_capability_major"
+extern "c" fn moonbit_cuda_compute_capability_major() -> Int32 = "moonbit_cuda_compute_capability_major"
 
 ///|
-extern "c" fn moonbit_cuda_compute_capability_minor() -> Int = "moonbit_cuda_compute_capability_minor"
+extern "c" fn moonbit_cuda_compute_capability_minor() -> Int32 = "moonbit_cuda_compute_capability_minor"
 
 // === Memory Management ===
 
@@ -35,23 +35,23 @@ extern "c" fn moonbit_cuda_copy_h2d(
   dst : GpuBuffer,
   src : FixedArray[Float],
   count : Int64,
-) -> Int = "moonbit_cuda_copy_h2d"
+) -> Int32 = "moonbit_cuda_copy_h2d"
 
 ///|
 #borrow(dst, src)
 extern "c" fn moonbit_cuda_raw_h2d(
   dst : GpuBuffer,
-  src : FixedArray[Int],
+  src : FixedArray[Int32],
   bytes : Int64,
-) -> Int = "moonbit_cuda_raw_h2d"
+) -> Int32 = "moonbit_cuda_raw_h2d"
 
 ///|
 #borrow(dst, src)
 extern "c" fn moonbit_cuda_copy_ptrs_h2d(
   dst : GpuBuffer,
   src : FixedArray[GpuBuffer],
-  count : Int,
-) -> Int = "moonbit_cuda_copy_ptrs_h2d"
+  count : Int32,
+) -> Int32 = "moonbit_cuda_copy_ptrs_h2d"
 
 ///|
 #borrow(dst, src)
@@ -59,20 +59,20 @@ extern "c" fn moonbit_cuda_copy_d2h(
   dst : FixedArray[Float],
   src : GpuBuffer,
   count : Int64,
-) -> Int = "moonbit_cuda_copy_d2h"
+) -> Int32 = "moonbit_cuda_copy_d2h"
 
 ///|
 #borrow(dst, src_base)
 extern "c" fn moonbit_cuda_copy_h2d_offset(
   dst : GpuBuffer,
   src_base : FixedArray[Float],
-  offset_elements : Int,
-  count_elements : Int,
-) -> Int = "moonbit_cuda_copy_h2d_offset"
+  offset_elements : Int32,
+  count_elements : Int32,
+) -> Int32 = "moonbit_cuda_copy_h2d_offset"
 
 ///|
 #borrow(dst)
-extern "c" fn moonbit_cuda_memset_zero(dst : GpuBuffer, count : Int64) -> Int = "moonbit_cuda_memset_zero"
+extern "c" fn moonbit_cuda_memset_zero(dst : GpuBuffer, count : Int64) -> Int32 = "moonbit_cuda_memset_zero"
 
 // === Vector Add ===
 
@@ -81,8 +81,8 @@ extern "c" fn moonbit_cuda_vec_add(
   a : GpuBuffer,
   b : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
-) -> Int = "moonbit_cuda_vec_add"
+  n : Int32,
+) -> Int32 = "moonbit_cuda_vec_add"
 
 // === cuBLAS ===
 
@@ -96,28 +96,28 @@ extern "c" fn moonbit_cublas_destroy(handle : CublasHandle) -> Unit = "moonbit_c
 #borrow(handle, d_A, d_x, d_y)
 extern "c" fn moonbit_cublas_sgemv(
   handle : CublasHandle,
-  m : Int,
-  n : Int,
+  m : Int32,
+  n : Int32,
   alpha : Float,
   d_A : GpuBuffer,
   d_x : GpuBuffer,
   beta : Float,
   d_y : GpuBuffer,
-) -> Int = "moonbit_cublas_sgemv"
+) -> Int32 = "moonbit_cublas_sgemv"
 
 ///|
 #borrow(handle, d_A, d_B, d_C)
 extern "c" fn moonbit_cublas_sgemm(
   handle : CublasHandle,
-  m : Int,
-  n : Int,
-  k : Int,
+  m : Int32,
+  n : Int32,
+  k : Int32,
   alpha : Float,
   d_A : GpuBuffer,
   d_B : GpuBuffer,
   beta : Float,
   d_C : GpuBuffer,
-) -> Int = "moonbit_cublas_sgemm"
+) -> Int32 = "moonbit_cublas_sgemm"
 
 // === cuDNN Handle ===
 
@@ -131,19 +131,19 @@ extern "c" fn moonbit_cudnn_destroy(handle : CudnnHandle) -> Unit = "moonbit_cud
 
 ///|
 extern "c" fn moonbit_conv2d_create(
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-  out_c : Int,
-  kh : Int,
-  kw : Int,
-  pad_h : Int,
-  pad_w : Int,
-  stride_h : Int,
-  stride_w : Int,
-  dilation_h : Int,
-  dilation_w : Int,
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+  out_c : Int32,
+  kh : Int32,
+  kw : Int32,
+  pad_h : Int32,
+  pad_w : Int32,
+  stride_h : Int32,
+  stride_w : Int32,
+  dilation_h : Int32,
+  dilation_w : Int32,
 ) -> Conv2dContext = "moonbit_conv2d_create"
 
 ///|
@@ -155,7 +155,7 @@ extern "c" fn moonbit_conv2d_forward(
   weight : GpuBuffer,
   bias : GpuBuffer,
   output : GpuBuffer,
-) -> Int = "moonbit_conv2d_forward"
+) -> Int32 = "moonbit_conv2d_forward"
 
 ///|
 #borrow(ctx, cudnn_handle, input, weight, bias, output)
@@ -166,7 +166,7 @@ extern "c" fn moonbit_conv2d_forward_bias_relu(
   weight : GpuBuffer,
   bias : GpuBuffer,
   output : GpuBuffer,
-) -> Int = "moonbit_conv2d_forward_bias_relu"
+) -> Int32 = "moonbit_conv2d_forward_bias_relu"
 
 ///|
 #borrow(ctx, cudnn_handle, grad_output, weight, grad_input)
@@ -176,7 +176,7 @@ extern "c" fn moonbit_conv2d_backward_data(
   grad_output : GpuBuffer,
   weight : GpuBuffer,
   grad_input : GpuBuffer,
-) -> Int = "moonbit_conv2d_backward_data"
+) -> Int32 = "moonbit_conv2d_backward_data"
 
 ///|
 #borrow(ctx, cudnn_handle, input, grad_output, grad_weight)
@@ -186,7 +186,7 @@ extern "c" fn moonbit_conv2d_backward_filter(
   input : GpuBuffer,
   grad_output : GpuBuffer,
   grad_weight : GpuBuffer,
-) -> Int = "moonbit_conv2d_backward_filter"
+) -> Int32 = "moonbit_conv2d_backward_filter"
 
 ///|
 #borrow(cudnn_handle, grad_output, grad_bias)
@@ -194,11 +194,11 @@ extern "c" fn moonbit_conv2d_backward_bias(
   cudnn_handle : CudnnHandle,
   grad_output : GpuBuffer,
   grad_bias : GpuBuffer,
-  batch : Int,
-  out_c : Int,
-  out_h : Int,
-  out_w : Int,
-) -> Int = "moonbit_conv2d_backward_bias"
+  batch : Int32,
+  out_c : Int32,
+  out_h : Int32,
+  out_w : Int32,
+) -> Int32 = "moonbit_conv2d_backward_bias"
 
 ///|
 #borrow(ctx)
@@ -208,10 +208,10 @@ extern "c" fn moonbit_conv2d_destroy(ctx : Conv2dContext) -> Unit = "moonbit_con
 
 ///|
 extern "c" fn moonbit_batchnorm_create(
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
 ) -> BatchNormContext = "moonbit_batchnorm_create"
 
 ///|
@@ -229,8 +229,8 @@ extern "c" fn moonbit_batchnorm_forward(
   bn_save_inv_var : GpuBuffer,
   momentum : Float,
   epsilon : Float,
-  is_training : Int,
-) -> Int = "moonbit_batchnorm_forward"
+  is_training : Int32,
+) -> Int32 = "moonbit_batchnorm_forward"
 
 ///|
 #borrow(input, output, gamma, beta, running_mean, running_var)
@@ -242,10 +242,10 @@ extern "c" fn moonbit_cuda_batchnorm_inference(
   running_mean : GpuBuffer,
   running_var : GpuBuffer,
   epsilon : Float,
-  n : Int,
-  c : Int,
-  hw : Int,
-) -> Int = "moonbit_cuda_batchnorm_inference"
+  n : Int32,
+  c : Int32,
+  hw : Int32,
+) -> Int32 = "moonbit_cuda_batchnorm_inference"
 
 ///|
 extern "c" fn moonbit_batchnorm_backward(
@@ -260,7 +260,7 @@ extern "c" fn moonbit_batchnorm_backward(
   bn_save_mean : GpuBuffer,
   bn_save_inv_var : GpuBuffer,
   epsilon : Float,
-) -> Int = "moonbit_batchnorm_backward"
+) -> Int32 = "moonbit_batchnorm_backward"
 
 ///|
 #borrow(ctx)
@@ -275,7 +275,7 @@ extern "c" fn moonbit_cudnn_relu_forward(
   n_elements : Int64,
   input : GpuBuffer,
   output : GpuBuffer,
-) -> Int = "moonbit_cudnn_relu_forward"
+) -> Int32 = "moonbit_cudnn_relu_forward"
 
 ///|
 #borrow(handle, input, grad_output, grad_input)
@@ -285,23 +285,23 @@ extern "c" fn moonbit_cudnn_relu_backward(
   input : GpuBuffer,
   grad_output : GpuBuffer,
   grad_input : GpuBuffer,
-) -> Int = "moonbit_cudnn_relu_backward"
+) -> Int32 = "moonbit_cudnn_relu_backward"
 
 // === Pooling ===
 
 ///|
 extern "c" fn moonbit_pool2d_create(
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-  kh : Int,
-  kw : Int,
-  pad_h : Int,
-  pad_w : Int,
-  stride_h : Int,
-  stride_w : Int,
-  pool_type : Int,
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+  kh : Int32,
+  kw : Int32,
+  pad_h : Int32,
+  pad_w : Int32,
+  stride_h : Int32,
+  stride_w : Int32,
+  pool_type : Int32,
 ) -> Pool2dContext = "moonbit_pool2d_create"
 
 ///|
@@ -311,7 +311,7 @@ extern "c" fn moonbit_pool2d_forward(
   cudnn_handle : CudnnHandle,
   input : GpuBuffer,
   output : GpuBuffer,
-) -> Int = "moonbit_pool2d_forward"
+) -> Int32 = "moonbit_pool2d_forward"
 
 ///|
 #borrow(ctx, cudnn_handle, input, grad_output, grad_input)
@@ -321,7 +321,7 @@ extern "c" fn moonbit_pool2d_backward(
   input : GpuBuffer,
   grad_output : GpuBuffer,
   grad_input : GpuBuffer,
-) -> Int = "moonbit_pool2d_backward"
+) -> Int32 = "moonbit_pool2d_backward"
 
 ///|
 #borrow(ctx)
@@ -333,19 +333,19 @@ extern "c" fn moonbit_pool2d_destroy(ctx : Pool2dContext) -> Unit = "moonbit_poo
 extern "c" fn moonbit_conv2d_cache_clear() -> Unit = "moonbit_conv2d_cache_clear"
 
 ///|
-extern "c" fn moonbit_conv2d_cache_size() -> Int = "moonbit_conv2d_cache_size"
+extern "c" fn moonbit_conv2d_cache_size() -> Int32 = "moonbit_conv2d_cache_size"
 
 ///|
 extern "c" fn moonbit_batchnorm_cache_clear() -> Unit = "moonbit_batchnorm_cache_clear"
 
 ///|
-extern "c" fn moonbit_batchnorm_cache_size() -> Int = "moonbit_batchnorm_cache_size"
+extern "c" fn moonbit_batchnorm_cache_size() -> Int32 = "moonbit_batchnorm_cache_size"
 
 ///|
 extern "c" fn moonbit_pool2d_cache_clear() -> Unit = "moonbit_pool2d_cache_clear"
 
 ///|
-extern "c" fn moonbit_pool2d_cache_size() -> Int = "moonbit_pool2d_cache_size"
+extern "c" fn moonbit_pool2d_cache_size() -> Int32 = "moonbit_pool2d_cache_size"
 
 // === GPU Memory Pool ===
 
@@ -374,32 +374,32 @@ extern "c" fn moonbit_pool_capacity(pool : GpuPool) -> Int64 = "moonbit_pool_cap
 extern "c" fn moonbit_cuda_transpose_nchw_to_nhwc(
   src : GpuBuffer,
   dst : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int = "moonbit_cuda_transpose_nchw_to_nhwc"
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 = "moonbit_cuda_transpose_nchw_to_nhwc"
 
 ///|
 #borrow(src, dst)
 extern "c" fn moonbit_cuda_transpose_nhwc_to_nchw(
   src : GpuBuffer,
   dst : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int = "moonbit_cuda_transpose_nhwc_to_nchw"
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 = "moonbit_cuda_transpose_nhwc_to_nchw"
 
 ///|
 #borrow(data, bias)
 extern "c" fn moonbit_cuda_bias_add_nchw(
   data : GpuBuffer,
   bias : GpuBuffer,
-  n : Int,
-  c : Int,
-  hw : Int,
-) -> Int = "moonbit_cuda_bias_add_nchw"
+  n : Int32,
+  c : Int32,
+  hw : Int32,
+) -> Int32 = "moonbit_cuda_bias_add_nchw"
 
 ///|
 #borrow(a, b, out)
@@ -407,16 +407,16 @@ extern "c" fn moonbit_cuda_elementwise_add(
   a : GpuBuffer,
   b : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
-) -> Int = "moonbit_cuda_elementwise_add"
+  n : Int32,
+) -> Int32 = "moonbit_cuda_elementwise_add"
 
 ///|
 #borrow(dst, src)
 extern "c" fn moonbit_cuda_elementwise_add_into(
   dst : GpuBuffer,
   src : GpuBuffer,
-  n : Int,
-) -> Int = "moonbit_cuda_elementwise_add_into"
+  n : Int32,
+) -> Int32 = "moonbit_cuda_elementwise_add_into"
 
 // === Reduce Sum Spatial ===
 
@@ -425,31 +425,31 @@ extern "c" fn moonbit_cuda_elementwise_add_into(
 extern "c" fn moonbit_cuda_reduce_sum_spatial(
   input : GpuBuffer,
   output : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int = "moonbit_cuda_reduce_sum_spatial"
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 = "moonbit_cuda_reduce_sum_spatial"
 
 ///|
 #borrow(input, output)
 extern "c" fn moonbit_cuda_reduce_sum_leading(
   input : GpuBuffer,
   output : GpuBuffer,
-  output_numel : Int,
-  lead_stride : Int,
-) -> Int = "moonbit_cuda_reduce_sum_leading"
+  output_numel : Int32,
+  lead_stride : Int32,
+) -> Int32 = "moonbit_cuda_reduce_sum_leading"
 
 ///|
 #borrow(input, output)
 extern "c" fn moonbit_cuda_reduce_sum_dim(
   input : GpuBuffer,
   output : GpuBuffer,
-  output_numel : Int,
-  dim_size : Int,
-  stride_before : Int,
-  stride_after : Int,
-) -> Int = "moonbit_cuda_reduce_sum_dim"
+  output_numel : Int32,
+  dim_size : Int32,
+  stride_before : Int32,
+  stride_after : Int32,
+) -> Int32 = "moonbit_cuda_reduce_sum_dim"
 
 // === Adaptive Avg Pool2d ===
 
@@ -458,22 +458,22 @@ extern "c" fn moonbit_cuda_reduce_sum_dim(
 extern "c" fn moonbit_cuda_adaptive_avg_pool2d_forward(
   input : GpuBuffer,
   output : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int = "moonbit_cuda_adaptive_avg_pool2d_forward"
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 = "moonbit_cuda_adaptive_avg_pool2d_forward"
 
 ///|
 #borrow(dy, d_input)
 extern "c" fn moonbit_cuda_adaptive_avg_pool2d_backward(
   dy : GpuBuffer,
   d_input : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int = "moonbit_cuda_adaptive_avg_pool2d_backward"
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 = "moonbit_cuda_adaptive_avg_pool2d_backward"
 
 // === Softmax CE ===
 
@@ -484,9 +484,9 @@ extern "c" fn moonbit_cuda_softmax_ce_forward(
   targets : GpuBuffer,
   loss_output : GpuBuffer,
   softmax_output : GpuBuffer,
-  batch : Int,
-  num_classes : Int,
-) -> Int = "moonbit_cuda_softmax_ce_forward"
+  batch : Int32,
+  num_classes : Int32,
+) -> Int32 = "moonbit_cuda_softmax_ce_forward"
 
 ///|
 #borrow(logits, targets, output)
@@ -494,9 +494,9 @@ extern "c" fn moonbit_cuda_softmax_ce_backward(
   logits : GpuBuffer,
   targets : GpuBuffer,
   output : GpuBuffer,
-  batch : Int,
-  num_classes : Int,
-) -> Int = "moonbit_cuda_softmax_ce_backward"
+  batch : Int32,
+  num_classes : Int32,
+) -> Int32 = "moonbit_cuda_softmax_ce_backward"
 
 // === Softmax CE with integer labels ===
 
@@ -506,9 +506,9 @@ extern "c" fn moonbit_cuda_softmax_ce_forward_labels(
   logits : GpuBuffer,
   labels : GpuBuffer,
   loss_output : GpuBuffer,
-  batch : Int,
-  num_classes : Int,
-) -> Int = "moonbit_cuda_softmax_ce_forward_labels"
+  batch : Int32,
+  num_classes : Int32,
+) -> Int32 = "moonbit_cuda_softmax_ce_forward_labels"
 
 ///|
 #borrow(logits, labels, output)
@@ -516,9 +516,9 @@ extern "c" fn moonbit_cuda_softmax_ce_backward_labels(
   logits : GpuBuffer,
   labels : GpuBuffer,
   output : GpuBuffer,
-  batch : Int,
-  num_classes : Int,
-) -> Int = "moonbit_cuda_softmax_ce_backward_labels"
+  batch : Int32,
+  num_classes : Int32,
+) -> Int32 = "moonbit_cuda_softmax_ce_backward_labels"
 
 // === Matmul ===
 
@@ -529,22 +529,22 @@ extern "c" fn moonbit_cuda_matmul(
   a : GpuBuffer,
   b : GpuBuffer,
   c : GpuBuffer,
-  m : Int,
-  k : Int,
-  n : Int,
-  transpose_a : Int,
-  transpose_b : Int,
+  m : Int32,
+  k : Int32,
+  n : Int32,
+  transpose_a : Int32,
+  transpose_b : Int32,
   alpha : Float,
   beta : Float,
-) -> Int = "moonbit_cuda_matmul"
+) -> Int32 = "moonbit_cuda_matmul"
 
 ///|
 #borrow(dst, src)
 extern "c" fn moonbit_cuda_accumulate_inplace(
   dst : GpuBuffer,
   src : GpuBuffer,
-  n : Int,
-) -> Int = "moonbit_cuda_accumulate_inplace"
+  n : Int32,
+) -> Int32 = "moonbit_cuda_accumulate_inplace"
 
 // === GPU Optimizer Kernels ===
 
@@ -554,42 +554,46 @@ extern "c" fn moonbit_cuda_sgd_momentum_step(
   param : GpuBuffer,
   grad : GpuBuffer,
   velocity : GpuBuffer,
-  n : Int,
+  n : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int = "moonbit_cuda_sgd_momentum_step"
+) -> Int32 = "moonbit_cuda_sgd_momentum_step"
 
 ///|
 #borrow(param, grad)
 extern "c" fn moonbit_cuda_sgd_step(
   param : GpuBuffer,
   grad : GpuBuffer,
-  n : Int,
+  n : Int32,
   lr : Float,
   weight_decay : Float,
-) -> Int = "moonbit_cuda_sgd_step"
+) -> Int32 = "moonbit_cuda_sgd_step"
 
 ///|
 #borrow(src, dst)
 extern "c" fn moonbit_cuda_norm_sq(
   src : GpuBuffer,
-  n : Int,
+  n : Int32,
   dst : GpuBuffer,
-) -> Int = "moonbit_cuda_norm_sq"
+) -> Int32 = "moonbit_cuda_norm_sq"
 
 ///|
 #borrow(data)
 extern "c" fn moonbit_cuda_scale_inplace(
   data : GpuBuffer,
-  n : Int,
+  n : Int32,
   scale : Float,
-) -> Int = "moonbit_cuda_scale_inplace"
+) -> Int32 = "moonbit_cuda_scale_inplace"
 
 ///|
 #borrow(out)
-extern "c" fn moonbit_cuda_fill(out : GpuBuffer, n : Int, value : Float) -> Int = "moonbit_cuda_fill"
+extern "c" fn moonbit_cuda_fill(
+  out : GpuBuffer,
+  n : Int32,
+  value : Float,
+) -> Int32 = "moonbit_cuda_fill"
 
 ///|
 extern "c" fn moonbit_cuda_read_scalar(src : GpuBuffer) -> Float = "moonbit_cuda_read_scalar"
@@ -597,11 +601,11 @@ extern "c" fn moonbit_cuda_read_scalar(src : GpuBuffer) -> Float = "moonbit_cuda
 ///|
 #borrow(x, y)
 extern "c" fn moonbit_cuda_axpy(
-  n : Int,
+  n : Int32,
   alpha : Float,
   x : GpuBuffer,
   y : GpuBuffer,
-) -> Int = "moonbit_cuda_axpy"
+) -> Int32 = "moonbit_cuda_axpy"
 
 ///|
 extern "c" fn moonbit_get_time_ms() -> Double = "moonbit_get_time_ms"
@@ -617,8 +621,8 @@ extern "c" fn moonbit_cuda_sub(
   a : GpuBuffer,
   b : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
-) -> Int = "moonbit_cuda_sub"
+  n : Int32,
+) -> Int32 = "moonbit_cuda_sub"
 
 ///|
 #borrow(a, b, out)
@@ -626,24 +630,24 @@ extern "c" fn moonbit_cuda_mul_elem(
   a : GpuBuffer,
   b : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
-) -> Int = "moonbit_cuda_mul_elem"
+  n : Int32,
+) -> Int32 = "moonbit_cuda_mul_elem"
 
 ///|
 #borrow(src, out)
 extern "c" fn moonbit_cuda_square(
   src : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
-) -> Int = "moonbit_cuda_square"
+  n : Int32,
+) -> Int32 = "moonbit_cuda_square"
 
 ///|
 #borrow(src, out)
 extern "c" fn moonbit_cuda_sqrt(
   src : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
-) -> Int = "moonbit_cuda_sqrt"
+  n : Int32,
+) -> Int32 = "moonbit_cuda_sqrt"
 
 ///|
 #borrow(a, b, out)
@@ -651,51 +655,51 @@ extern "c" fn moonbit_cuda_div_elem(
   a : GpuBuffer,
   b : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
-) -> Int = "moonbit_cuda_div_elem"
+  n : Int32,
+) -> Int32 = "moonbit_cuda_div_elem"
 
 ///|
 #borrow(src, out)
 extern "c" fn moonbit_cuda_scale_out(
   src : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
+  n : Int32,
   scale : Float,
-) -> Int = "moonbit_cuda_scale_out"
+) -> Int32 = "moonbit_cuda_scale_out"
 
 ///|
 #borrow(input, output)
 extern "c" fn moonbit_cuda_transpose_2d(
   input : GpuBuffer,
   output : GpuBuffer,
-  n : Int,
-  m : Int,
-) -> Int = "moonbit_cuda_transpose_2d"
+  n : Int32,
+  m : Int32,
+) -> Int32 = "moonbit_cuda_transpose_2d"
 
 ///|
 #borrow(ptrs)
 pub extern "c" fn moonbit_cuda_test_ptr_array_read(
   ptrs : FixedArray[GpuBuffer],
-  n : Int,
+  n : Int32,
 ) -> Float = "moonbit_cuda_test_ptr_array_read"
 
 ///|
 #borrow(tensor_ptrs, tensor_sizes, dst)
 extern "c" fn moonbit_cuda_multi_tensor_norm_sq(
   tensor_ptrs : FixedArray[GpuBuffer],
-  tensor_sizes : FixedArray[Int],
-  num_tensors : Int,
+  tensor_sizes : FixedArray[Int32],
+  num_tensors : Int32,
   dst : GpuBuffer,
-) -> Int = "moonbit_cuda_multi_tensor_norm_sq"
+) -> Int32 = "moonbit_cuda_multi_tensor_norm_sq"
 
 ///|
 #borrow(d_ptrs, d_sizes, dst)
 extern "c" fn moonbit_cuda_multi_tensor_norm_sq_gpu_only(
   d_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
-  num_tensors : Int,
+  num_tensors : Int32,
   dst : GpuBuffer,
-) -> Int = "moonbit_cuda_multi_tensor_norm_sq_gpu_only"
+) -> Int32 = "moonbit_cuda_multi_tensor_norm_sq_gpu_only"
 
 ///|
 #borrow(d_ptrs, d_sizes, d_block_offsets, dst)
@@ -703,10 +707,10 @@ extern "c" fn moonbit_cuda_mt_norm_sq_gpu_only(
   d_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   dst : GpuBuffer,
-) -> Int = "moonbit_cuda_mt_norm_sq_gpu_only"
+) -> Int32 = "moonbit_cuda_mt_norm_sq_gpu_only"
 
 ///|
 #borrow(d_param_ptrs, d_grad_ptrs, d_vel_ptrs, d_sizes, d_block_offsets)
@@ -716,13 +720,13 @@ extern "c" fn moonbit_cuda_mt_sgd_momentum_gpu_only(
   d_vel_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int = "moonbit_cuda_mt_sgd_momentum_gpu_only"
+) -> Int32 = "moonbit_cuda_mt_sgd_momentum_gpu_only"
 
 ///|
 #borrow(d_param_ptrs, d_grad_ptrs, d_vel_ptrs, d_sizes, d_block_offsets, norm_buf)
@@ -732,14 +736,14 @@ extern "c" fn moonbit_cuda_mt_sgd_momentum_autoclip(
   d_vel_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   norm_buf : GpuBuffer,
   max_grad_norm : Float,
-) -> Int = "moonbit_cuda_mt_sgd_momentum_autoclip"
+) -> Int32 = "moonbit_cuda_mt_sgd_momentum_autoclip"
 
 ///|
 #borrow(param_ptrs, grad_ptrs, velocity_ptrs, tensor_sizes)
@@ -747,13 +751,13 @@ extern "c" fn moonbit_cuda_multi_tensor_sgd_momentum_step(
   param_ptrs : FixedArray[GpuBuffer],
   grad_ptrs : FixedArray[GpuBuffer],
   velocity_ptrs : FixedArray[GpuBuffer],
-  tensor_sizes : FixedArray[Int],
-  num_tensors : Int,
+  tensor_sizes : FixedArray[Int32],
+  num_tensors : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int = "moonbit_cuda_multi_tensor_sgd_momentum_step"
+) -> Int32 = "moonbit_cuda_multi_tensor_sgd_momentum_step"
 
 ///|
 #borrow(param_ptrs, grad_ptrs, velocity_ptrs, tensor_sizes, d_param_ptrs, d_grad_ptrs, d_vel_ptrs, d_sizes)
@@ -761,8 +765,8 @@ extern "c" fn moonbit_cuda_multi_tensor_sgd_momentum_step_prealloc(
   param_ptrs : FixedArray[GpuBuffer],
   grad_ptrs : FixedArray[GpuBuffer],
   velocity_ptrs : FixedArray[GpuBuffer],
-  tensor_sizes : FixedArray[Int],
-  num_tensors : Int,
+  tensor_sizes : FixedArray[Int32],
+  num_tensors : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
@@ -771,7 +775,7 @@ extern "c" fn moonbit_cuda_multi_tensor_sgd_momentum_step_prealloc(
   d_grad_ptrs : GpuBuffer,
   d_vel_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
-) -> Int = "moonbit_cuda_multi_tensor_sgd_momentum_step_prealloc"
+) -> Int32 = "moonbit_cuda_multi_tensor_sgd_momentum_step_prealloc"
 
 ///|
 #borrow(d_param_ptrs, d_grad_ptrs, d_vel_ptrs, d_sizes)
@@ -780,12 +784,12 @@ extern "c" fn moonbit_cuda_multi_tensor_sgd_momentum_step_gpu_only(
   d_grad_ptrs : GpuBuffer,
   d_vel_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
-  num_tensors : Int,
+  num_tensors : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int = "moonbit_cuda_multi_tensor_sgd_momentum_step_gpu_only"
+) -> Int32 = "moonbit_cuda_multi_tensor_sgd_momentum_step_gpu_only"
 
 ///|
 #borrow(params, grads, vels)
@@ -793,12 +797,12 @@ extern "c" fn moonbit_cuda_contiguous_sgd_momentum_step(
   params : GpuBuffer,
   grads : GpuBuffer,
   vels : GpuBuffer,
-  total_elements : Int,
+  total_elements : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int = "moonbit_cuda_contiguous_sgd_momentum_step"
+) -> Int32 = "moonbit_cuda_contiguous_sgd_momentum_step"
 
 ///|
 #borrow(d_src_ptrs, d_offsets, d_sizes, dst)
@@ -806,9 +810,9 @@ extern "c" fn moonbit_cuda_gather(
   d_src_ptrs : GpuBuffer,
   d_offsets : GpuBuffer,
   d_sizes : GpuBuffer,
-  num_tensors : Int,
+  num_tensors : Int32,
   dst : GpuBuffer,
-) -> Int = "moonbit_cuda_gather"
+) -> Int32 = "moonbit_cuda_gather"
 
 ///|
 #borrow(src, d_dst_ptrs, d_offsets, d_sizes)
@@ -817,16 +821,16 @@ extern "c" fn moonbit_cuda_scatter(
   d_dst_ptrs : GpuBuffer,
   d_offsets : GpuBuffer,
   d_sizes : GpuBuffer,
-  num_tensors : Int,
-) -> Int = "moonbit_cuda_scatter"
+  num_tensors : Int32,
+) -> Int32 = "moonbit_cuda_scatter"
 
 ///|
 #borrow(data, out)
 extern "c" fn moonbit_cuda_contiguous_norm_sq(
   data : GpuBuffer,
-  n : Int,
+  n : Int32,
   out : GpuBuffer,
-) -> Int = "moonbit_cuda_contiguous_norm_sq"
+) -> Int32 = "moonbit_cuda_contiguous_norm_sq"
 
 ///|
 #borrow(src, indices, dst)
@@ -834,9 +838,9 @@ extern "c" fn moonbit_cuda_batch_gather(
   src : GpuBuffer,
   indices : GpuBuffer,
   dst : GpuBuffer,
-  stride : Int,
-  batch_size : Int,
-) -> Int = "moonbit_cuda_batch_gather"
+  stride : Int32,
+  batch_size : Int32,
+) -> Int32 = "moonbit_cuda_batch_gather"
 
 // === CUDA Events ===
 
@@ -851,7 +855,7 @@ extern "c" fn moonbit_cuda_null_buffer() -> GpuBuffer = "moonbit_cuda_null_buffe
 extern "c" fn moonbit_cuda_event_record(
   stream : GpuBuffer,
   event : CudaEvent,
-) -> Int = "moonbit_cuda_event_record"
+) -> Int32 = "moonbit_cuda_event_record"
 
 ///|
 #borrow(start, end)
@@ -862,16 +866,16 @@ extern "c" fn moonbit_cuda_event_elapsed_ms(
 
 ///|
 #borrow(event)
-extern "c" fn moonbit_cuda_event_synchronize(event : CudaEvent) -> Int = "moonbit_cuda_event_synchronize"
+extern "c" fn moonbit_cuda_event_synchronize(event : CudaEvent) -> Int32 = "moonbit_cuda_event_synchronize"
 
 ///|
 #borrow(input, output)
 extern "c" fn moonbit_cuda_argmax(
   input : GpuBuffer,
   output : GpuBuffer,
-  outer : Int,
-  inner : Int,
-) -> Int = "moonbit_cuda_argmax"
+  outer : Int32,
+  inner : Int32,
+) -> Int32 = "moonbit_cuda_argmax"
 
 ///|
 #borrow(d_param_ptrs, d_grad_ptrs, d_m_ptrs, d_v_ptrs, d_sizes, d_block_offsets, norm_buf)
@@ -882,8 +886,8 @@ extern "c" fn moonbit_cuda_mt_adam_autoclip(
   d_v_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   lr : Float,
   beta1 : Float,
   beta2 : Float,
@@ -895,7 +899,7 @@ extern "c" fn moonbit_cuda_mt_adam_autoclip(
   weight_decay : Float,
   norm_buf : GpuBuffer,
   max_grad_norm : Float,
-) -> Int = "moonbit_cuda_mt_adam_autoclip"
+) -> Int32 = "moonbit_cuda_mt_adam_autoclip"
 
 ///|
 #borrow(d_param_ptrs, d_grad_ptrs, d_v_ptrs, d_buf_ptrs, d_sizes, d_block_offsets, norm_buf)
@@ -906,15 +910,15 @@ extern "c" fn moonbit_cuda_mt_rmsprop_autoclip(
   d_buf_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   lr : Float,
   alpha : Float,
   one_minus_alpha : Float,
   eps : Float,
   weight_decay : Float,
   momentum : Float,
-  has_momentum : Int,
+  has_momentum : Int32,
   norm_buf : GpuBuffer,
   max_grad_norm : Float,
-) -> Int = "moonbit_cuda_mt_rmsprop_autoclip"
+) -> Int32 = "moonbit_cuda_mt_rmsprop_autoclip"

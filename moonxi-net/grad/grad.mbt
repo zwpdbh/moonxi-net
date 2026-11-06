@@ -30,7 +30,7 @@ pub(all) struct Grad[T] {
 }
 
 ///|
-let tape : Array[() -> Unit] = Array::new()
+let tape : Array[() -> Unit] = Array(capacity=0)
 
 ///|
 pub fn clear_tape() -> Unit {
@@ -38,14 +38,14 @@ pub fn clear_tape() -> Unit {
 }
 
 ///|
-pub fn tape_length() -> Int {
+pub fn tape_length() -> Int32 {
   tape.length()
 }
 
 ///|
 /// Wrap a raw tensor as a Grad with no gradient tracking.
 pub fn[T] no_grad(t : T) -> Grad[T] {
-  { value: t, grad: None }
+  { value: t, grad: None, }
 }
 
 ///|
@@ -63,7 +63,7 @@ fn[T] Grad::join(x : Grad[T], y : Grad[T], f : (T, T) -> T) -> Grad[T] {
   } else {
     None
   }
-  { value: result, grad }
+  { value: result, grad, }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn[T : @tensor.Tensor] Grad::backward_profiled(
 ) -> Array[Double] {
   self.grad = Some(Some(T::scalar((1.0 : Float))))
   let n = tape.length()
-  let times : Array[Double] = Array::new()
+  let times : Array[Double] = Array(capacity=0)
   for i in 0..<n {
     let t0 = timer_fn()
     tape[n - 1 - i]()
@@ -131,36 +131,36 @@ pub fn[T] Grad::grad(self : Grad[T]) -> T?? {
 // =============================================================================
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with dims(x : Grad[T]) -> FixedArray[
-  Int,
-] {
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn dims(
+  x : Grad[T],
+) -> FixedArray[Int32] {
   x.value.dims()
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with zeros(
-  dims : FixedArray[Int],
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn zeros(
+  dims : FixedArray[Int32],
 ) -> Grad[T] {
   no_grad(T::zeros(dims))
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with zeros_like(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn zeros_like(
   x : Grad[T],
 ) -> Grad[T] {
   no_grad(T::zeros_like(x.value))
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with from_host(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn from_host(
   data : FixedArray[Float],
-  shape : Array[Int],
+  shape : Array[Int32],
 ) -> Grad[T] {
   no_grad(T::from_host(data, shape))
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with add(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn add(
   x : Grad[T],
   y : Grad[T],
 ) -> Grad[T] {
@@ -173,7 +173,7 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with add(
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with sub(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn sub(
   x : Grad[T],
   y : Grad[T],
 ) -> Grad[T] {
@@ -188,9 +188,9 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with sub(
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with square(x : Grad[T]) -> Grad[
-  T,
-] {
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn square(
+  x : Grad[T],
+) -> Grad[T] {
   let result = T::square(x.value)
   let has_grad = x.grad is Some(_)
   let g : Grad[T] = {
@@ -207,9 +207,9 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with square(x : Grad[T])
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with mean(x : Grad[T]) -> Grad[
-  T,
-] {
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn mean(
+  x : Grad[T],
+) -> Grad[T] {
   let result = T::mean(x.value)
   let has_grad = x.grad is Some(_)
   let g : Grad[T] = {
@@ -229,7 +229,7 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with mean(x : Grad[T]) -
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with scale(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn scale(
   x : Grad[T],
   s : Float,
 ) -> Grad[T] {
@@ -248,7 +248,7 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with scale(
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with mul_elem(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn mul_elem(
   x : Grad[T],
   y : Grad[T],
 ) -> Grad[T] {
@@ -262,9 +262,9 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with mul_elem(
 
 ///|
 /// sqrt(x) — forward: √x, backward: og / (2√x)
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with sqrt(x : Grad[T]) -> Grad[
-  T,
-] {
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn sqrt(
+  x : Grad[T],
+) -> Grad[T] {
   let result = T::sqrt(x.value)
   let has_grad = x.grad is Some(_)
   let g : Grad[T] = {
@@ -282,7 +282,7 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with sqrt(x : Grad[T]) -
 
 ///|
 /// div_elem(x, y) — forward: x/y, backward: 1/y for x, -x/y² for y
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with div_elem(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn div_elem(
   x : Grad[T],
   y : Grad[T],
 ) -> Grad[T] {
@@ -300,7 +300,7 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with div_elem(
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with add_into(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn add_into(
   x : Grad[T],
   y : Grad[T],
 ) -> Unit {
@@ -308,34 +308,38 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with add_into(
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with scalar(v : Float) -> Grad[
-  T,
-] {
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn scalar(
+  v : Float,
+) -> Grad[T] {
   no_grad(T::scalar(v))
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with size(x : Grad[T]) -> Int {
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn size(
+  x : Grad[T],
+) -> Int32 {
   T::size(x.value)
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with reduce_sum_to(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn reduce_sum_to(
   x : Grad[T],
-  target_dims : FixedArray[Int],
+  target_dims : FixedArray[Int32],
 ) -> Grad[T] {
   no_grad(T::reduce_sum_to(x.value, target_dims))
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with value(x : Grad[T]) -> @tensor.TensorData {
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn value(
+  x : Grad[T],
+) -> @tensor.TensorData {
   x.value.value()
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with view(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn view(
   x : Grad[T],
-  new_shape : FixedArray[Int],
+  new_shape : FixedArray[Int32],
 ) -> Grad[T] {
   let result = T::view(x.value, new_shape)
   let has_grad = x.grad is Some(_)
@@ -353,9 +357,9 @@ pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with view(
 }
 
 ///|
-pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with broadcast_to(
+pub impl[T : @tensor.Tensor] @tensor.Tensor for Grad[T] with fn broadcast_to(
   x : Grad[T],
-  target_shape : FixedArray[Int],
+  target_shape : FixedArray[Int32],
 ) -> Grad[T] {
   no_grad(T::broadcast_to(x.value, target_shape))
 }

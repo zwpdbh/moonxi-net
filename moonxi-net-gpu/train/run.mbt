@@ -14,13 +14,13 @@
 pub fn run_gpu(
   experiment : @cpu_train.Experiment[@gt.GpuTensor],
   train_loader : @dl.DataLoader[@gt.GpuTensor],
-  epochs? : Int = 10,
-  batch_size? : Int = 128,
+  epochs~ : Int32 = 10,
+  batch_size~ : Int32 = 128,
   eval_loader? : @dl.DataLoader[@gt.GpuTensor],
-  device_id? : Int = 0,
-  pool_capacity? : Int64 = 6_442_450_944L,
-  on_batch_end? : (Int, Int, Float) -> Unit,
-  on_epoch_end? : (Int, Double, Double, Double) -> Unit,
+  device_id~ : Int32 = 0,
+  pool_capacity~ : Int64 = 6_442_450_944L,
+  on_batch_end? : (Int32, Int32, Float) -> Unit,
+  on_epoch_end? : (Int32, Double, Double, Double) -> Unit,
 ) -> Unit {
   // Auto-init CUDA and memory pool
   @cuda.gpu_init(device_id)

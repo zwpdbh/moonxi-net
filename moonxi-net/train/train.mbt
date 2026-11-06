@@ -29,7 +29,7 @@ pub fn[T] Experiment::new(
   scheduler~ : @optimizer.StepLR,
 ) -> Experiment[T] {
   let optim = optim((model.trainable_params)())
-  { forward: model.forward, loss: loss.loss, optim, lr_scheduler: scheduler }
+  { forward: model.forward, loss: loss.loss, optim, lr_scheduler: scheduler, }
 }
 
 ///|
@@ -66,10 +66,10 @@ pub fn[T] Experiment::eval_step(self : Experiment[T], x : T) -> T {
 pub fn[T : @tensor.Tensor] Experiment::run(
   self : Experiment[T],
   train_loader : @dl.DataLoader[T],
-  epochs? : Int = 10,
-  batch_size? : Int = 32,
-  on_batch_end? : (Int, T) -> Unit,
-  on_epoch_end? : (Int, Int) -> Unit,
+  epochs~ : Int32 = 10,
+  batch_size~ : Int32 = 32,
+  on_batch_end? : (Int32, T) -> Unit,
+  on_epoch_end? : (Int32, Int32) -> Unit,
   post_batch? : () -> Unit,
 ) -> Unit {
   for epoch in 0..<epochs {
@@ -102,11 +102,11 @@ pub fn[T : @tensor.Tensor] Experiment::run(
 pub fn[T : @tensor.Tensor] run_cpu(
   experiment : Experiment[T],
   train_loader : @dl.DataLoader[T],
-  epochs? : Int = 10,
-  batch_size? : Int = 128,
+  epochs~ : Int32 = 10,
+  batch_size~ : Int32 = 128,
   eval_loader? : @dl.DataLoader[T],
-  on_batch_end? : (Int, Int, Float) -> Unit,
-  on_epoch_end? : (Int, Double, Double, Double) -> Unit,
+  on_batch_end? : (Int32, Int32, Float) -> Unit,
+  on_epoch_end? : (Int32, Double, Double, Double) -> Unit,
 ) -> Unit {
   let num_samples = train_loader.num_samples()
   let total_batches = num_samples / batch_size +
@@ -171,7 +171,7 @@ extern "c" fn train_get_time_ms() -> Double = "train_get_time_ms"
 
 ///|
 /// Get current time in milliseconds.
-fn _now_ms() -> Int {
+fn _now_ms() -> Int32 {
   train_get_time_ms().to_int()
 }
 
@@ -217,7 +217,7 @@ fn[T : @tensor.Tensor] _eval_accuracy(
 pub fn[T] Experiment::eval(
   self : Experiment[T],
   loader : @dl.DataLoader[T],
-  batch_size? : Int = 256,
+  batch_size~ : Int32 = 256,
 ) -> Array[(T, T)] {
   let result : Array[(T, T)] = []
   for batch in loader.batches(batch_size, shuffle=false) {

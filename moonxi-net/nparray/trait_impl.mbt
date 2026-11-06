@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: MIT
 
 ///|
-pub impl Add for NpArray with add(x : NpArray, y : NpArray) {
+pub impl Add for NpArray with fn add(x : NpArray, y : NpArray) {
   broadcast_op((x, y) => x + y, x, y)
 }
 
 ///|
-pub impl Sub for NpArray with sub(x : NpArray, y : NpArray) {
+pub impl Sub for NpArray with fn sub(x : NpArray, y : NpArray) {
   broadcast_op((x, y) => x - y, x, y)
 }
 
 ///|
 fn _copy_shape(s : @tensor.ShapeTensor) -> @tensor.ShapeTensor {
-  { shape: FixedArray::makei(s.shape.length(), fn(i) { s.shape[i] }) }
+  { shape: FixedArray::makei(s.shape.length(), fn(i) { s.shape[i] }), }
 }
 
 ///|
@@ -34,31 +34,33 @@ pub fn NpArray::from2d(arr : ArrayView[ArrayView[Float]]) -> NpArray {
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with dims(x : NpArray) -> FixedArray[Int] {
+pub impl @tensor.Tensor for NpArray with fn dims(x : NpArray) -> FixedArray[
+  Int32,
+] {
   x.shape.shape
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with zeros(dims : FixedArray[Int]) -> NpArray {
+pub impl @tensor.Tensor for NpArray with fn zeros(dims : FixedArray[Int32]) -> NpArray {
   let total = dims.iter().fold(init=1, fn(acc, d) { acc * d })
-  { shape: { shape: dims }, data: FixedArray::make(total, 0.0) }
+  { shape: { shape: dims, }, data: FixedArray::make(total, 0.0), }
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with zeros_like(x : NpArray) -> NpArray {
-  { shape: _copy_shape(x.shape), data: FixedArray::make(x.data.length(), 0) }
+pub impl @tensor.Tensor for NpArray with fn zeros_like(x : NpArray) -> NpArray {
+  { shape: _copy_shape(x.shape), data: FixedArray::make(x.data.length(), 0), }
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with from_host(
+pub impl @tensor.Tensor for NpArray with fn from_host(
   data : FixedArray[Float],
-  shape : Array[Int],
+  shape : Array[Int32],
 ) -> NpArray {
-  { shape: @tensor.ShapeTensor::from_array(shape), data }
+  { shape: @tensor.ShapeTensor::from_array(shape), data, }
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with square(x : NpArray) -> NpArray {
+pub impl @tensor.Tensor for NpArray with fn square(x : NpArray) -> NpArray {
   let n = x.data.length()
   {
     shape: _copy_shape(x.shape),
@@ -67,7 +69,7 @@ pub impl @tensor.Tensor for NpArray with square(x : NpArray) -> NpArray {
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with sqrt(x : NpArray) -> NpArray {
+pub impl @tensor.Tensor for NpArray with fn sqrt(x : NpArray) -> NpArray {
   let n = x.data.length()
   {
     shape: _copy_shape(x.shape),
@@ -76,7 +78,7 @@ pub impl @tensor.Tensor for NpArray with sqrt(x : NpArray) -> NpArray {
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with mean(x : NpArray) -> NpArray {
+pub impl @tensor.Tensor for NpArray with fn mean(x : NpArray) -> NpArray {
   let sum = x.data.fold(init=(0.0 : Float), fn(acc, v) { acc + v })
   let n = Float::from_int(x.data.length())
   {
@@ -86,7 +88,7 @@ pub impl @tensor.Tensor for NpArray with mean(x : NpArray) -> NpArray {
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with scale(x : NpArray, s : Float) -> NpArray {
+pub impl @tensor.Tensor for NpArray with fn scale(x : NpArray, s : Float) -> NpArray {
   let n = x.data.length()
   {
     shape: _copy_shape(x.shape),
@@ -95,29 +97,29 @@ pub impl @tensor.Tensor for NpArray with scale(x : NpArray, s : Float) -> NpArra
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with mul_elem(x : NpArray, y : NpArray) -> NpArray {
+pub impl @tensor.Tensor for NpArray with fn mul_elem(x : NpArray, y : NpArray) -> NpArray {
   broadcast_op((a, b) => a * b, x, y)
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with div_elem(x : NpArray, y : NpArray) -> NpArray {
+pub impl @tensor.Tensor for NpArray with fn div_elem(x : NpArray, y : NpArray) -> NpArray {
   broadcast_op((a, b) => a / b, x, y)
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with scalar(v : Float) -> NpArray {
-  { shape: @tensor.ShapeTensor::from_array([1]), data: FixedArray::make(1, v) }
+pub impl @tensor.Tensor for NpArray with fn scalar(v : Float) -> NpArray {
+  { shape: @tensor.ShapeTensor::from_array([1]), data: FixedArray::make(1, v), }
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with size(x : NpArray) -> Int {
+pub impl @tensor.Tensor for NpArray with fn size(x : NpArray) -> Int32 {
   x.data.length()
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with reduce_sum_to(
+pub impl @tensor.Tensor for NpArray with fn reduce_sum_to(
   x : NpArray,
-  target_dims : FixedArray[Int],
+  target_dims : FixedArray[Int32],
 ) -> NpArray {
   if x.shape.shape == target_dims {
     return x
@@ -163,33 +165,33 @@ pub impl @tensor.Tensor for NpArray with reduce_sum_to(
       result = new_data
     }
   }
-  { shape: { shape: target_dims }, data: result }
+  { shape: { shape: target_dims, }, data: result, }
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with value(x : NpArray) -> @tensor.TensorData {
-  { dims: x.shape.shape, data: x.data }
+pub impl @tensor.Tensor for NpArray with fn value(x : NpArray) -> @tensor.TensorData {
+  { dims: x.shape.shape, data: x.data, }
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with view(
+pub impl @tensor.Tensor for NpArray with fn view(
   x : NpArray,
-  new_shape : FixedArray[Int],
+  new_shape : FixedArray[Int32],
 ) -> NpArray {
   let total = new_shape.iter().fold(init=1, fn(acc, d) { acc * d })
   if total != x.data.length() {
     abort("view size mismatch: \{total} != \{x.data.length()}")
   }
-  { shape: { shape: new_shape }, data: x.data }
+  { shape: { shape: new_shape, }, data: x.data, }
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with add(x : NpArray, y : NpArray) -> NpArray {
+pub impl @tensor.Tensor for NpArray with fn add(x : NpArray, y : NpArray) -> NpArray {
   broadcast_op((a, b) => a + b, x, y)
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with add_into(x : NpArray, y : NpArray) -> Unit {
+pub impl @tensor.Tensor for NpArray with fn add_into(x : NpArray, y : NpArray) -> Unit {
   let n = x.data.length()
   for i in 0..<n {
     x.data[i] = x.data[i] + y.data[i]
@@ -197,12 +199,12 @@ pub impl @tensor.Tensor for NpArray with add_into(x : NpArray, y : NpArray) -> U
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with sub(x : NpArray, y : NpArray) -> NpArray {
+pub impl @tensor.Tensor for NpArray with fn sub(x : NpArray, y : NpArray) -> NpArray {
   broadcast_op((a, b) => a - b, x, y)
 }
 
 ///|
-pub impl @tensor.BlasTensor for NpArray with matmul(a : NpArray, b : NpArray) -> NpArray {
+pub impl @tensor.BlasTensor for NpArray with fn matmul(a : NpArray, b : NpArray) -> NpArray {
   let n = a.shape.shape[0]
   let m = a.shape.shape[1]
   debug_assert(() => a.shape.shape[1] == b.shape.shape[0])
@@ -245,11 +247,11 @@ pub impl @tensor.BlasTensor for NpArray with matmul(a : NpArray, b : NpArray) ->
     }
     ii += tile
   }
-  { shape: @tensor.ShapeTensor::from_array([n, p]), data }
+  { shape: @tensor.ShapeTensor::from_array([n, p]), data, }
 }
 
 ///|
-pub impl @tensor.BlasTensor for NpArray with transpose(x : NpArray) -> NpArray {
+pub impl @tensor.BlasTensor for NpArray with fn transpose(x : NpArray) -> NpArray {
   let n = x.shape.shape[0]
   let m = x.shape.shape[1]
   let data = FixedArray::makei(n * m, fn(idx) {
@@ -257,13 +259,13 @@ pub impl @tensor.BlasTensor for NpArray with transpose(x : NpArray) -> NpArray {
     let j = idx % n
     x.data[j * m + i]
   })
-  { shape: @tensor.ShapeTensor::from_array([m, n]), data }
+  { shape: @tensor.ShapeTensor::from_array([m, n]), data, }
 }
 
 ///|
-pub impl @tensor.Tensor for NpArray with broadcast_to(
+pub impl @tensor.Tensor for NpArray with fn broadcast_to(
   x : NpArray,
-  target_shape : FixedArray[Int],
+  target_shape : FixedArray[Int32],
 ) -> NpArray {
   let scalar_val = x.data[0]
   let mut n = 1
@@ -271,19 +273,19 @@ pub impl @tensor.Tensor for NpArray with broadcast_to(
     n = n * target_shape[i]
   }
   let shape = FixedArray::from_iter(target_shape.iter())
-  { shape: { shape, }, data: FixedArray::make(n, scalar_val) }
+  { shape: { shape, }, data: FixedArray::make(n, scalar_val), }
 }
 
 ///|
 /// CPU implementation of fused batch SGD+momentum with auto gradient clipping.
 /// Follows the same algorithm as the GPU fused kernel.
-pub impl @optimizer.BatchSgdMomentumAutoclip for NpArray with batch_sgd_momentum_autoclip(
+pub impl @optimizer.BatchSgdMomentumAutoclip for NpArray with fn batch_sgd_momentum_autoclip(
   params : Array[NpArray],
   grads : Array[NpArray],
   velocities : Array[NpArray],
   config : @optimizer.SgdMomentumConfig,
 ) -> Unit {
-  let { lr, momentum, weight_decay, max_grad_norm } = config
+  let { lr, momentum, weight_decay, max_grad_norm, } = config
   // 1. Compute global grad norm
   let mut norm_sq : Float = 0.0
   for i in 0..<grads.length() {

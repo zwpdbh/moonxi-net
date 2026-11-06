@@ -1,9 +1,10 @@
 import {
   "chnlkw/moonxi-net" @tensor,
-  "chnlkw/moonxi-net/grad" @grad,
-  "moonbitlang/core/math" @math,
+  "chnlkw/moonxi-net/grad",
+  "moonbitlang/core/math",
+  "moonbitlang/core/debug",
 }
 
 import {
-  "chnlkw/moonxi-net/nparray" @nparray,
+  "chnlkw/moonxi-net/nparray",
 } for "wbtest"

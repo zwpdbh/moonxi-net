@@ -17,4 +17,3 @@ pub fn Stopwatch::start(Self, () -> Float) -> Unit
 // Type aliases
 
 // Traits
-

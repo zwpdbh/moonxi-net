@@ -14,13 +14,51 @@ import {
 pub(all) struct CudaEventTensor {
   inner : @tensor.GpuTensor
 }
+pub fn CudaEventTensor::adaptive_avg_pool2d(Self, Int32) -> Self
+pub fn CudaEventTensor::adaptive_avg_pool2d_backward(Self, Self) -> Self
+pub fn CudaEventTensor::add(Self, Self) -> Self
+pub fn CudaEventTensor::add_into(Self, Self) -> Unit
+pub fn CudaEventTensor::batchnorm_backward(Self, Self, Self, Self, Self, Float) -> (Self, Self, Self)
+pub fn CudaEventTensor::batchnorm_inference(Self, Self, Self, Self, Self, Float) -> Self
+pub fn CudaEventTensor::batchnorm_training(Self, Self, Self, Self, Self, Float, Float) -> (Self, Self, Self)
+pub fn CudaEventTensor::broadcast_to(Self, FixedArray[Int32]) -> Self
+pub fn CudaEventTensor::conv2d(Self, Self, Self, Int32, Int32) -> Self
+pub fn CudaEventTensor::conv2d_backward_bias(Self) -> Self
+pub fn CudaEventTensor::conv2d_backward_data(Self, Self, Self, Int32, Int32) -> Self
+pub fn CudaEventTensor::conv2d_backward_weight(Self, Self, Self, Int32, Int32) -> Self
+pub fn CudaEventTensor::cross_entropy_with_labels(Self, Self, Int32) -> Self
+pub fn CudaEventTensor::dims(Self) -> FixedArray[Int32]
+pub fn CudaEventTensor::div_elem(Self, Self) -> Self
+pub fn CudaEventTensor::from_host(FixedArray[Float], Array[Int32]) -> Self
+pub fn CudaEventTensor::matmul(Self, Self) -> Self
+pub fn CudaEventTensor::maxpool2d(Self, Int32, Int32) -> Self
+pub fn CudaEventTensor::maxpool2d_backward(Self, Self, Int32, Int32) -> Self
+pub fn CudaEventTensor::mean(Self) -> Self
+pub fn CudaEventTensor::mul_elem(Self, Self) -> Self
+pub fn CudaEventTensor::reduce_sum_to(Self, FixedArray[Int32]) -> Self
+pub fn CudaEventTensor::relu(Self) -> Self
+pub fn CudaEventTensor::relu_backward(Self, Self) -> Self
+pub fn CudaEventTensor::scalar(Float) -> Self
+pub fn CudaEventTensor::scale(Self, Float) -> Self
+pub fn CudaEventTensor::size(Self) -> Int32
+pub fn CudaEventTensor::softmax_ce_backward(Self, Self) -> Self
+pub fn CudaEventTensor::softmax_ce_backward_labels(Self, Self, Int32) -> Self
+pub fn CudaEventTensor::softmax_cross_entropy(Self, Self) -> Self
+pub fn CudaEventTensor::sqrt(Self) -> Self
+pub fn CudaEventTensor::square(Self) -> Self
+pub fn CudaEventTensor::sub(Self, Self) -> Self
+pub fn CudaEventTensor::transpose(Self) -> Self
+pub fn CudaEventTensor::value(Self) -> @moonxi-net.TensorData
+pub fn CudaEventTensor::view(Self, FixedArray[Int32]) -> Self
+pub fn CudaEventTensor::zeros(FixedArray[Int32]) -> Self
+pub fn CudaEventTensor::zeros_like(Self) -> Self
 pub impl @moonxi-net.BlasTensor for CudaEventTensor
 pub impl @moonxi-net.ImageBackwardOps for CudaEventTensor
 pub impl @moonxi-net.ImageTensor for CudaEventTensor
 pub impl @moonxi-net.Tensor for CudaEventTensor
 
 pub(all) struct EventProfiler {
-  mut times : Map[String, (Float, Int)]
+  mut times : Map[String, (Float, Int32)]
 }
 pub fn EventProfiler::global() -> Self
 pub fn EventProfiler::new() -> Self
@@ -31,4 +69,3 @@ pub fn EventProfiler::reset(Self) -> Unit
 // Type aliases
 
 // Traits
-

@@ -5,23 +5,26 @@
 /// A shape-only tensor that computes output shapes without actual data.
 /// Aborts when shape constraints are violated.
 pub(all) struct ShapeTensor {
-  shape : FixedArray[Int]
+  shape : FixedArray[Int32]
 } derive(Debug)
 
 ///|
-fn ShapeTensor::numel(self : ShapeTensor) -> Int {
+fn ShapeTensor::numel(self : ShapeTensor) -> Int32 {
   self.shape.iter().fold(init=1, fn(acc, d) { acc * d })
 }
 
 ///|
 /// Compute total number of elements for a shape.
-fn shape_numel(shape : FixedArray[Int]) -> Int {
+fn shape_numel(shape : FixedArray[Int32]) -> Int32 {
   shape.iter().fold(init=1, fn(acc, d) { acc * d })
 }
 
 ///|
 /// Broadcast two shapes. Aborts if dimensions are incompatible.
-fn shape_broadcast(a : FixedArray[Int], b : FixedArray[Int]) -> FixedArray[Int] {
+fn shape_broadcast(
+  a : FixedArray[Int32],
+  b : FixedArray[Int32],
+) -> FixedArray[Int32] {
   let da = a.length()
   let db = b.length()
   let d = if da > db { da } else { db }
@@ -45,22 +48,22 @@ fn shape_broadcast(a : FixedArray[Int], b : FixedArray[Int]) -> FixedArray[Int] 
 }
 
 ///|
-pub fn ShapeTensor::from_array(shape : Array[Int]) -> ShapeTensor {
-  { shape: FixedArray::from_iter(shape.iter()) }
+pub fn ShapeTensor::from_array(shape : Array[Int32]) -> ShapeTensor {
+  { shape: FixedArray::from_iter(shape.iter()), }
 }
 
 ///|
-pub fn ShapeTensor::to_array(self : ShapeTensor) -> Array[Int] {
+pub fn ShapeTensor::to_array(self : ShapeTensor) -> Array[Int32] {
   self.shape.iter().collect()
 }
 
 ///|
-pub fn ShapeTensor::dim(self : ShapeTensor, i : Int) -> Int {
+pub fn ShapeTensor::dim(self : ShapeTensor, i : Int32) -> Int32 {
   self.shape[i]
 }
 
 ///|
-pub fn ShapeTensor::ndim(self : ShapeTensor) -> Int {
+pub fn ShapeTensor::ndim(self : ShapeTensor) -> Int32 {
   self.shape.length()
 }
 
@@ -69,68 +72,73 @@ pub fn ShapeTensor::ndim(self : ShapeTensor) -> Int {
 // ═══════════════════════════════════════════════════════════════
 
 ///|
-pub impl Tensor for ShapeTensor with dims(st : ShapeTensor) -> FixedArray[Int] {
+pub impl Tensor for ShapeTensor with fn dims(st : ShapeTensor) -> FixedArray[
+  Int32,
+] {
   st.shape
 }
 
 ///|
-pub impl Tensor for ShapeTensor with zeros(dims : FixedArray[Int]) -> ShapeTensor {
-  { shape: dims }
+pub impl Tensor for ShapeTensor with fn zeros(dims : FixedArray[Int32]) -> ShapeTensor {
+  { shape: dims, }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with zeros_like(st : ShapeTensor) -> ShapeTensor {
-  { shape: FixedArray::makei(st.shape.length(), fn(i) { st.shape[i] }) }
+pub impl Tensor for ShapeTensor with fn zeros_like(st : ShapeTensor) -> ShapeTensor {
+  { shape: FixedArray::makei(st.shape.length(), fn(i) { st.shape[i] }), }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with from_host(
+pub impl Tensor for ShapeTensor with fn from_host(
   _data : FixedArray[Float],
-  shape : Array[Int],
+  shape : Array[Int32],
 ) -> ShapeTensor {
-  { shape: FixedArray::from_iter(shape.iter()) }
+  { shape: FixedArray::from_iter(shape.iter()), }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with square(st : ShapeTensor) -> ShapeTensor {
+pub impl Tensor for ShapeTensor with fn square(st : ShapeTensor) -> ShapeTensor {
   st
 }
 
 ///|
-pub impl Tensor for ShapeTensor with mean(_st : ShapeTensor) -> ShapeTensor {
-  { shape: FixedArray::make(1, 1) }
+pub impl Tensor for ShapeTensor with fn mean(_st : ShapeTensor) -> ShapeTensor {
+  { shape: FixedArray::make(1, 1), }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with scale(st : ShapeTensor, _s : Float) -> ShapeTensor {
+pub impl Tensor for ShapeTensor with fn scale(st : ShapeTensor, _s : Float) -> ShapeTensor {
   st
 }
 
 ///|
-pub impl Tensor for ShapeTensor with mul_elem(a : ShapeTensor, b : ShapeTensor) -> ShapeTensor {
-  { shape: shape_broadcast(a.shape, b.shape) }
+pub impl Tensor for ShapeTensor with fn mul_elem(
+  a : ShapeTensor,
+  b : ShapeTensor,
+) -> ShapeTensor {
+  { shape: shape_broadcast(a.shape, b.shape), }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with scalar(_v : Float) -> ShapeTensor {
-  { shape: FixedArray::make(1, 1) }
+pub impl Tensor for ShapeTensor with fn scalar(_v : Float) -> ShapeTensor {
+  { shape: FixedArray::make(1, 1), }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with size(st : ShapeTensor) -> Int {
+pub impl Tensor for ShapeTensor with fn size(st : ShapeTensor) -> Int32 {
   st.numel()
 }
 
 ///|
-pub impl Tensor for ShapeTensor with reduce_sum_to(
+pub impl Tensor for ShapeTensor with fn reduce_sum_to(
   _st : ShapeTensor,
-  target_dims : FixedArray[Int],
+  target_dims : FixedArray[Int32],
 ) -> ShapeTensor {
-  { shape: target_dims }
+  { shape: target_dims, }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with value(st : ShapeTensor) -> TensorData {
+pub impl Tensor for ShapeTensor with fn value(st : ShapeTensor) -> TensorData {
   let n = st.numel()
   {
     dims: FixedArray::makei(st.shape.length(), fn(i) { st.shape[i] }),
@@ -139,9 +147,9 @@ pub impl Tensor for ShapeTensor with value(st : ShapeTensor) -> TensorData {
 }
 
 ///|
-pub impl Tensor for ShapeTensor with view(
+pub impl Tensor for ShapeTensor with fn view(
   st : ShapeTensor,
-  new_shape : FixedArray[Int],
+  new_shape : FixedArray[Int32],
 ) -> ShapeTensor {
   let old_numel = st.numel()
   let new_numel = shape_numel(new_shape)
@@ -150,16 +158,19 @@ pub impl Tensor for ShapeTensor with view(
       "ShapeTensor: view error: element count mismatch \{old_numel} vs \{new_numel}",
     )
   }
-  { shape: new_shape }
+  { shape: new_shape, }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with add(a : ShapeTensor, b : ShapeTensor) -> ShapeTensor {
-  { shape: shape_broadcast(a.shape, b.shape) }
+pub impl Tensor for ShapeTensor with fn add(a : ShapeTensor, b : ShapeTensor) -> ShapeTensor {
+  { shape: shape_broadcast(a.shape, b.shape), }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with add_into(a : ShapeTensor, b : ShapeTensor) -> Unit {
+pub impl Tensor for ShapeTensor with fn add_into(
+  a : ShapeTensor,
+  b : ShapeTensor,
+) -> Unit {
   if a.shape.length() != b.shape.length() {
     abort(
       "ShapeTensor: add_into error: ndim mismatch \{a.shape.length()} vs \{b.shape.length()}",
@@ -175,26 +186,29 @@ pub impl Tensor for ShapeTensor with add_into(a : ShapeTensor, b : ShapeTensor) 
 }
 
 ///|
-pub impl Tensor for ShapeTensor with sub(a : ShapeTensor, b : ShapeTensor) -> ShapeTensor {
-  { shape: shape_broadcast(a.shape, b.shape) }
+pub impl Tensor for ShapeTensor with fn sub(a : ShapeTensor, b : ShapeTensor) -> ShapeTensor {
+  { shape: shape_broadcast(a.shape, b.shape), }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with broadcast_to(
+pub impl Tensor for ShapeTensor with fn broadcast_to(
   _st : ShapeTensor,
-  target_shape : FixedArray[Int],
+  target_shape : FixedArray[Int32],
 ) -> ShapeTensor {
-  { shape: target_shape }
+  { shape: target_shape, }
 }
 
 ///|
-pub impl Tensor for ShapeTensor with sqrt(st : ShapeTensor) -> ShapeTensor {
+pub impl Tensor for ShapeTensor with fn sqrt(st : ShapeTensor) -> ShapeTensor {
   st
 }
 
 ///|
-pub impl Tensor for ShapeTensor with div_elem(a : ShapeTensor, b : ShapeTensor) -> ShapeTensor {
-  { shape: shape_broadcast(a.shape, b.shape) }
+pub impl Tensor for ShapeTensor with fn div_elem(
+  a : ShapeTensor,
+  b : ShapeTensor,
+) -> ShapeTensor {
+  { shape: shape_broadcast(a.shape, b.shape), }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -202,7 +216,7 @@ pub impl Tensor for ShapeTensor with div_elem(a : ShapeTensor, b : ShapeTensor) 
 // ═══════════════════════════════════════════════════════════════
 
 ///|
-pub impl BlasTensor for ShapeTensor with matmul(
+pub impl BlasTensor for ShapeTensor with fn matmul(
   a : ShapeTensor,
   b : ShapeTensor,
 ) -> ShapeTensor {
@@ -219,17 +233,17 @@ pub impl BlasTensor for ShapeTensor with matmul(
   }
   let n = a.shape[0]
   let p = b.shape[1]
-  { shape: FixedArray::from_iter([n, p].iter()) }
+  { shape: FixedArray::from_iter([n, p].iter()), }
 }
 
 ///|
-pub impl BlasTensor for ShapeTensor with transpose(st : ShapeTensor) -> ShapeTensor {
+pub impl BlasTensor for ShapeTensor with fn transpose(st : ShapeTensor) -> ShapeTensor {
   if st.shape.length() != 2 {
     abort(
       "ShapeTensor: transpose error: expected 2D, got \{st.shape.length()}D",
     )
   }
-  { shape: FixedArray::from_iter([st.shape[1], st.shape[0]].iter()) }
+  { shape: FixedArray::from_iter([st.shape[1], st.shape[0]].iter()), }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -237,12 +251,12 @@ pub impl BlasTensor for ShapeTensor with transpose(st : ShapeTensor) -> ShapeTen
 // ═══════════════════════════════════════════════════════════════
 
 ///|
-pub impl ImageTensor for ShapeTensor with conv2d(
+pub impl ImageTensor for ShapeTensor with fn conv2d(
   input : ShapeTensor,
   weight : ShapeTensor,
   bias : ShapeTensor,
-  stride : Int,
-  padding : Int,
+  stride : Int32,
+  padding : Int32,
 ) -> ShapeTensor {
   if input.shape.length() != 4 {
     abort(
@@ -272,19 +286,19 @@ pub impl ImageTensor for ShapeTensor with conv2d(
   let kw = weight.shape[3]
   let oh = (h + 2 * padding - kh) / stride + 1
   let ow = (w + 2 * padding - kw) / stride + 1
-  { shape: FixedArray::from_iter([n, c_out, oh, ow].iter()) }
+  { shape: FixedArray::from_iter([n, c_out, oh, ow].iter()), }
 }
 
 ///|
-pub impl ImageTensor for ShapeTensor with relu(st : ShapeTensor) -> ShapeTensor {
+pub impl ImageTensor for ShapeTensor with fn relu(st : ShapeTensor) -> ShapeTensor {
   st
 }
 
 ///|
-pub impl ImageTensor for ShapeTensor with maxpool2d(
+pub impl ImageTensor for ShapeTensor with fn maxpool2d(
   st : ShapeTensor,
-  kernel_size : Int,
-  stride : Int,
+  kernel_size : Int32,
+  stride : Int32,
 ) -> ShapeTensor {
   if st.shape.length() != 4 {
     abort(
@@ -297,13 +311,13 @@ pub impl ImageTensor for ShapeTensor with maxpool2d(
   let w = st.shape[3]
   let oh = (h - kernel_size) / stride + 1
   let ow = (w - kernel_size) / stride + 1
-  { shape: FixedArray::from_iter([n, c, oh, ow].iter()) }
+  { shape: FixedArray::from_iter([n, c, oh, ow].iter()), }
 }
 
 ///|
-pub impl ImageTensor for ShapeTensor with adaptive_avg_pool2d(
+pub impl ImageTensor for ShapeTensor with fn adaptive_avg_pool2d(
   st : ShapeTensor,
-  output_size : Int,
+  output_size : Int32,
 ) -> ShapeTensor {
   if st.shape.length() != 4 {
     abort(
@@ -312,11 +326,11 @@ pub impl ImageTensor for ShapeTensor with adaptive_avg_pool2d(
   }
   let n = st.shape[0]
   let c = st.shape[1]
-  { shape: FixedArray::from_iter([n, c, output_size, output_size].iter()) }
+  { shape: FixedArray::from_iter([n, c, output_size, output_size].iter()), }
 }
 
 ///|
-pub impl ImageTensor for ShapeTensor with batchnorm_training(
+pub impl ImageTensor for ShapeTensor with fn batchnorm_training(
   input : ShapeTensor,
   _gamma : ShapeTensor,
   _beta : ShapeTensor,
@@ -334,13 +348,13 @@ pub impl ImageTensor for ShapeTensor with batchnorm_training(
   let output = {
     shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }),
   }
-  let save_mean = { shape: FixedArray::make(1, c) }
-  let save_inv_var = { shape: FixedArray::make(1, c) }
+  let save_mean = { shape: FixedArray::make(1, c), }
+  let save_inv_var = { shape: FixedArray::make(1, c), }
   (output, save_mean, save_inv_var)
 }
 
 ///|
-pub impl ImageTensor for ShapeTensor with batchnorm_inference(
+pub impl ImageTensor for ShapeTensor with fn batchnorm_inference(
   input : ShapeTensor,
   _gamma : ShapeTensor,
   _beta : ShapeTensor,
@@ -353,24 +367,24 @@ pub impl ImageTensor for ShapeTensor with batchnorm_inference(
       "ShapeTensor: batchnorm_inference error: expected 4D [N,C,H,W], got \{input.shape.length()}D",
     )
   }
-  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }) }
+  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }), }
 }
 
 ///|
-pub impl ImageTensor for ShapeTensor with softmax_cross_entropy(
+pub impl ImageTensor for ShapeTensor with fn softmax_cross_entropy(
   _logits : ShapeTensor,
   _targets : ShapeTensor,
 ) -> ShapeTensor {
-  { shape: FixedArray::make(1, 1) }
+  { shape: FixedArray::make(1, 1), }
 }
 
 ///|
-pub impl ImageTensor for ShapeTensor with cross_entropy_with_labels(
+pub impl ImageTensor for ShapeTensor with fn cross_entropy_with_labels(
   _logits : ShapeTensor,
   _labels : ShapeTensor,
-  _num_classes : Int,
+  _num_classes : Int32,
 ) -> ShapeTensor {
-  { shape: FixedArray::make(1, 1) }
+  { shape: FixedArray::make(1, 1), }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -378,29 +392,31 @@ pub impl ImageTensor for ShapeTensor with cross_entropy_with_labels(
 // ═══════════════════════════════════════════════════════════════
 
 ///|
-pub impl ImageBackwardOps for ShapeTensor with conv2d_backward_data(
+pub impl ImageBackwardOps for ShapeTensor with fn conv2d_backward_data(
   _grad_output : ShapeTensor,
   _weight : ShapeTensor,
   input : ShapeTensor,
-  _stride : Int,
-  _padding : Int,
+  _stride : Int32,
+  _padding : Int32,
 ) -> ShapeTensor {
-  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }) }
+  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }), }
 }
 
 ///|
-pub impl ImageBackwardOps for ShapeTensor with conv2d_backward_weight(
+pub impl ImageBackwardOps for ShapeTensor with fn conv2d_backward_weight(
   _grad_output : ShapeTensor,
   _input : ShapeTensor,
   weight : ShapeTensor,
-  _stride : Int,
-  _padding : Int,
+  _stride : Int32,
+  _padding : Int32,
 ) -> ShapeTensor {
-  { shape: FixedArray::makei(weight.shape.length(), fn(i) { weight.shape[i] }) }
+  {
+    shape: FixedArray::makei(weight.shape.length(), fn(i) { weight.shape[i] }),
+  }
 }
 
 ///|
-pub impl ImageBackwardOps for ShapeTensor with conv2d_backward_bias(
+pub impl ImageBackwardOps for ShapeTensor with fn conv2d_backward_bias(
   grad_output : ShapeTensor,
 ) -> ShapeTensor {
   if grad_output.shape.length() < 2 {
@@ -409,19 +425,19 @@ pub impl ImageBackwardOps for ShapeTensor with conv2d_backward_bias(
     )
   }
   let c_out = grad_output.shape[1]
-  { shape: FixedArray::make(1, c_out) }
+  { shape: FixedArray::make(1, c_out), }
 }
 
 ///|
-pub impl ImageBackwardOps for ShapeTensor with relu_backward(
+pub impl ImageBackwardOps for ShapeTensor with fn relu_backward(
   _grad_output : ShapeTensor,
   input : ShapeTensor,
 ) -> ShapeTensor {
-  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }) }
+  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }), }
 }
 
 ///|
-pub impl ImageBackwardOps for ShapeTensor with batchnorm_backward(
+pub impl ImageBackwardOps for ShapeTensor with fn batchnorm_backward(
   _grad_output : ShapeTensor,
   input : ShapeTensor,
   gamma : ShapeTensor,
@@ -442,38 +458,42 @@ pub impl ImageBackwardOps for ShapeTensor with batchnorm_backward(
 }
 
 ///|
-pub impl ImageBackwardOps for ShapeTensor with maxpool2d_backward(
+pub impl ImageBackwardOps for ShapeTensor with fn maxpool2d_backward(
   _grad_output : ShapeTensor,
   input : ShapeTensor,
-  _kernel_size : Int,
-  _stride : Int,
+  _kernel_size : Int32,
+  _stride : Int32,
 ) -> ShapeTensor {
-  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }) }
+  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }), }
 }
 
 ///|
-pub impl ImageBackwardOps for ShapeTensor with adaptive_avg_pool2d_backward(
+pub impl ImageBackwardOps for ShapeTensor with fn adaptive_avg_pool2d_backward(
   _grad_output : ShapeTensor,
   input : ShapeTensor,
 ) -> ShapeTensor {
-  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }) }
+  { shape: FixedArray::makei(input.shape.length(), fn(i) { input.shape[i] }), }
 }
 
 ///|
-pub impl ImageBackwardOps for ShapeTensor with softmax_ce_backward(
+pub impl ImageBackwardOps for ShapeTensor with fn softmax_ce_backward(
   logits : ShapeTensor,
   _targets : ShapeTensor,
 ) -> ShapeTensor {
-  { shape: FixedArray::makei(logits.shape.length(), fn(i) { logits.shape[i] }) }
+  {
+    shape: FixedArray::makei(logits.shape.length(), fn(i) { logits.shape[i] }),
+  }
 }
 
 ///|
-pub impl ImageBackwardOps for ShapeTensor with softmax_ce_backward_labels(
+pub impl ImageBackwardOps for ShapeTensor with fn softmax_ce_backward_labels(
   logits : ShapeTensor,
   _labels : ShapeTensor,
-  _num_classes : Int,
+  _num_classes : Int32,
 ) -> ShapeTensor {
-  { shape: FixedArray::makei(logits.shape.length(), fn(i) { logits.shape[i] }) }
+  {
+    shape: FixedArray::makei(logits.shape.length(), fn(i) { logits.shape[i] }),
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -484,9 +504,9 @@ pub impl ImageBackwardOps for ShapeTensor with softmax_ce_backward_labels(
 /// Pool2d output shape with explicit padding (not in trait).
 pub fn ShapeTensor::pool2d(
   self : ShapeTensor,
-  kernel_size : Int,
-  stride : Int,
-  padding : Int,
+  kernel_size : Int32,
+  stride : Int32,
+  padding : Int32,
 ) -> ShapeTensor {
   let n = self.shape[0]
   let c = self.shape[1]
@@ -494,7 +514,7 @@ pub fn ShapeTensor::pool2d(
   let w = self.shape[3]
   let oh = (h + 2 * padding - kernel_size) / stride + 1
   let ow = (w + 2 * padding - kernel_size) / stride + 1
-  { shape: FixedArray::from_iter([n, c, oh, ow].iter()) }
+  { shape: FixedArray::from_iter([n, c, oh, ow].iter()), }
 }
 
 ///|
@@ -505,5 +525,5 @@ pub fn ShapeTensor::linear(
 ) -> ShapeTensor {
   let batch = input.shape[0]
   let out_f = weight.shape[0]
-  { shape: FixedArray::from_iter([batch, out_f].iter()) }
+  { shape: FixedArray::from_iter([batch, out_f].iter()), }
 }

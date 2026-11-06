@@ -9,7 +9,7 @@ pub(all) struct GpuTensor {
 
 ///|
 /// Check a CUDA return code and abort if non-zero.
-fn check_cuda(rc : Int, msg : String) -> Unit {
+fn check_cuda(rc : Int32, msg : String) -> Unit {
   if rc != 0 {
     abort("\{msg} (rc=\{rc})")
   }
@@ -17,23 +17,23 @@ fn check_cuda(rc : Int, msg : String) -> Unit {
 
 ///|
 /// Computed property: total number of elements (product of shape dimensions).
-pub fn GpuTensor::numel(self : GpuTensor) -> Int {
+pub fn GpuTensor::numel(self : GpuTensor) -> Int32 {
   @ts.ShapeTensor::size(self.shape)
 }
 
 ///|
 /// Computed property: row-major strides derived from shape.
-pub fn GpuTensor::stride(self : GpuTensor) -> Array[Int] {
+pub fn GpuTensor::stride(self : GpuTensor) -> Array[Int32] {
   GpuTensor::compute_stride(@ts.ShapeTensor::to_array(self.shape))
 }
 
 ///|
-pub fn GpuTensor::dim(self : GpuTensor, i : Int) -> Int {
+pub fn GpuTensor::dim(self : GpuTensor, i : Int32) -> Int32 {
   @ts.ShapeTensor::dim(self.shape, i)
 }
 
 ///|
-pub fn GpuTensor::ndim(self : GpuTensor) -> Int {
+pub fn GpuTensor::ndim(self : GpuTensor) -> Int32 {
   @ts.ShapeTensor::ndim(self.shape)
 }
 
@@ -114,7 +114,7 @@ pub fn gpu_pool_used() -> Int64 {
 }
 
 ///|
-pub fn GpuTensor::compute_stride(shape : Array[Int]) -> Array[Int] {
+pub fn GpuTensor::compute_stride(shape : Array[Int32]) -> Array[Int32] {
   let n = shape.length()
   if n == 0 {
     return []
@@ -133,7 +133,7 @@ pub fn GpuTensor::compute_stride(shape : Array[Int]) -> Array[Int] {
 
 ///|
 /// Compute total number of elements for a given shape.
-pub fn GpuTensor::shape_numel(shape : Array[Int]) -> Int {
+pub fn GpuTensor::shape_numel(shape : Array[Int32]) -> Int32 {
   let mut r = 1
   for i in 0..<shape.length() {
     r = r * shape[i]
@@ -142,7 +142,7 @@ pub fn GpuTensor::shape_numel(shape : Array[Int]) -> Int {
 }
 
 ///|
-pub fn GpuTensor::zeros(shape : Array[Int]) -> GpuTensor {
+pub fn GpuTensor::zeros(shape : Array[Int32]) -> GpuTensor {
   GpuTensor::zeros_st(@ts.ShapeTensor::from_array(shape))
 }
 
@@ -162,7 +162,7 @@ pub fn GpuTensor::zeros_st(shape : @ts.ShapeTensor) -> GpuTensor {
     @cuda.memset_zero(ptr, Int64::from_int(n)),
     "memset_zero in alloc_shape",
   )
-  { data: ptr, shape }
+  { data: ptr, shape, }
 }
 
 ///|
@@ -172,7 +172,7 @@ pub fn GpuTensor::zeros_st(shape : @ts.ShapeTensor) -> GpuTensor {
 /// Used by non-raise methods that know the shape is correct (e.g. mean).
 fn GpuTensor::_from_host_unchecked(
   data : FixedArray[Float],
-  shape : Array[Int],
+  shape : Array[Int32],
 ) -> GpuTensor {
   let n = data.length()
   let bytes = Int64::from_int(n * 4)
@@ -185,13 +185,13 @@ fn GpuTensor::_from_host_unchecked(
     @cuda.alloc(bytes)
   }
   check_cuda(@cuda.copy_h2d(ptr, data), "copy_h2d in _from_host_unchecked")
-  { data: ptr, shape: @ts.ShapeTensor::from_array(shape) }
+  { data: ptr, shape: @ts.ShapeTensor::from_array(shape), }
 }
 
 ///|
 pub fn GpuTensor::from_host(
   data : FixedArray[Float],
-  shape : Array[Int],
+  shape : Array[Int32],
 ) -> GpuTensor {
   let n = GpuTensor::shape_numel(shape)
   if data.length() != n {
@@ -207,7 +207,7 @@ pub fn GpuTensor::from_host(
     @cuda.alloc(bytes)
   }
   check_cuda(@cuda.copy_h2d(ptr, data), "copy_h2d in from_host")
-  { data: ptr, shape: @ts.ShapeTensor::from_array(shape) }
+  { data: ptr, shape: @ts.ShapeTensor::from_array(shape), }
 }
 
 ///|
@@ -246,26 +246,26 @@ pub fn GpuTensor::argmax(self : GpuTensor) -> GpuTensor {
 /// Used by non-raise methods that know the shape is correct.
 fn GpuTensor::_view_unchecked(
   self : GpuTensor,
-  new_shape : Array[Int],
+  new_shape : Array[Int32],
 ) -> GpuTensor {
-  { data: self.data, shape: @ts.ShapeTensor::from_array(new_shape) }
+  { data: self.data, shape: @ts.ShapeTensor::from_array(new_shape), }
 }
 
 ///|
 /// Create a view of this tensor with a different shape.
 /// Shares the same GPU data pointer — preserves the underlying data.
-pub fn GpuTensor::view(self : GpuTensor, new_shape : Array[Int]) -> GpuTensor {
+pub fn GpuTensor::view(self : GpuTensor, new_shape : Array[Int32]) -> GpuTensor {
   let new_numel = GpuTensor::shape_numel(new_shape)
   if new_numel != self.numel() {
     abort(
       "view: shape mismatch, original has \{self.numel()} elements but new shape has \{new_numel} elements",
     )
   }
-  { data: self.data, shape: @ts.ShapeTensor::from_array(new_shape) }
+  { data: self.data, shape: @ts.ShapeTensor::from_array(new_shape), }
 }
 
 ///|
-pub fn GpuTensor::alloc_shape(shape : Array[Int]) -> GpuTensor {
+pub fn GpuTensor::alloc_shape(shape : Array[Int32]) -> GpuTensor {
   GpuTensor::alloc_st(@ts.ShapeTensor::from_array(shape))
 }
 
@@ -281,5 +281,5 @@ pub fn GpuTensor::alloc_st(shape : @ts.ShapeTensor) -> GpuTensor {
   } else {
     @cuda.alloc(bytes)
   }
-  { data: ptr, shape }
+  { data: ptr, shape, }
 }

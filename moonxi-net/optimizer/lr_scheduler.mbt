@@ -13,16 +13,16 @@
 ///     optim.lr = scheduler.step()  // lr *= 0.1 every 30 epochs
 ///   }
 pub(all) struct StepLR {
-  step_size : Int
+  step_size : Int32
   gamma : Float
-  mut step_count : Int
+  mut step_count : Int32
   mut lr : Float
 }
 
 ///|
 pub fn StepLR::new(
   initial_lr : Double,
-  step_size : Int,
+  step_size : Int32,
   gamma : Double,
 ) -> StepLR {
   {

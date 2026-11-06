@@ -17,7 +17,7 @@ fn[T : Compare] max(a : T, b : T) -> T {
 }
 
 ///|
-fn make_stride(dims : ArrayView[Int]) -> Array[Int] {
+fn make_stride(dims : ArrayView[Int32]) -> Array[Int32] {
   let n = dims.length()
   let stride = Array::make(n, 0)
   let mut last = 1
@@ -38,7 +38,7 @@ fn broadcast_op(
   if x.shape.shape == y.shape.shape {
     let n = x.data.length()
     let o_data = FixedArray::makei(n, fn(i) { op(x.data[i], y.data[i]) })
-    return { shape: { shape: x.shape.shape.copy() }, data: o_data }
+    return { shape: { shape: x.shape.shape.copy(), }, data: o_data, }
   }
   let dx = x.shape.shape.length()
   let dy = y.shape.shape.length()
@@ -69,12 +69,12 @@ fn broadcast_op(
   let mut xi = 0
   let mut yi = 0
   fn step(
-    i : Int,
-    dim : FixedArray[Int],
-    o_dim : FixedArray[Int],
-    stride : Array[Int],
-    idx : FixedArray[Int],
-  ) -> Int {
+    i : Int32,
+    dim : FixedArray[Int32],
+    o_dim : FixedArray[Int32],
+    stride : Array[Int32],
+    idx : FixedArray[Int32],
+  ) -> Int32 {
     let mut i = i
     i += 1
     for p in d>..0 {
@@ -94,5 +94,5 @@ fn broadcast_op(
     xi = step(xi, x_dim, o_dim, x_stride, x_idx)
     yi = step(yi, y_dim, o_dim, y_stride, y_idx)
   }
-  { shape: { shape: o_dim }, data: o_data }
+  { shape: { shape: o_dim, }, data: o_data, }
 }

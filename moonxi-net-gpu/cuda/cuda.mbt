@@ -4,17 +4,17 @@
 // cuda.mbt — Safe public API wrapping the raw FFI layer
 
 ///|
-pub fn device_count() -> Int {
+pub fn device_count() -> Int32 {
   moonbit_cuda_device_count()
 }
 
 ///|
-pub fn check_error() -> Int {
+pub fn check_error() -> Int32 {
   moonbit_cuda_check_error()
 }
 
 ///|
-pub fn peek_error() -> Int {
+pub fn peek_error() -> Int32 {
   moonbit_cuda_peek_error()
 }
 
@@ -25,7 +25,7 @@ pub fn device_name() -> String {
 }
 
 ///|
-pub fn compute_capability() -> (Int, Int) {
+pub fn compute_capability() -> (Int32, Int32) {
   (
     moonbit_cuda_compute_capability_major(),
     moonbit_cuda_compute_capability_minor(),
@@ -38,27 +38,27 @@ pub fn alloc(bytes : Int64) -> GpuBuffer {
 }
 
 ///|
-pub fn copy_h2d(dst : GpuBuffer, src : FixedArray[Float]) -> Int {
+pub fn copy_h2d(dst : GpuBuffer, src : FixedArray[Float]) -> Int32 {
   moonbit_cuda_copy_h2d(dst, src, Int64::from_int(src.length()))
 }
 
 ///|
-pub fn raw_h2d(dst : GpuBuffer, src : FixedArray[Int]) -> Int {
+pub fn raw_h2d(dst : GpuBuffer, src : FixedArray[Int32]) -> Int32 {
   moonbit_cuda_raw_h2d(dst, src, Int64::from_int(src.length() * 4))
 }
 
 ///|
-pub fn copy_ptrs_h2d(dst : GpuBuffer, src : FixedArray[GpuBuffer]) -> Int {
+pub fn copy_ptrs_h2d(dst : GpuBuffer, src : FixedArray[GpuBuffer]) -> Int32 {
   moonbit_cuda_copy_ptrs_h2d(dst, src, src.length())
 }
 
 ///|
-pub fn memset_zero(dst : GpuBuffer, count : Int64) -> Int {
+pub fn memset_zero(dst : GpuBuffer, count : Int64) -> Int32 {
   moonbit_cuda_memset_zero(dst, count)
 }
 
 ///|
-pub fn copy_d2h(dst : FixedArray[Float], src : GpuBuffer) -> Int {
+pub fn copy_d2h(dst : FixedArray[Float], src : GpuBuffer) -> Int32 {
   moonbit_cuda_copy_d2h(dst, src, Int64::from_int(dst.length()))
 }
 
@@ -66,14 +66,19 @@ pub fn copy_d2h(dst : FixedArray[Float], src : GpuBuffer) -> Int {
 pub fn copy_h2d_offset(
   dst : GpuBuffer,
   src_base : FixedArray[Float],
-  offset_elements : Int,
-  count_elements : Int,
-) -> Int {
+  offset_elements : Int32,
+  count_elements : Int32,
+) -> Int32 {
   moonbit_cuda_copy_h2d_offset(dst, src_base, offset_elements, count_elements)
 }
 
 ///|
-pub fn vec_add(a : GpuBuffer, b : GpuBuffer, out : GpuBuffer, n : Int) -> Int {
+pub fn vec_add(
+  a : GpuBuffer,
+  b : GpuBuffer,
+  out : GpuBuffer,
+  n : Int32,
+) -> Int32 {
   moonbit_cuda_vec_add(a, b, out, n)
 }
 
@@ -90,29 +95,29 @@ pub fn cublas_destroy(handle : CublasHandle) -> Unit {
 ///|
 pub fn cublas_sgemv(
   handle : CublasHandle,
-  m : Int,
-  n : Int,
+  m : Int32,
+  n : Int32,
   alpha : Float,
   d_A : GpuBuffer,
   d_x : GpuBuffer,
   beta : Float,
   d_y : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_cublas_sgemv(handle, m, n, alpha, d_A, d_x, beta, d_y)
 }
 
 ///|
 pub fn cublas_sgemm(
   handle : CublasHandle,
-  m : Int,
-  n : Int,
-  k : Int,
+  m : Int32,
+  n : Int32,
+  k : Int32,
   alpha : Float,
   d_A : GpuBuffer,
   d_B : GpuBuffer,
   beta : Float,
   d_C : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_cublas_sgemm(handle, m, n, k, alpha, d_A, d_B, beta, d_C)
 }
 
@@ -132,19 +137,19 @@ pub fn cudnn_destroy(handle : CudnnHandle) -> Unit {
 
 ///|
 pub fn conv2d_create(
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-  out_c : Int,
-  kh : Int,
-  kw : Int,
-  pad_h : Int,
-  pad_w : Int,
-  stride_h : Int,
-  stride_w : Int,
-  dilation_h : Int,
-  dilation_w : Int,
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+  out_c : Int32,
+  kh : Int32,
+  kw : Int32,
+  pad_h : Int32,
+  pad_w : Int32,
+  stride_h : Int32,
+  stride_w : Int32,
+  dilation_h : Int32,
+  dilation_w : Int32,
 ) -> Conv2dContext {
   moonbit_conv2d_create(
     n, c, h, w, out_c, kh, kw, pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w,
@@ -159,7 +164,7 @@ pub fn conv2d_forward(
   weight : GpuBuffer,
   bias : GpuBuffer,
   output : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_conv2d_forward(ctx, cudnn_handle, input, weight, bias, output)
 }
 
@@ -171,7 +176,7 @@ pub fn conv2d_forward_bias_relu(
   weight : GpuBuffer,
   bias : GpuBuffer,
   output : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_conv2d_forward_bias_relu(
     ctx, cudnn_handle, input, weight, bias, output,
   )
@@ -184,7 +189,7 @@ pub fn conv2d_backward_data(
   grad_output : GpuBuffer,
   weight : GpuBuffer,
   grad_input : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_conv2d_backward_data(
     ctx, cudnn_handle, grad_output, weight, grad_input,
   )
@@ -197,7 +202,7 @@ pub fn conv2d_backward_filter(
   input : GpuBuffer,
   grad_output : GpuBuffer,
   grad_weight : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_conv2d_backward_filter(
     ctx, cudnn_handle, input, grad_output, grad_weight,
   )
@@ -208,11 +213,11 @@ pub fn conv2d_backward_bias(
   cudnn_handle : CudnnHandle,
   grad_output : GpuBuffer,
   grad_bias : GpuBuffer,
-  batch : Int,
-  out_c : Int,
-  out_h : Int,
-  out_w : Int,
-) -> Int {
+  batch : Int32,
+  out_c : Int32,
+  out_h : Int32,
+  out_w : Int32,
+) -> Int32 {
   moonbit_conv2d_backward_bias(
     cudnn_handle, grad_output, grad_bias, batch, out_c, out_h, out_w,
   )
@@ -226,7 +231,12 @@ pub fn conv2d_destroy(ctx : Conv2dContext) -> Unit {
 // === BatchNorm ===
 
 ///|
-pub fn batchnorm_create(n : Int, c : Int, h : Int, w : Int) -> BatchNormContext {
+pub fn batchnorm_create(
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> BatchNormContext {
   moonbit_batchnorm_create(n, c, h, w)
 }
 
@@ -245,7 +255,7 @@ pub fn batchnorm_forward(
   momentum : Float,
   epsilon : Float,
   is_training : Bool,
-) -> Int {
+) -> Int32 {
   moonbit_batchnorm_forward(
     ctx,
     cudnn_handle,
@@ -276,10 +286,10 @@ pub fn cuda_batchnorm_inference(
   running_mean : GpuBuffer,
   running_var : GpuBuffer,
   epsilon : Float,
-  n : Int,
-  c : Int,
-  hw : Int,
-) -> Int {
+  n : Int32,
+  c : Int32,
+  hw : Int32,
+) -> Int32 {
   moonbit_cuda_batchnorm_inference(
     input, output, gamma, beta, running_mean, running_var, epsilon, n, c, hw,
   )
@@ -298,7 +308,7 @@ pub fn batchnorm_backward(
   bn_save_mean : GpuBuffer,
   bn_save_inv_var : GpuBuffer,
   epsilon : Float,
-) -> Int {
+) -> Int32 {
   moonbit_batchnorm_backward(
     ctx, cudnn_handle, input, grad_output, grad_input, bn_scale, grad_bn_scale, grad_bn_bias,
     bn_save_mean, bn_save_inv_var, epsilon,
@@ -318,7 +328,7 @@ pub fn cudnn_relu_forward(
   n_elements : Int64,
   input : GpuBuffer,
   output : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_cudnn_relu_forward(handle, n_elements, input, output)
 }
 
@@ -329,7 +339,7 @@ pub fn cudnn_relu_backward(
   input : GpuBuffer,
   grad_output : GpuBuffer,
   grad_input : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_cudnn_relu_backward(
     handle, n_elements, input, grad_output, grad_input,
   )
@@ -339,17 +349,17 @@ pub fn cudnn_relu_backward(
 
 ///|
 pub fn pool2d_create(
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-  kh : Int,
-  kw : Int,
-  pad_h : Int,
-  pad_w : Int,
-  stride_h : Int,
-  stride_w : Int,
-  pool_type : Int,
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+  kh : Int32,
+  kw : Int32,
+  pad_h : Int32,
+  pad_w : Int32,
+  stride_h : Int32,
+  stride_w : Int32,
+  pool_type : Int32,
 ) -> Pool2dContext {
   moonbit_pool2d_create(
     n, c, h, w, kh, kw, pad_h, pad_w, stride_h, stride_w, pool_type,
@@ -362,7 +372,7 @@ pub fn pool2d_forward(
   cudnn_handle : CudnnHandle,
   input : GpuBuffer,
   output : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_pool2d_forward(ctx, cudnn_handle, input, output)
 }
 
@@ -373,7 +383,7 @@ pub fn pool2d_backward(
   input : GpuBuffer,
   grad_output : GpuBuffer,
   grad_input : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_pool2d_backward(ctx, cudnn_handle, input, grad_output, grad_input)
 }
 
@@ -390,7 +400,7 @@ pub fn conv2d_cache_clear() -> Unit {
 }
 
 ///|
-pub fn conv2d_cache_size() -> Int {
+pub fn conv2d_cache_size() -> Int32 {
   moonbit_conv2d_cache_size()
 }
 
@@ -400,7 +410,7 @@ pub fn batchnorm_cache_clear() -> Unit {
 }
 
 ///|
-pub fn batchnorm_cache_size() -> Int {
+pub fn batchnorm_cache_size() -> Int32 {
   moonbit_batchnorm_cache_size()
 }
 
@@ -410,7 +420,7 @@ pub fn pool2d_cache_clear() -> Unit {
 }
 
 ///|
-pub fn pool2d_cache_size() -> Int {
+pub fn pool2d_cache_size() -> Int32 {
   moonbit_pool2d_cache_size()
 }
 
@@ -450,11 +460,11 @@ pub fn pool_capacity(pool : GpuPool) -> Int64 {
 pub fn transpose_nchw_to_nhwc(
   src : GpuBuffer,
   dst : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int {
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 {
   moonbit_cuda_transpose_nchw_to_nhwc(src, dst, n, c, h, w)
 }
 
@@ -462,11 +472,11 @@ pub fn transpose_nchw_to_nhwc(
 pub fn transpose_nhwc_to_nchw(
   src : GpuBuffer,
   dst : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int {
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 {
   moonbit_cuda_transpose_nhwc_to_nchw(src, dst, n, c, h, w)
 }
 
@@ -474,10 +484,10 @@ pub fn transpose_nhwc_to_nchw(
 pub fn bias_add_nchw(
   data : GpuBuffer,
   bias : GpuBuffer,
-  n : Int,
-  c : Int,
-  hw : Int,
-) -> Int {
+  n : Int32,
+  c : Int32,
+  hw : Int32,
+) -> Int32 {
   moonbit_cuda_bias_add_nchw(data, bias, n, c, hw)
 }
 
@@ -486,13 +496,17 @@ pub fn elementwise_add(
   a : GpuBuffer,
   b : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
-) -> Int {
+  n : Int32,
+) -> Int32 {
   moonbit_cuda_elementwise_add(a, b, out, n)
 }
 
 ///|
-pub fn elementwise_add_into(dst : GpuBuffer, src : GpuBuffer, n : Int) -> Int {
+pub fn elementwise_add_into(
+  dst : GpuBuffer,
+  src : GpuBuffer,
+  n : Int32,
+) -> Int32 {
   moonbit_cuda_elementwise_add_into(dst, src, n)
 }
 
@@ -502,11 +516,11 @@ pub fn elementwise_add_into(dst : GpuBuffer, src : GpuBuffer, n : Int) -> Int {
 pub fn reduce_sum_spatial(
   input : GpuBuffer,
   output : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int {
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 {
   moonbit_cuda_reduce_sum_spatial(input, output, n, c, h, w)
 }
 
@@ -514,9 +528,9 @@ pub fn reduce_sum_spatial(
 pub fn reduce_sum_leading(
   input : GpuBuffer,
   output : GpuBuffer,
-  output_numel : Int,
-  lead_stride : Int,
-) -> Int {
+  output_numel : Int32,
+  lead_stride : Int32,
+) -> Int32 {
   moonbit_cuda_reduce_sum_leading(input, output, output_numel, lead_stride)
 }
 
@@ -524,11 +538,11 @@ pub fn reduce_sum_leading(
 pub fn reduce_sum_dim(
   input : GpuBuffer,
   output : GpuBuffer,
-  output_numel : Int,
-  dim_size : Int,
-  stride_before : Int,
-  stride_after : Int,
-) -> Int {
+  output_numel : Int32,
+  dim_size : Int32,
+  stride_before : Int32,
+  stride_after : Int32,
+) -> Int32 {
   moonbit_cuda_reduce_sum_dim(
     input, output, output_numel, dim_size, stride_before, stride_after,
   )
@@ -540,11 +554,11 @@ pub fn reduce_sum_dim(
 pub fn adaptive_avg_pool2d_forward(
   input : GpuBuffer,
   output : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int {
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 {
   moonbit_cuda_adaptive_avg_pool2d_forward(input, output, n, c, h, w)
 }
 
@@ -552,11 +566,11 @@ pub fn adaptive_avg_pool2d_forward(
 pub fn adaptive_avg_pool2d_backward(
   dy : GpuBuffer,
   d_input : GpuBuffer,
-  n : Int,
-  c : Int,
-  h : Int,
-  w : Int,
-) -> Int {
+  n : Int32,
+  c : Int32,
+  h : Int32,
+  w : Int32,
+) -> Int32 {
   moonbit_cuda_adaptive_avg_pool2d_backward(dy, d_input, n, c, h, w)
 }
 
@@ -568,9 +582,9 @@ pub fn softmax_ce_forward(
   targets : GpuBuffer,
   loss_output : GpuBuffer,
   softmax_output : GpuBuffer,
-  batch : Int,
-  num_classes : Int,
-) -> Int {
+  batch : Int32,
+  num_classes : Int32,
+) -> Int32 {
   moonbit_cuda_softmax_ce_forward(
     logits, targets, loss_output, softmax_output, batch, num_classes,
   )
@@ -581,9 +595,9 @@ pub fn softmax_ce_backward(
   logits : GpuBuffer,
   targets : GpuBuffer,
   output : GpuBuffer,
-  batch : Int,
-  num_classes : Int,
-) -> Int {
+  batch : Int32,
+  num_classes : Int32,
+) -> Int32 {
   moonbit_cuda_softmax_ce_backward(logits, targets, output, batch, num_classes)
 }
 
@@ -596,9 +610,9 @@ pub fn softmax_ce_forward_labels(
   logits : GpuBuffer,
   labels : GpuBuffer,
   loss_output : GpuBuffer,
-  batch : Int,
-  num_classes : Int,
-) -> Int {
+  batch : Int32,
+  num_classes : Int32,
+) -> Int32 {
   moonbit_cuda_softmax_ce_forward_labels(
     logits, labels, loss_output, batch, num_classes,
   )
@@ -611,9 +625,9 @@ pub fn softmax_ce_backward_labels(
   logits : GpuBuffer,
   labels : GpuBuffer,
   output : GpuBuffer,
-  batch : Int,
-  num_classes : Int,
-) -> Int {
+  batch : Int32,
+  num_classes : Int32,
+) -> Int32 {
   moonbit_cuda_softmax_ce_backward_labels(
     logits, labels, output, batch, num_classes,
   )
@@ -627,14 +641,14 @@ pub fn matmul(
   a : GpuBuffer,
   b : GpuBuffer,
   c : GpuBuffer,
-  m : Int,
-  k : Int,
-  n : Int,
+  m : Int32,
+  k : Int32,
+  n : Int32,
   transpose_a : Bool,
   transpose_b : Bool,
   alpha : Float,
   beta : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_matmul(
     handle,
     a,
@@ -659,7 +673,7 @@ pub fn matmul(
 }
 
 ///|
-pub fn accumulate_inplace(dst : GpuBuffer, src : GpuBuffer, n : Int) -> Int {
+pub fn accumulate_inplace(dst : GpuBuffer, src : GpuBuffer, n : Int32) -> Int32 {
   moonbit_cuda_accumulate_inplace(dst, src, n)
 }
 
@@ -670,12 +684,12 @@ pub fn sgd_momentum_step(
   param : GpuBuffer,
   grad : GpuBuffer,
   velocity : GpuBuffer,
-  n : Int,
+  n : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_sgd_momentum_step(
     param, grad, velocity, n, lr, momentum, weight_decay, clip_coef,
   )
@@ -685,25 +699,25 @@ pub fn sgd_momentum_step(
 pub fn sgd_step(
   param : GpuBuffer,
   grad : GpuBuffer,
-  n : Int,
+  n : Int32,
   lr : Float,
   weight_decay : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_sgd_step(param, grad, n, lr, weight_decay)
 }
 
 ///|
-pub fn norm_sq(src : GpuBuffer, n : Int, dst : GpuBuffer) -> Int {
+pub fn norm_sq(src : GpuBuffer, n : Int32, dst : GpuBuffer) -> Int32 {
   moonbit_cuda_norm_sq(src, n, dst)
 }
 
 ///|
 pub fn multi_tensor_norm_sq(
   tensor_ptrs : FixedArray[GpuBuffer],
-  tensor_sizes : FixedArray[Int],
-  num_tensors : Int,
+  tensor_sizes : FixedArray[Int32],
+  num_tensors : Int32,
   dst : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_multi_tensor_norm_sq(tensor_ptrs, tensor_sizes, num_tensors, dst)
 }
 
@@ -712,9 +726,9 @@ pub fn multi_tensor_norm_sq(
 pub fn multi_tensor_norm_sq_gpu_only(
   d_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
-  num_tensors : Int,
+  num_tensors : Int32,
   dst : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_multi_tensor_norm_sq_gpu_only(d_ptrs, d_sizes, num_tensors, dst)
 }
 
@@ -726,10 +740,10 @@ pub fn mt_norm_sq_gpu_only(
   d_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   dst : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_mt_norm_sq_gpu_only(
     d_ptrs, d_sizes, d_block_offsets, num_tensors, total_blocks, dst,
   )
@@ -743,13 +757,13 @@ pub fn mt_sgd_momentum_gpu_only(
   d_vel_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_mt_sgd_momentum_gpu_only(
     d_param_ptrs, d_grad_ptrs, d_vel_ptrs, d_sizes, d_block_offsets, num_tensors,
     total_blocks, lr, momentum, weight_decay, clip_coef,
@@ -763,14 +777,14 @@ pub fn mt_sgd_momentum_autoclip(
   d_vel_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   norm_buf : GpuBuffer,
   max_grad_norm : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_mt_sgd_momentum_autoclip(
     d_param_ptrs, d_grad_ptrs, d_vel_ptrs, d_sizes, d_block_offsets, num_tensors,
     total_blocks, lr, momentum, weight_decay, norm_buf, max_grad_norm,
@@ -782,13 +796,13 @@ pub fn multi_tensor_sgd_momentum_step(
   param_ptrs : FixedArray[GpuBuffer],
   grad_ptrs : FixedArray[GpuBuffer],
   velocity_ptrs : FixedArray[GpuBuffer],
-  tensor_sizes : FixedArray[Int],
-  num_tensors : Int,
+  tensor_sizes : FixedArray[Int32],
+  num_tensors : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_multi_tensor_sgd_momentum_step(
     param_ptrs, grad_ptrs, velocity_ptrs, tensor_sizes, num_tensors, lr, momentum,
     weight_decay, clip_coef,
@@ -800,8 +814,8 @@ pub fn multi_tensor_sgd_momentum_step_prealloc(
   param_ptrs : FixedArray[GpuBuffer],
   grad_ptrs : FixedArray[GpuBuffer],
   velocity_ptrs : FixedArray[GpuBuffer],
-  tensor_sizes : FixedArray[Int],
-  num_tensors : Int,
+  tensor_sizes : FixedArray[Int32],
+  num_tensors : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
@@ -810,7 +824,7 @@ pub fn multi_tensor_sgd_momentum_step_prealloc(
   d_grad_ptrs : GpuBuffer,
   d_vel_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_multi_tensor_sgd_momentum_step_prealloc(
     param_ptrs, grad_ptrs, velocity_ptrs, tensor_sizes, num_tensors, lr, momentum,
     weight_decay, clip_coef, d_param_ptrs, d_grad_ptrs, d_vel_ptrs, d_sizes,
@@ -823,12 +837,12 @@ pub fn multi_tensor_sgd_momentum_step_gpu_only(
   d_grad_ptrs : GpuBuffer,
   d_vel_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
-  num_tensors : Int,
+  num_tensors : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_multi_tensor_sgd_momentum_step_gpu_only(
     d_param_ptrs, d_grad_ptrs, d_vel_ptrs, d_sizes, num_tensors, lr, momentum, weight_decay,
     clip_coef,
@@ -840,12 +854,12 @@ pub fn contiguous_sgd_momentum_step(
   params : GpuBuffer,
   grads : GpuBuffer,
   vels : GpuBuffer,
-  total_elements : Int,
+  total_elements : Int32,
   lr : Float,
   momentum : Float,
   weight_decay : Float,
   clip_coef : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_contiguous_sgd_momentum_step(
     params, grads, vels, total_elements, lr, momentum, weight_decay, clip_coef,
   )
@@ -861,9 +875,9 @@ pub fn gather(
   d_src_ptrs : GpuBuffer,
   d_offsets : GpuBuffer,
   d_sizes : GpuBuffer,
-  num_tensors : Int,
+  num_tensors : Int32,
   dst : GpuBuffer,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_gather(d_src_ptrs, d_offsets, d_sizes, num_tensors, dst)
 }
 
@@ -874,14 +888,18 @@ pub fn scatter(
   d_dst_ptrs : GpuBuffer,
   d_offsets : GpuBuffer,
   d_sizes : GpuBuffer,
-  num_tensors : Int,
-) -> Int {
+  num_tensors : Int32,
+) -> Int32 {
   moonbit_cuda_scatter(src, d_dst_ptrs, d_offsets, d_sizes, num_tensors)
 }
 
 ///|
 /// Compute sum-of-squares over a flat GPU buffer, accumulate into out.
-pub fn contiguous_norm_sq(data : GpuBuffer, n : Int, out : GpuBuffer) -> Int {
+pub fn contiguous_norm_sq(
+  data : GpuBuffer,
+  n : Int32,
+  out : GpuBuffer,
+) -> Int32 {
   moonbit_cuda_contiguous_norm_sq(data, n, out)
 }
 
@@ -895,19 +913,19 @@ pub fn batch_gather(
   src : GpuBuffer,
   indices : GpuBuffer,
   dst : GpuBuffer,
-  stride : Int,
-  batch_size : Int,
-) -> Int {
+  stride : Int32,
+  batch_size : Int32,
+) -> Int32 {
   moonbit_cuda_batch_gather(src, indices, dst, stride, batch_size)
 }
 
 ///|
-pub fn scale_inplace(data : GpuBuffer, n : Int, scale : Float) -> Int {
+pub fn scale_inplace(data : GpuBuffer, n : Int32, scale : Float) -> Int32 {
   moonbit_cuda_scale_inplace(data, n, scale)
 }
 
 ///|
-pub fn fill(out : GpuBuffer, n : Int, value : Float) -> Int {
+pub fn fill(out : GpuBuffer, n : Int32, value : Float) -> Int32 {
   moonbit_cuda_fill(out, n, value)
 }
 
@@ -917,7 +935,7 @@ pub fn read_scalar(src : GpuBuffer) -> Float {
 }
 
 ///|
-pub fn axpy(n : Int, alpha : Float, x : GpuBuffer, y : GpuBuffer) -> Int {
+pub fn axpy(n : Int32, alpha : Float, x : GpuBuffer, y : GpuBuffer) -> Int32 {
   moonbit_cuda_axpy(n, alpha, x, y)
 }
 
@@ -932,27 +950,37 @@ pub fn sync() -> Unit {
 }
 
 ///|
-pub fn sub(a : GpuBuffer, b : GpuBuffer, out : GpuBuffer, n : Int) -> Int {
+pub fn sub(a : GpuBuffer, b : GpuBuffer, out : GpuBuffer, n : Int32) -> Int32 {
   moonbit_cuda_sub(a, b, out, n)
 }
 
 ///|
-pub fn mul_elem(a : GpuBuffer, b : GpuBuffer, out : GpuBuffer, n : Int) -> Int {
+pub fn mul_elem(
+  a : GpuBuffer,
+  b : GpuBuffer,
+  out : GpuBuffer,
+  n : Int32,
+) -> Int32 {
   moonbit_cuda_mul_elem(a, b, out, n)
 }
 
 ///|
-pub fn square(src : GpuBuffer, out : GpuBuffer, n : Int) -> Int {
+pub fn square(src : GpuBuffer, out : GpuBuffer, n : Int32) -> Int32 {
   moonbit_cuda_square(src, out, n)
 }
 
 ///|
-pub fn sqrt(src : GpuBuffer, out : GpuBuffer, n : Int) -> Int {
+pub fn sqrt(src : GpuBuffer, out : GpuBuffer, n : Int32) -> Int32 {
   moonbit_cuda_sqrt(src, out, n)
 }
 
 ///|
-pub fn div_elem(a : GpuBuffer, b : GpuBuffer, out : GpuBuffer, n : Int) -> Int {
+pub fn div_elem(
+  a : GpuBuffer,
+  b : GpuBuffer,
+  out : GpuBuffer,
+  n : Int32,
+) -> Int32 {
   moonbit_cuda_div_elem(a, b, out, n)
 }
 
@@ -960,9 +988,9 @@ pub fn div_elem(a : GpuBuffer, b : GpuBuffer, out : GpuBuffer, n : Int) -> Int {
 pub fn scale_out(
   src : GpuBuffer,
   out : GpuBuffer,
-  n : Int,
+  n : Int32,
   scale : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_scale_out(src, out, n, scale)
 }
 
@@ -970,9 +998,9 @@ pub fn scale_out(
 pub fn transpose_2d(
   input : GpuBuffer,
   output : GpuBuffer,
-  n : Int,
-  m : Int,
-) -> Int {
+  n : Int32,
+  m : Int32,
+) -> Int32 {
   moonbit_cuda_transpose_2d(input, output, n, m)
 }
 
@@ -989,7 +1017,7 @@ pub fn null_buffer() -> GpuBuffer {
 }
 
 ///|
-pub fn event_record(stream : GpuBuffer, event : CudaEvent) -> Int {
+pub fn event_record(stream : GpuBuffer, event : CudaEvent) -> Int32 {
   moonbit_cuda_event_record(stream, event)
 }
 
@@ -999,7 +1027,7 @@ pub fn event_elapsed_ms(start : CudaEvent, end : CudaEvent) -> Float {
 }
 
 ///|
-pub fn event_synchronize(event : CudaEvent) -> Int {
+pub fn event_synchronize(event : CudaEvent) -> Int32 {
   moonbit_cuda_event_synchronize(event)
 }
 
@@ -1007,9 +1035,9 @@ pub fn event_synchronize(event : CudaEvent) -> Int {
 pub fn argmax(
   input : GpuBuffer,
   output : GpuBuffer,
-  outer : Int,
-  inner : Int,
-) -> Int {
+  outer : Int32,
+  inner : Int32,
+) -> Int32 {
   moonbit_cuda_argmax(input, output, outer, inner)
 }
 
@@ -1021,8 +1049,8 @@ pub fn mt_adam_autoclip(
   d_v_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   lr : Float,
   beta1 : Float,
   beta2 : Float,
@@ -1034,7 +1062,7 @@ pub fn mt_adam_autoclip(
   weight_decay : Float,
   norm_buf : GpuBuffer,
   max_grad_norm : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_mt_adam_autoclip(
     d_param_ptrs, d_grad_ptrs, d_m_ptrs, d_v_ptrs, d_sizes, d_block_offsets, num_tensors,
     total_blocks, lr, beta1, beta2, one_minus_beta1, one_minus_beta2, bias_correction1,
@@ -1050,18 +1078,18 @@ pub fn mt_rmsprop_autoclip(
   d_buf_ptrs : GpuBuffer,
   d_sizes : GpuBuffer,
   d_block_offsets : GpuBuffer,
-  num_tensors : Int,
-  total_blocks : Int,
+  num_tensors : Int32,
+  total_blocks : Int32,
   lr : Float,
   alpha : Float,
   one_minus_alpha : Float,
   eps : Float,
   weight_decay : Float,
   momentum : Float,
-  has_momentum : Int,
+  has_momentum : Int32,
   norm_buf : GpuBuffer,
   max_grad_norm : Float,
-) -> Int {
+) -> Int32 {
   moonbit_cuda_mt_rmsprop_autoclip(
     d_param_ptrs, d_grad_ptrs, d_v_ptrs, d_buf_ptrs, d_sizes, d_block_offsets, num_tensors,
     total_blocks, lr, alpha, one_minus_alpha, eps, weight_decay, momentum, has_momentum,

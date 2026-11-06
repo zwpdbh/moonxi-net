@@ -23,10 +23,10 @@ pub(all) struct ContiguousOptimState {
   // Metadata
   param_ptrs : FixedArray[@cuda.GpuBuffer]
   vel_ptrs : FixedArray[@cuda.GpuBuffer]
-  sizes : FixedArray[Int]
-  offsets : FixedArray[Int]
-  total_elements : Int
-  num_tensors : Int
+  sizes : FixedArray[Int32]
+  offsets : FixedArray[Int32]
+  total_elements : Int32
+  num_tensors : Int32
 }
 
 ///|
@@ -208,8 +208,8 @@ pub(all) struct MultiTensorOptimState {
   // Host-side grad pointer array (reused each step)
   grad_ptrs : FixedArray[@cuda.GpuBuffer]
   // Metadata
-  num_tensors : Int
-  total_blocks : Int
+  num_tensors : Int32
+  total_blocks : Int32
 }
 
 ///|

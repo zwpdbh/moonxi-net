@@ -7,8 +7,8 @@ pub fn gpu_conv2d(
   weight : GpuTensor,
   bias : GpuTensor,
   cudnn : @cuda.CudnnHandle,
-  stride : Int,
-  padding : Int,
+  stride : Int32,
+  padding : Int32,
 ) -> GpuTensor {
   let output = GpuTensor::alloc_st(
     @ts.ShapeTensor::conv2d(

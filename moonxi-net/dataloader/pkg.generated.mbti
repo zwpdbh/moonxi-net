@@ -7,14 +7,13 @@ package "chnlkw/moonxi-net/dataloader"
 
 // Types and methods
 pub(all) struct DataLoader[T] {
-  num_samples : Int
-  get : (Int) -> (T, T)
-  batch : (ArrayView[Int]) -> (T, T)
+  num_samples : Int32
+  get : (Int32) -> (T, T)
+  batch : (ArrayView[Int32]) -> (T, T)
 }
-pub fn[T] DataLoader::batches(Self[T], Int, shuffle? : Bool) -> Iter[(T, T)]
-pub fn[T] DataLoader::num_samples(Self[T]) -> Int
+pub fn[T] DataLoader::batches(Self[T], Int32, shuffle? : Bool) -> Iter[(T, T)]
+pub fn[T] DataLoader::num_samples(Self[T]) -> Int32
 
 // Type aliases
 
 // Traits
-

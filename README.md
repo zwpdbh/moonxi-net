@@ -13,7 +13,7 @@ Trained a ResNet-18 on CIFAR-10 to **69.6% test accuracy** (20 epochs, momentum 
 
 | Dependency | Version | Purpose |
 |---|---|---|
-| [MoonBit (CUDA fork)](https://github.com/chnlkw/moon/tree/support_cuda) | latest | Compiler & toolchain (CUDA-patched fork) |
+| MoonBit | current standard toolchain | MoonBit code and C stubs |
 | CUDA Toolkit | 12.8+ | nvcc, cuBLAS, CUDA Runtime |
 | cuDNN | 9.21+ | Conv2d, BatchNorm, Pooling |
 | C compiler (GCC/Clang/MSVC) | - | Native stub compilation |
@@ -79,22 +79,26 @@ moon run moonxi-net/examples/tutorial --target native
 
 ## Quick Start
 
-### Install MoonBit
+### Build CUDA kernels
 
-This project requires a [CUDA-patched fork of MoonBit](https://github.com/chnlkw/moon/tree/support_cuda). Build and install it with:
+Use the standard MoonBit toolchain. For GPU packages, compile the CUDA kernels
+into a static library first:
 
 ```bash
-git clone https://github.com/chnlkw/moon.git -b support_cuda
-cd moon
-cargo build --release
-cp target/release/moon ~/.bin/moon/
+scripts/build_cuda_kernels.sh
 ```
 
-> The standard MoonBit toolchain does not support CUDA compilation. You must use the fork above.
+The script finds `nvcc` through `NVCC`, `CUDA_HOME`, or `/usr/local/cuda`. Set
+`NVCC_FLAGS` to override GPU architectures and `CUDNN_INCLUDE` when cuDNN headers
+are in a nonstandard location. Set `CUDA_BUILD_DIR` to place the library in a
+consuming workspace's `_build` directory. `moonxi-net-gpu/build_config.js`
+propagates the native library and search-path settings to dependent executables
+and tests, so their package files do not need duplicate link flags.
 
 ### Build & Test
 
-> **Note:** Running `moon test` or `moon build` for the full workspace requires the CUDA-patched MoonBit, because benchmark and integration test packages depend on GPU packages. If you only have the standard MoonBit, you can test individual CPU packages (see below).
+> **Note:** Build the CUDA kernels before running workspace commands that link
+> GPU packages. CPU-only tests do not require CUDA tools.
 
 ```bash
 # From workspace root
@@ -103,7 +107,7 @@ moon update
 # Format code & update interfaces
 moon info && moon fmt
 
-# Run all tests (requires CUDA-patched MoonBit + CUDA toolkit)
+# Run all tests (build the CUDA kernels first)
 moon test --target native
 
 # Build all
@@ -113,9 +117,8 @@ moon build --target native
 **Testing CPU packages with standard MoonBit** (no GPU required):
 
 ```bash
-# From the moonxi-net/ directory
-cd moonxi-net
-moon test --target native
+# From the workspace root; select the CPU module explicitly.
+moon test moonxi-net --target native
 ```
 
 ### Run Examples

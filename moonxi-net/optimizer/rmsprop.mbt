@@ -15,8 +15,12 @@ pub fn[T : @tensor.Tensor + BatchRmspropAutoclip] rmsprop(
   weight_decay : Double,
   momentum : Double,
 ) -> Optimizer[T] {
-  let v = params.map(fn(p : @grad.Grad[T]) -> T { T::zeros_like(p.value) })
-  let buf = params.map(fn(p : @grad.Grad[T]) -> T { T::zeros_like(p.value) })
+  let v = params.map(fn(p : @grad.Grad[T]) -> T {
+    @tensor.Tensor::zeros_like(p.value)
+  })
+  let buf = params.map(fn(p : @grad.Grad[T]) -> T {
+    @tensor.Tensor::zeros_like(p.value)
+  })
   let alpha_f = Float::from_double(alpha)
   let one_minus_alpha = Float::from_double(1.0 - alpha)
   let eps_f = Float::from_double(eps)
@@ -41,16 +45,22 @@ pub fn[T : @tensor.Tensor + BatchRmspropAutoclip] rmsprop(
       if has_grad == false {
         return
       }
-      T::batch_rmsprop_autoclip(param_vals, grad_vals, v, buf, {
-        lr,
-        alpha: alpha_f,
-        one_minus_alpha,
-        eps: eps_f,
-        weight_decay: wd_f,
-        momentum: momentum_f,
-        has_momentum,
-        max_grad_norm: 35.0,
-      })
+      BatchRmspropAutoclip::batch_rmsprop_autoclip(
+        param_vals,
+        grad_vals,
+        v,
+        buf,
+        {
+          lr,
+          alpha: alpha_f,
+          one_minus_alpha,
+          eps: eps_f,
+          weight_decay: wd_f,
+          momentum: momentum_f,
+          has_momentum,
+          max_grad_norm: 35.0,
+        },
+      )
     },
   }
 }

@@ -16,7 +16,7 @@ test "Linear forward: x @ w + b" {
   ])
   // b shape [3]
   let b = @nparray.NpArray::from1d([0.0, 0.0, 0.0])
-  let linear : Linear[@nparray.NpArray] = { w, b }
+  let linear : Linear[@nparray.NpArray] = { w, b, }
   // input shape [1, 2] (batch=1, features=2)
   let x = @nparray.NpArray::from2d([[3.0, 5.0]])
   let out = linear.forward(x)
@@ -33,7 +33,7 @@ test "Linear forward: with non-zero bias" {
   // w shape [2, 2]: input dim 2 -> output dim 2
   let w = @nparray.NpArray::from2d([[2.0, 4.0], [3.0, 5.0]])
   let b = @nparray.NpArray::from1d([10.0, 20.0])
-  let linear : Linear[@nparray.NpArray] = { w, b }
+  let linear : Linear[@nparray.NpArray] = { w, b, }
   let x = @nparray.NpArray::from2d([[1.0, 1.0]])
   let out = linear.forward(x)
   // x @ w = [[1,1]] @ [[2,4],[3,5]] = [[2+3, 4+5]] = [[5, 9]]
@@ -48,7 +48,7 @@ test "Linear::as_module returns trainable_params [w, b]" {
   // w shape [2, 2]
   let w = @nparray.NpArray::from2d([[1.0, 2.0], [3.0, 4.0]])
   let b = @nparray.NpArray::from1d([0.5, 0.5])
-  let linear : Linear[@nparray.NpArray] = { w, b }
+  let linear : Linear[@nparray.NpArray] = { w, b, }
   let mod_ = linear.as_module()
   let params = (mod_.trainable_params)()
   assert_eq(params.length(), 2)
@@ -64,13 +64,13 @@ test "Module::sequential chains two modules and collects params" {
   // First linear: input dim 2 -> output dim 3 (w shape [2, 3])
   let w1 = @nparray.NpArray::from2d([[1.0, 0.0, 1.0], [0.0, 1.0, 1.0]])
   let b1 = @nparray.NpArray::from1d([0.0, 0.0, 0.0])
-  let l1 : Linear[@nparray.NpArray] = { w: w1, b: b1 }
+  let l1 : Linear[@nparray.NpArray] = { w: w1, b: b1, }
   let m1 = l1.as_module()
 
   // Second linear: input dim 3 -> output dim 2 (w shape [3, 2])
   let w2 = @nparray.NpArray::from2d([[1.0, 0.0], [0.0, 1.0], [0.0, 0.0]])
   let b2 = @nparray.NpArray::from1d([0.0, 0.0])
-  let l2 : Linear[@nparray.NpArray] = { w: w2, b: b2 }
+  let l2 : Linear[@nparray.NpArray] = { w: w2, b: b2, }
   let m2 = l2.as_module()
 
   let seq = sequential([m1, m2])

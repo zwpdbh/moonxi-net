@@ -17,7 +17,7 @@ test "grad add backward" {
     @nparray.NpArray::from1d([1.0, 1.0, 1.0]),
     1.0 / 3.0,
   )
-  guard x.grad is Some(Some({ shape: _, data: [dg0, dg1, dg2] })) else {
+  guard x.grad is Some(Some({ shape: _, data: [dg0, dg1, dg2], })) else {
     fail("x.grad mismatch")
   }
   let exp_arr = expected.data
@@ -44,10 +44,10 @@ test "grad sub backward" {
     @nparray.NpArray::from1d([1.0, 1.0, 1.0]),
     -1.0 / 3.0,
   )
-  guard x.grad is Some(Some({ shape: _, data: [gx0, gx1, gx2] })) else {
+  guard x.grad is Some(Some({ shape: _, data: [gx0, gx1, gx2], })) else {
     fail("x.grad mismatch")
   }
-  guard y.grad is Some(Some({ shape: _, data: [gy0, gy1, gy2] })) else {
+  guard y.grad is Some(Some({ shape: _, data: [gy0, gy1, gy2], })) else {
     fail("y.grad mismatch")
   }
   let ex = expected_x.data
@@ -71,7 +71,7 @@ test "grad square backward" {
     @nparray.NpArray::from1d([1.0, 2.0, 3.0]),
     2.0 / 3.0,
   )
-  guard x.grad is Some(Some({ shape: _, data: [g0, g1, g2] })) else {
+  guard x.grad is Some(Some({ shape: _, data: [g0, g1, g2], })) else {
     fail("x.grad mismatch")
   }
   let exp = expected.data
@@ -93,7 +93,7 @@ test "grad chain rule" {
     @nparray.NpArray::from1d([1.0, 2.0, 3.0]),
     2.0 / 3.0,
   )
-  guard x.grad is Some(Some({ shape: _, data: [g0, g1, g2] })) else {
+  guard x.grad is Some(Some({ shape: _, data: [g0, g1, g2], })) else {
     fail("x.grad mismatch")
   }
   let exp = expected.data
@@ -117,10 +117,10 @@ test "grad matmul backward" {
   //   = [[1.0, 1.0], [1.5, 1.5]]
   let expected_a_grad = @nparray.NpArray::from2d([[2.75, 3.75], [2.75, 3.75]])
   let expected_b_grad = @nparray.NpArray::from2d([[1.0, 1.0], [1.5, 1.5]])
-  guard a.grad is Some(Some({ shape: _, data: ga })) else {
+  guard a.grad is Some(Some({ shape: _, data: ga, })) else {
     fail("a.grad mismatch")
   }
-  guard b.grad is Some(Some({ shape: _, data: gb })) else {
+  guard b.grad is Some(Some({ shape: _, data: gb, })) else {
     fail("b.grad mismatch")
   }
   let ega = expected_a_grad.data
@@ -147,7 +147,7 @@ test "grad scale backward" {
     @nparray.NpArray::from1d([1.0, 1.0, 1.0]),
     2.0 / 3.0,
   )
-  guard x.grad is Some(Some({ shape: _, data: [g0, g1, g2] })) else {
+  guard x.grad is Some(Some({ shape: _, data: [g0, g1, g2], })) else {
     fail("x.grad mismatch")
   }
   let exp = expected.data
@@ -170,10 +170,10 @@ test "grad mul_elem backward" {
   let n : Float = 3.0
   let expected_x = @nparray.NpArray::scale(y.value, 1.0 / n)
   let expected_y = @nparray.NpArray::scale(x.value, 1.0 / n)
-  guard x.grad is Some(Some({ shape: _, data: [gx0, gx1, gx2] })) else {
+  guard x.grad is Some(Some({ shape: _, data: [gx0, gx1, gx2], })) else {
     fail("x.grad mismatch")
   }
-  guard y.grad is Some(Some({ shape: _, data: [gy0, gy1, gy2] })) else {
+  guard y.grad is Some(Some({ shape: _, data: [gy0, gy1, gy2], })) else {
     fail("y.grad mismatch")
   }
   let ex = expected_x.data
@@ -186,7 +186,7 @@ test "grad mul_elem backward" {
 test "grad init and value" {
   clear_tape()
   let x = Grad::init(@nparray.NpArray::from1d([1.0, 2.0, 3.0]))
-  guard x.value is { shape: _, data: [v0, v1, v2] } else {
+  guard x.value is { shape: _, data: [v0, v1, v2], } else {
     fail("value mismatch")
   }
   assert_true(v0 == 1.0 && v1 == 2.0 && v2 == 3.0)

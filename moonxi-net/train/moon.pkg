@@ -1,11 +1,11 @@
 import {
   "chnlkw/moonxi-net" @tensor,
-  "chnlkw/moonxi-net/grad" @grad,
-  "chnlkw/moonxi-net/loss" @loss,
-  "chnlkw/moonxi-net/model" @model,
-  "chnlkw/moonxi-net/optimizer" @optimizer,
+  "chnlkw/moonxi-net/grad",
+  "chnlkw/moonxi-net/loss",
+  "chnlkw/moonxi-net/model",
+  "chnlkw/moonxi-net/optimizer",
   "chnlkw/moonxi-net/dataloader" @dl,
-  "moonbitlang/core/random" @random,
+  "moonbitlang/core/random",
 }
 
 options(

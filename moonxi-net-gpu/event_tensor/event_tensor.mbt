@@ -3,15 +3,15 @@
 
 ///|
 pub(all) struct EventProfiler {
-  mut times : Map[String, (Float, Int)]
+  mut times : Map[String, (Float, Int32)]
 }
 
 ///|
-let global_profiler : EventProfiler = { times: {} }
+let global_profiler : EventProfiler = { times: {}, }
 
 ///|
 pub fn EventProfiler::new() -> EventProfiler {
-  { times: {} }
+  { times: {}, }
 }
 
 ///|
@@ -38,7 +38,7 @@ pub fn EventProfiler::record(
 
 ///|
 pub fn EventProfiler::print(self : EventProfiler) -> Unit {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_char('\n')
   sb.write_view("=== CUDA Event Profiler Results ===")
   sb.write_char('\n')
@@ -93,19 +93,21 @@ pub(all) struct CudaEventTensor {
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with dims(self : CudaEventTensor) -> FixedArray[
-  Int,
+pub impl @tensor.Tensor for CudaEventTensor with fn dims(self : CudaEventTensor) -> FixedArray[
+  Int32,
 ] {
   @gt.GpuTensor::dims(self.inner)
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with zeros(dims : FixedArray[Int]) -> CudaEventTensor {
-  { inner: @gt.GpuTensor::zeros(dims.iter().collect()) }
+pub impl @tensor.Tensor for CudaEventTensor with fn zeros(
+  dims : FixedArray[Int32],
+) -> CudaEventTensor {
+  { inner: @gt.GpuTensor::zeros(dims.iter().collect()), }
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with zeros_like(
+pub impl @tensor.Tensor for CudaEventTensor with fn zeros_like(
   self : CudaEventTensor,
 ) -> CudaEventTensor {
   {
@@ -114,38 +116,40 @@ pub impl @tensor.Tensor for CudaEventTensor with zeros_like(
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with from_host(
+pub impl @tensor.Tensor for CudaEventTensor with fn from_host(
   data : FixedArray[Float],
-  shape : Array[Int],
+  shape : Array[Int32],
 ) -> CudaEventTensor {
-  { inner: @gt.GpuTensor::from_host(data, shape) }
+  { inner: @gt.GpuTensor::from_host(data, shape), }
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with square(self : CudaEventTensor) -> CudaEventTensor {
-  { inner: time_op("square", fn() { @gt.GpuTensor::square(self.inner) }) }
+pub impl @tensor.Tensor for CudaEventTensor with fn square(
+  self : CudaEventTensor,
+) -> CudaEventTensor {
+  { inner: time_op("square", fn() { @gt.GpuTensor::square(self.inner) }), }
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with sqrt(self : CudaEventTensor) -> CudaEventTensor {
-  { inner: time_op("sqrt", fn() { @gt.GpuTensor::sqrt(self.inner) }) }
+pub impl @tensor.Tensor for CudaEventTensor with fn sqrt(self : CudaEventTensor) -> CudaEventTensor {
+  { inner: time_op("sqrt", fn() { @gt.GpuTensor::sqrt(self.inner) }), }
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with mean(self : CudaEventTensor) -> CudaEventTensor {
-  { inner: time_op("mean", fn() { @gt.GpuTensor::mean(self.inner) }) }
+pub impl @tensor.Tensor for CudaEventTensor with fn mean(self : CudaEventTensor) -> CudaEventTensor {
+  { inner: time_op("mean", fn() { @gt.GpuTensor::mean(self.inner) }), }
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with scale(
+pub impl @tensor.Tensor for CudaEventTensor with fn scale(
   self : CudaEventTensor,
   s : Float,
 ) -> CudaEventTensor {
-  { inner: time_op("scale", fn() { @gt.GpuTensor::scale(self.inner, s) }) }
+  { inner: time_op("scale", fn() { @gt.GpuTensor::scale(self.inner, s) }), }
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with mul_elem(
+pub impl @tensor.Tensor for CudaEventTensor with fn mul_elem(
   self : CudaEventTensor,
   other : CudaEventTensor,
 ) -> CudaEventTensor {
@@ -157,7 +161,7 @@ pub impl @tensor.Tensor for CudaEventTensor with mul_elem(
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with div_elem(
+pub impl @tensor.Tensor for CudaEventTensor with fn div_elem(
   self : CudaEventTensor,
   other : CudaEventTensor,
 ) -> CudaEventTensor {
@@ -169,19 +173,19 @@ pub impl @tensor.Tensor for CudaEventTensor with div_elem(
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with scalar(v : Float) -> CudaEventTensor {
-  { inner: @gt.GpuTensor::scalar(v) }
+pub impl @tensor.Tensor for CudaEventTensor with fn scalar(v : Float) -> CudaEventTensor {
+  { inner: @gt.GpuTensor::scalar(v), }
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with size(self : CudaEventTensor) -> Int {
+pub impl @tensor.Tensor for CudaEventTensor with fn size(self : CudaEventTensor) -> Int32 {
   @gt.GpuTensor::size(self.inner)
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with reduce_sum_to(
+pub impl @tensor.Tensor for CudaEventTensor with fn reduce_sum_to(
   self : CudaEventTensor,
-  target_dims : FixedArray[Int],
+  target_dims : FixedArray[Int32],
 ) -> CudaEventTensor {
   {
     inner: time_op("reduce_sum_to", fn() {
@@ -191,14 +195,16 @@ pub impl @tensor.Tensor for CudaEventTensor with reduce_sum_to(
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with value(self : CudaEventTensor) -> @tensor.TensorData {
+pub impl @tensor.Tensor for CudaEventTensor with fn value(
+  self : CudaEventTensor,
+) -> @tensor.TensorData {
   @gt.GpuTensor::value(self.inner)
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with view(
+pub impl @tensor.Tensor for CudaEventTensor with fn view(
   self : CudaEventTensor,
-  new_shape : FixedArray[Int],
+  new_shape : FixedArray[Int32],
 ) -> CudaEventTensor {
   {
     inner: time_op("view", fn() {
@@ -208,7 +214,7 @@ pub impl @tensor.Tensor for CudaEventTensor with view(
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with add(
+pub impl @tensor.Tensor for CudaEventTensor with fn add(
   self : CudaEventTensor,
   other : CudaEventTensor,
 ) -> CudaEventTensor {
@@ -218,7 +224,7 @@ pub impl @tensor.Tensor for CudaEventTensor with add(
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with add_into(
+pub impl @tensor.Tensor for CudaEventTensor with fn add_into(
   self : CudaEventTensor,
   other : CudaEventTensor,
 ) -> Unit {
@@ -228,9 +234,9 @@ pub impl @tensor.Tensor for CudaEventTensor with add_into(
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with broadcast_to(
+pub impl @tensor.Tensor for CudaEventTensor with fn broadcast_to(
   self : CudaEventTensor,
-  target_shape : FixedArray[Int],
+  target_shape : FixedArray[Int32],
 ) -> CudaEventTensor {
   {
     inner: time_op("broadcast_to", fn() {
@@ -240,7 +246,7 @@ pub impl @tensor.Tensor for CudaEventTensor with broadcast_to(
 }
 
 ///|
-pub impl @tensor.Tensor for CudaEventTensor with sub(
+pub impl @tensor.Tensor for CudaEventTensor with fn sub(
   self : CudaEventTensor,
   other : CudaEventTensor,
 ) -> CudaEventTensor {
@@ -250,7 +256,7 @@ pub impl @tensor.Tensor for CudaEventTensor with sub(
 }
 
 ///|
-pub impl @tensor.BlasTensor for CudaEventTensor with matmul(
+pub impl @tensor.BlasTensor for CudaEventTensor with fn matmul(
   self : CudaEventTensor,
   other : CudaEventTensor,
 ) -> CudaEventTensor {
@@ -262,19 +268,21 @@ pub impl @tensor.BlasTensor for CudaEventTensor with matmul(
 }
 
 ///|
-pub impl @tensor.BlasTensor for CudaEventTensor with transpose(
+pub impl @tensor.BlasTensor for CudaEventTensor with fn transpose(
   self : CudaEventTensor,
 ) -> CudaEventTensor {
-  { inner: time_op("transpose", fn() { @gt.GpuTensor::transpose(self.inner) }) }
+  {
+    inner: time_op("transpose", fn() { @gt.GpuTensor::transpose(self.inner) }),
+  }
 }
 
 ///|
-pub impl @tensor.ImageTensor for CudaEventTensor with conv2d(
+pub impl @tensor.ImageTensor for CudaEventTensor with fn conv2d(
   self : CudaEventTensor,
   weight : CudaEventTensor,
   bias : CudaEventTensor,
-  stride : Int,
-  padding : Int,
+  stride : Int32,
+  padding : Int32,
 ) -> CudaEventTensor {
   {
     inner: time_op("conv2d", fn() {
@@ -290,17 +298,17 @@ pub impl @tensor.ImageTensor for CudaEventTensor with conv2d(
 }
 
 ///|
-pub impl @tensor.ImageTensor for CudaEventTensor with relu(
+pub impl @tensor.ImageTensor for CudaEventTensor with fn relu(
   self : CudaEventTensor,
 ) -> CudaEventTensor {
-  { inner: time_op("relu", fn() { @gt.GpuTensor::relu(self.inner) }) }
+  { inner: time_op("relu", fn() { @gt.GpuTensor::relu(self.inner) }), }
 }
 
 ///|
-pub impl @tensor.ImageTensor for CudaEventTensor with maxpool2d(
+pub impl @tensor.ImageTensor for CudaEventTensor with fn maxpool2d(
   self : CudaEventTensor,
-  kernel_size : Int,
-  stride : Int,
+  kernel_size : Int32,
+  stride : Int32,
 ) -> CudaEventTensor {
   {
     inner: time_op("maxpool2d", fn() {
@@ -310,9 +318,9 @@ pub impl @tensor.ImageTensor for CudaEventTensor with maxpool2d(
 }
 
 ///|
-pub impl @tensor.ImageTensor for CudaEventTensor with adaptive_avg_pool2d(
+pub impl @tensor.ImageTensor for CudaEventTensor with fn adaptive_avg_pool2d(
   self : CudaEventTensor,
-  output_size : Int,
+  output_size : Int32,
 ) -> CudaEventTensor {
   {
     inner: time_op("adaptive_avg_pool2d", fn() {
@@ -322,7 +330,7 @@ pub impl @tensor.ImageTensor for CudaEventTensor with adaptive_avg_pool2d(
 }
 
 ///|
-pub impl @tensor.ImageTensor for CudaEventTensor with batchnorm_training(
+pub impl @tensor.ImageTensor for CudaEventTensor with fn batchnorm_training(
   self : CudaEventTensor,
   gamma : CudaEventTensor,
   beta : CudaEventTensor,
@@ -348,11 +356,11 @@ pub impl @tensor.ImageTensor for CudaEventTensor with batchnorm_training(
   let _ = @cuda.event_synchronize(end)
   let ms = @cuda.event_elapsed_ms(start, end)
   profiler.record("batchnorm_training", ms)
-  ({ inner: out }, { inner: save_mean }, { inner: save_inv_var })
+  ({ inner: out, }, { inner: save_mean, }, { inner: save_inv_var, })
 }
 
 ///|
-pub impl @tensor.ImageTensor for CudaEventTensor with batchnorm_inference(
+pub impl @tensor.ImageTensor for CudaEventTensor with fn batchnorm_inference(
   self : CudaEventTensor,
   gamma : CudaEventTensor,
   beta : CudaEventTensor,
@@ -375,7 +383,7 @@ pub impl @tensor.ImageTensor for CudaEventTensor with batchnorm_inference(
 }
 
 ///|
-pub impl @tensor.ImageTensor for CudaEventTensor with softmax_cross_entropy(
+pub impl @tensor.ImageTensor for CudaEventTensor with fn softmax_cross_entropy(
   self : CudaEventTensor,
   targets : CudaEventTensor,
 ) -> CudaEventTensor {
@@ -387,10 +395,10 @@ pub impl @tensor.ImageTensor for CudaEventTensor with softmax_cross_entropy(
 }
 
 ///|
-pub impl @tensor.ImageTensor for CudaEventTensor with cross_entropy_with_labels(
+pub impl @tensor.ImageTensor for CudaEventTensor with fn cross_entropy_with_labels(
   self : CudaEventTensor,
   labels : CudaEventTensor,
-  num_classes : Int,
+  num_classes : Int32,
 ) -> CudaEventTensor {
   {
     inner: time_op("cross_entropy_with_labels", fn() {
@@ -404,12 +412,12 @@ pub impl @tensor.ImageTensor for CudaEventTensor with cross_entropy_with_labels(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for CudaEventTensor with conv2d_backward_data(
+pub impl @tensor.ImageBackwardOps for CudaEventTensor with fn conv2d_backward_data(
   self : CudaEventTensor,
   weight : CudaEventTensor,
   input : CudaEventTensor,
-  stride : Int,
-  padding : Int,
+  stride : Int32,
+  padding : Int32,
 ) -> CudaEventTensor {
   {
     inner: time_op("conv2d_bwd_data", fn() {
@@ -425,12 +433,12 @@ pub impl @tensor.ImageBackwardOps for CudaEventTensor with conv2d_backward_data(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for CudaEventTensor with conv2d_backward_weight(
+pub impl @tensor.ImageBackwardOps for CudaEventTensor with fn conv2d_backward_weight(
   self : CudaEventTensor,
   input : CudaEventTensor,
   weight : CudaEventTensor,
-  stride : Int,
-  padding : Int,
+  stride : Int32,
+  padding : Int32,
 ) -> CudaEventTensor {
   {
     inner: time_op("conv2d_bwd_weight", fn() {
@@ -446,7 +454,7 @@ pub impl @tensor.ImageBackwardOps for CudaEventTensor with conv2d_backward_weigh
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for CudaEventTensor with conv2d_backward_bias(
+pub impl @tensor.ImageBackwardOps for CudaEventTensor with fn conv2d_backward_bias(
   self : CudaEventTensor,
 ) -> CudaEventTensor {
   {
@@ -457,7 +465,7 @@ pub impl @tensor.ImageBackwardOps for CudaEventTensor with conv2d_backward_bias(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for CudaEventTensor with relu_backward(
+pub impl @tensor.ImageBackwardOps for CudaEventTensor with fn relu_backward(
   self : CudaEventTensor,
   input : CudaEventTensor,
 ) -> CudaEventTensor {
@@ -469,7 +477,7 @@ pub impl @tensor.ImageBackwardOps for CudaEventTensor with relu_backward(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for CudaEventTensor with batchnorm_backward(
+pub impl @tensor.ImageBackwardOps for CudaEventTensor with fn batchnorm_backward(
   self : CudaEventTensor,
   input : CudaEventTensor,
   gamma : CudaEventTensor,
@@ -493,15 +501,15 @@ pub impl @tensor.ImageBackwardOps for CudaEventTensor with batchnorm_backward(
   let _ = @cuda.event_synchronize(end)
   let ms = @cuda.event_elapsed_ms(start, end)
   profiler.record("batchnorm_backward", ms)
-  ({ inner: grad_input }, { inner: grad_gamma }, { inner: grad_beta })
+  ({ inner: grad_input, }, { inner: grad_gamma, }, { inner: grad_beta, })
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for CudaEventTensor with maxpool2d_backward(
+pub impl @tensor.ImageBackwardOps for CudaEventTensor with fn maxpool2d_backward(
   self : CudaEventTensor,
   input : CudaEventTensor,
-  kernel_size : Int,
-  stride : Int,
+  kernel_size : Int32,
+  stride : Int32,
 ) -> CudaEventTensor {
   {
     inner: time_op("maxpool2d_backward", fn() {
@@ -516,7 +524,7 @@ pub impl @tensor.ImageBackwardOps for CudaEventTensor with maxpool2d_backward(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for CudaEventTensor with adaptive_avg_pool2d_backward(
+pub impl @tensor.ImageBackwardOps for CudaEventTensor with fn adaptive_avg_pool2d_backward(
   self : CudaEventTensor,
   input : CudaEventTensor,
 ) -> CudaEventTensor {
@@ -528,7 +536,7 @@ pub impl @tensor.ImageBackwardOps for CudaEventTensor with adaptive_avg_pool2d_b
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for CudaEventTensor with softmax_ce_backward(
+pub impl @tensor.ImageBackwardOps for CudaEventTensor with fn softmax_ce_backward(
   self : CudaEventTensor,
   targets : CudaEventTensor,
 ) -> CudaEventTensor {
@@ -540,10 +548,10 @@ pub impl @tensor.ImageBackwardOps for CudaEventTensor with softmax_ce_backward(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for CudaEventTensor with softmax_ce_backward_labels(
+pub impl @tensor.ImageBackwardOps for CudaEventTensor with fn softmax_ce_backward_labels(
   self : CudaEventTensor,
   labels : CudaEventTensor,
-  num_classes : Int,
+  num_classes : Int32,
 ) -> CudaEventTensor {
   {
     inner: time_op("softmax_ce_backward_labels", fn() {

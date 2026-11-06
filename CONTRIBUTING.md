@@ -6,7 +6,8 @@ Thanks for your interest in moonxi-net! This is a deep learning framework writte
 
 ### Install MoonBit
 
-This project requires the [CUDA-patched fork of MoonBit](https://github.com/moonxi-net/moon). Build and install it from that repository. The standard MoonBit toolchain won't work for GPU packages.
+Use the standard MoonBit toolchain. Before building GPU packages, run
+`scripts/build_cuda_kernels.sh` to compile the CUDA kernels with `nvcc`.
 
 ### Clone and build
 

@@ -4,9 +4,9 @@
 ///|
 pub fn gpu_avg_pool2d(
   input : GpuTensor,
-  kernel_size : Int,
-  stride : Int,
-  padding : Int,
+  kernel_size : Int32,
+  stride : Int32,
+  padding : Int32,
   cudnn : @cuda.CudnnHandle,
 ) -> GpuTensor {
   let output = GpuTensor::alloc_st(
@@ -29,9 +29,9 @@ pub fn gpu_avg_pool2d(
 ///|
 pub fn gpu_maxpool2d(
   input : GpuTensor,
-  kernel_size : Int,
-  stride : Int,
-  padding : Int,
+  kernel_size : Int32,
+  stride : Int32,
+  padding : Int32,
   cudnn : @cuda.CudnnHandle,
 ) -> GpuTensor {
   let output = GpuTensor::alloc_st(

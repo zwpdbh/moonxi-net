@@ -10,7 +10,7 @@ pub fn[T] fn_module((T) -> T) -> Module[T]
 
 pub fn[T : @moonxi-net.Tensor] init_mlp() -> MLP[T]
 
-pub fn[T : @moonxi-net.Tensor] init_resnet18(Int) -> ResNet18[T]
+pub fn[T : @moonxi-net.Tensor] init_resnet18(Int32) -> ResNet18[T]
 
 pub fn[T] sequential(Array[Module[T]]) -> Module[T]
 
@@ -25,7 +25,7 @@ pub(all) struct BasicBlock[T] {
   mut shortcut : Conv2d[T]?
   mut shortcut_bn : BatchNorm2d[T]?
 }
-pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor] BasicBlock::forward(Self[T], T, is_training~ : Bool, Int) -> T
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor] BasicBlock::forward(Self[T], T, is_training~ : Bool, Int32) -> T
 
 pub(all) struct BatchNorm2d[T] {
   mut gamma : T
@@ -39,7 +39,7 @@ pub(all) struct Conv2d[T] {
   mut weight : T
   mut bias : T
 }
-pub fn[T : @moonxi-net.ImageTensor] Conv2d::as_module(Self[T], stride? : Int, padding? : Int) -> Module[T]
+pub fn[T : @moonxi-net.ImageTensor] Conv2d::as_module(Self[T], stride? : Int32, padding? : Int32) -> Module[T]
 
 pub(all) struct Linear[T] {
   mut w : T
@@ -80,9 +80,8 @@ pub fn[T] ResNet18::params(Self[T]) -> Array[T]
 pub(all) struct ResNetLayer[T] {
   mut blocks : Array[BasicBlock[T]]
 }
-pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor] ResNetLayer::forward(Self[T], T, is_training~ : Bool, Int) -> T
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor] ResNetLayer::forward(Self[T], T, is_training~ : Bool, Int32) -> T
 
 // Type aliases
 
 // Traits
-

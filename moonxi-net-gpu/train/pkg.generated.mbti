@@ -7,7 +7,7 @@ import {
 }
 
 // Values
-pub fn run_gpu(@chnlkw/moonxi-net/train.Experiment[@tensor.GpuTensor], @dataloader.DataLoader[@tensor.GpuTensor], epochs? : Int, batch_size? : Int, eval_loader? : @dataloader.DataLoader[@tensor.GpuTensor], device_id? : Int, pool_capacity? : Int64, on_batch_end? : (Int, Int, Float) -> Unit, on_epoch_end? : (Int, Double, Double, Double) -> Unit) -> Unit
+pub fn run_gpu(@chnlkw/moonxi-net/train.Experiment[@tensor.GpuTensor], @dataloader.DataLoader[@tensor.GpuTensor], epochs? : Int32, batch_size? : Int32, eval_loader? : @dataloader.DataLoader[@tensor.GpuTensor], device_id? : Int32, pool_capacity? : Int64, on_batch_end? : (Int32, Int32, Float) -> Unit, on_epoch_end? : (Int32, Double, Double, Double) -> Unit) -> Unit
 
 // Errors
 
@@ -16,4 +16,3 @@ pub fn run_gpu(@chnlkw/moonxi-net/train.Experiment[@tensor.GpuTensor], @dataload
 // Type aliases
 
 // Traits
-

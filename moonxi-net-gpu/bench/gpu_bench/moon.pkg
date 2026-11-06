@@ -1,12 +1,12 @@
 import {
-  "chnlkw/moonxi-net-gpu/cuda" @cuda,
+  "chnlkw/moonxi-net-gpu/cuda",
   "chnlkw/moonxi-net-gpu/tensor" @gt,
 }
 
 import {
   "moonbitlang/core/bench",
-  "chnlkw/moonxi-net/loss" @loss,
-  "chnlkw/moonxi-net/model" @model,
-  "chnlkw/moonxi-net/optimizer" @optimizer,
-  "chnlkw/moonxi-net/train" @train,
+  "chnlkw/moonxi-net/loss",
+  "chnlkw/moonxi-net/model",
+  "chnlkw/moonxi-net/optimizer",
+  "chnlkw/moonxi-net/train",
 } for "wbtest"

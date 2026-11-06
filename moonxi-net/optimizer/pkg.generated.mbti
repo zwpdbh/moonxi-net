@@ -31,6 +31,7 @@ pub(all) struct AdamConfig {
   weight_decay : Float
   max_grad_norm : Float
 } derive(@debug.Debug)
+pub fn AdamConfig::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Optimizer[T] {
   params : Array[@grad.Grad[T]]
@@ -49,6 +50,7 @@ pub(all) struct RmspropConfig {
   has_momentum : Bool
   max_grad_norm : Float
 } derive(@debug.Debug)
+pub fn RmspropConfig::to_repr(Self) -> @debug.Repr
 
 pub(all) struct SgdMomentumConfig {
   lr : Float
@@ -56,29 +58,29 @@ pub(all) struct SgdMomentumConfig {
   weight_decay : Float
   max_grad_norm : Float
 } derive(@debug.Debug)
+pub fn SgdMomentumConfig::to_repr(Self) -> @debug.Repr
 
 pub(all) struct StepLR {
-  step_size : Int
+  step_size : Int32
   gamma : Float
-  mut step_count : Int
+  mut step_count : Int32
   mut lr : Float
 }
 pub fn StepLR::get_lr(Self) -> Float
-pub fn StepLR::new(Double, Int, Double) -> Self
+pub fn StepLR::new(Double, Int32, Double) -> Self
 pub fn StepLR::step(Self) -> Float
 
 // Type aliases
 
 // Traits
 pub(open) trait BatchAdamAutoclip {
-  batch_adam_autoclip(Array[Self], Array[Self], Array[Self], Array[Self], AdamConfig) -> Unit
+  fn batch_adam_autoclip(Array[Self], Array[Self], Array[Self], Array[Self], AdamConfig) -> Unit
 }
 
 pub(open) trait BatchRmspropAutoclip {
-  batch_rmsprop_autoclip(Array[Self], Array[Self], Array[Self], Array[Self], RmspropConfig) -> Unit
+  fn batch_rmsprop_autoclip(Array[Self], Array[Self], Array[Self], Array[Self], RmspropConfig) -> Unit
 }
 
 pub(open) trait BatchSgdMomentumAutoclip {
-  batch_sgd_momentum_autoclip(Array[Self], Array[Self], Array[Self], SgdMomentumConfig) -> Unit
+  fn batch_sgd_momentum_autoclip(Array[Self], Array[Self], Array[Self], SgdMomentumConfig) -> Unit
 }
-

@@ -11,9 +11,9 @@ pub let cifar10_labels : Array[String]
 
 pub fn[T : @moonxi-net.Tensor] cifar10_loaders(String) -> (@dataloader.DataLoader[T], @dataloader.DataLoader[T]) raise
 
-pub fn cifar10_to_tensors(ArrayView[Cifar10Example], Int, Int) -> (FixedArray[Float], FixedArray[Float])
+pub fn cifar10_to_tensors(ArrayView[Cifar10Example], Int32, Int32) -> (FixedArray[Float], FixedArray[Float])
 
-pub fn cifar10_to_tensors_with_labels(ArrayView[Cifar10Example], Int, Int) -> (FixedArray[Float], FixedArray[Float])
+pub fn cifar10_to_tensors_with_labels(ArrayView[Cifar10Example], Int32, Int32) -> (FixedArray[Float], FixedArray[Float])
 
 pub fn load_cifar10_batch(String) -> Array[Cifar10Example] raise
 
@@ -26,10 +26,9 @@ pub fn load_cifar10_train(String) -> Array[Cifar10Example] raise
 // Types and methods
 pub(all) struct Cifar10Example {
   pixels : FixedArray[Float]
-  label : Int
+  label : Int32
 }
 
 // Type aliases
 
 // Traits
-

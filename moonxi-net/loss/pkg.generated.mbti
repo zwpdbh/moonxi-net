@@ -8,11 +8,11 @@ import {
 // Values
 pub fn[T : @moonxi-net.ImageTensor] cross_entropy(T, T) -> T
 
-pub fn[T : @moonxi-net.ImageTensor] cross_entropy_loss(Int) -> LossFn[T]
+pub fn[T : @moonxi-net.ImageTensor] cross_entropy_loss(Int32) -> LossFn[T]
 
 pub fn[T : @moonxi-net.ImageTensor] cross_entropy_onehot_loss() -> LossFn[T]
 
-pub fn[T : @moonxi-net.ImageTensor] cross_entropy_with_labels(T, T, Int) -> T
+pub fn[T : @moonxi-net.ImageTensor] cross_entropy_with_labels(T, T, Int32) -> T
 
 pub fn[T : @moonxi-net.Tensor] mse(T, T) -> T
 
@@ -28,4 +28,3 @@ pub(all) struct LossFn[T] {
 // Type aliases
 
 // Traits
-

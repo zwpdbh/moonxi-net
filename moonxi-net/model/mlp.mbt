@@ -17,9 +17,25 @@ pub fn[T : @tensor.Tensor + @tensor.BlasTensor + @tensor.ImageTensor] MLP::forwa
   self : MLP[T],
   input : T,
 ) -> T {
-  let x = input.matmul(self.fc1.w.transpose()).add(self.fc1.b).relu()
-  let x = x.matmul(self.fc2.w.transpose()).add(self.fc2.b).relu()
-  x.matmul(self.fc3.w.transpose()).add(self.fc3.b)
+  let x = @tensor.ImageTensor::relu(
+    @tensor.Tensor::add(
+      @tensor.BlasTensor::matmul(
+        input,
+        @tensor.BlasTensor::transpose(self.fc1.w),
+      ),
+      self.fc1.b,
+    ),
+  )
+  let x = @tensor.ImageTensor::relu(
+    @tensor.Tensor::add(
+      @tensor.BlasTensor::matmul(x, @tensor.BlasTensor::transpose(self.fc2.w)),
+      self.fc2.b,
+    ),
+  )
+  @tensor.Tensor::add(
+    @tensor.BlasTensor::matmul(x, @tensor.BlasTensor::transpose(self.fc3.w)),
+    self.fc3.b,
+  )
 }
 
 ///|
@@ -31,7 +47,7 @@ pub fn[T] MLP::params(self : MLP[T]) -> Array[T] {
 ///|
 /// Initialize MLP with Xavier/Glorot uniform initialization.
 pub fn[T : @tensor.Tensor] init_mlp() -> MLP[T] {
-  fn xavier_init(fan_in : Int, fan_out : Int) -> T {
+  fn xavier_init(fan_in : Int32, fan_out : Int32) -> T {
     let std = Float::sqrt(
       Float::from_double(2.0) / Float::from_int(fan_in + fan_out),
     )
@@ -41,9 +57,9 @@ pub fn[T : @tensor.Tensor] init_mlp() -> MLP[T] {
   }
 
   MLP::{
-    fc1: Linear::{ w: xavier_init(784, 128), b: T::zeros([128]) },
-    fc2: Linear::{ w: xavier_init(128, 64), b: T::zeros([64]) },
-    fc3: Linear::{ w: xavier_init(64, 10), b: T::zeros([10]) },
+    fc1: Linear::{ w: xavier_init(784, 128), b: T::zeros([128]), },
+    fc2: Linear::{ w: xavier_init(128, 64), b: T::zeros([64]), },
+    fc3: Linear::{ w: xavier_init(64, 10), b: T::zeros([10]), },
   }
 }
 

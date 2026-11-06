@@ -1,9 +1,9 @@
 import {
   "chnlkw/moonxi-net" @tensor,
-  "moonbitlang/core/math" @math,
-  "moonbitlang/core/random" @random,
+  "moonbitlang/core/math",
+  "moonbitlang/core/random",
 }
 
 import {
-  "chnlkw/moonxi-net/nparray" @nparray,
+  "chnlkw/moonxi-net/nparray",
 } for "wbtest"

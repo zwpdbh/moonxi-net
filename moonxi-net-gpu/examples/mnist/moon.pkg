@@ -1,20 +1,18 @@
 import {
   "chnlkw/moonxi-net" @tensor,
-  "chnlkw/moonxi-net/grad" @grad,
+  "chnlkw/moonxi-net/grad",
   "chnlkw/moonxi-net/dataloader" @dl,
   "chnlkw/moonxi-net/datasets/mnist" @data,
   "chnlkw/moonxi-net-gpu/train" @gpu_train,
   "chnlkw/moonxi-net-gpu/tensor" @gt,
-  "chnlkw/moonxi-net/loss" @loss,
-  "chnlkw/moonxi-net/model" @model,
-  "chnlkw/moonxi-net/optimizer" @optimizer,
-  "chnlkw/moonxi-net/train" @train,
-  "chnlkw/moonxi-net/nparray" @nparray,
+  "chnlkw/moonxi-net/loss",
+  "chnlkw/moonxi-net/model",
+  "chnlkw/moonxi-net/optimizer",
+  "chnlkw/moonxi-net/train",
+  "chnlkw/moonxi-net/nparray",
   "brickfrog/moontrace/console" @log_console,
-  "moonbitlang/core/argparse" @argparse,
-  "moonbitlang/core/string" @string,
+  "moonbitlang/core/argparse",
+  "moonbitlang/core/string",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

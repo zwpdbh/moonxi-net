@@ -20,13 +20,13 @@
 
 ///|
 trait Tensor: Add + Sub + Mul {
-  dims(Self) -> FixedArray[Int]
-  zeros(dims : FixedArray[Int]) -> Self
-  scale(Self, Float) -> Self
-  square(Self) -> Self
-  mean(Self) -> Self
-  scalar(Float) -> Self
-  size(Self) -> Int
+  fn dims(Self) -> FixedArray[Int32]
+  fn zeros(dims : FixedArray[Int32]) -> Self
+  fn scale(Self, Float) -> Self
+  fn square(Self) -> Self
+  fn mean(Self) -> Self
+  fn scalar(Float) -> Self
+  fn size(Self) -> Int32
 }
 
 // =============================================================================
@@ -35,45 +35,45 @@ trait Tensor: Add + Sub + Mul {
 
 ///|
 struct NpArray {
-  dims : FixedArray[Int]
+  dims : FixedArray[Int32]
   data : FixedArray[Float]
 } derive(Debug)
 
 ///|
-fn total_size(dims : FixedArray[Int]) -> Int {
+fn total_size(dims : FixedArray[Int32]) -> Int32 {
   dims.iter().fold(init=1, fn(acc, d) { acc * d })
 }
 
 ///|
-impl Tensor for NpArray with dims(x : NpArray) -> FixedArray[Int] {
+impl Tensor for NpArray with fn dims(x : NpArray) -> FixedArray[Int32] {
   x.dims
 }
 
 ///|
-impl Tensor for NpArray with zeros(dims : FixedArray[Int]) -> NpArray {
-  { dims, data: FixedArray::make(total_size(dims), (0.0 : Float)) }
+impl Tensor for NpArray with fn zeros(dims : FixedArray[Int32]) -> NpArray {
+  { dims, data: FixedArray::make(total_size(dims), (0.0 : Float)), }
 }
 
 ///|
-impl Tensor for NpArray with scale(x : NpArray, s : Float) -> NpArray {
+impl Tensor for NpArray with fn scale(x : NpArray, s : Float) -> NpArray {
   let n = x.data.length()
-  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] * s }) }
+  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] * s }), }
 }
 
 ///|
-impl Mul for NpArray with mul(x : NpArray, y : NpArray) -> NpArray {
+impl Mul for NpArray with fn mul(x : NpArray, y : NpArray) -> NpArray {
   let n = x.data.length()
-  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] * y.data[i] }) }
+  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] * y.data[i] }), }
 }
 
 ///|
-impl Tensor for NpArray with square(x : NpArray) -> NpArray {
+impl Tensor for NpArray with fn square(x : NpArray) -> NpArray {
   let n = x.data.length()
-  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] * x.data[i] }) }
+  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] * x.data[i] }), }
 }
 
 ///|
-impl Tensor for NpArray with mean(x : NpArray) -> NpArray {
+impl Tensor for NpArray with fn mean(x : NpArray) -> NpArray {
   let mut sum = (0.0 : Float)
   for i in 0..<x.data.length() {
     sum = sum + x.data[i]
@@ -86,25 +86,25 @@ impl Tensor for NpArray with mean(x : NpArray) -> NpArray {
 }
 
 ///|
-impl Tensor for NpArray with scalar(v : Float) -> NpArray {
-  { dims: FixedArray::from_iter([1].iter()), data: FixedArray::make(1, v) }
+impl Tensor for NpArray with fn scalar(v : Float) -> NpArray {
+  { dims: FixedArray::from_iter([1].iter()), data: FixedArray::make(1, v), }
 }
 
 ///|
-impl Tensor for NpArray with size(x : NpArray) -> Int {
+impl Tensor for NpArray with fn size(x : NpArray) -> Int32 {
   x.data.length()
 }
 
 ///|
-impl Add for NpArray with add(x : NpArray, y : NpArray) -> NpArray {
+impl Add for NpArray with fn add(x : NpArray, y : NpArray) -> NpArray {
   let n = x.data.length()
-  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] + y.data[i] }) }
+  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] + y.data[i] }), }
 }
 
 ///|
-impl Sub for NpArray with sub(x : NpArray, y : NpArray) -> NpArray {
+impl Sub for NpArray with fn sub(x : NpArray, y : NpArray) -> NpArray {
   let n = x.data.length()
-  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] - y.data[i] }) }
+  { dims: x.dims, data: FixedArray::makei(n, fn(i) { x.data[i] - y.data[i] }), }
 }
 
 // =============================================================================
@@ -146,7 +146,7 @@ struct Grad[T] {
 
 ///|
 /// Global tape, stores backward closures
-let tape : Array[() -> Unit] = Array::new()
+let tape : Array[() -> Unit] = Array(capacity=0)
 
 ///|
 fn clear_tape() -> Unit {
@@ -157,7 +157,7 @@ fn clear_tape() -> Unit {
 
 ///|
 fn[T : Tensor] no_grad(t : T) -> Grad[T] {
-  { value: t, grad: T::zeros(t.dims()) }
+  { value: t, grad: T::zeros(t.dims()), }
 }
 
 /// Record a backward closure on the tape. Gradient is accumulated directly onto input.grad.
@@ -185,12 +185,14 @@ fn[T : Tensor] Grad::backward(self : Grad[T]) -> Unit {
 // Each operation: compute forward value + record backward closure
 
 ///|
-impl[T : Tensor] Tensor for Grad[T] with dims(x : Grad[T]) -> FixedArray[Int] {
+impl[T : Tensor] Tensor for Grad[T] with fn dims(x : Grad[T]) -> FixedArray[
+  Int32,
+] {
   x.value.dims()
 }
 
 ///|
-impl[T : Tensor] Tensor for Grad[T] with zeros(dims : FixedArray[Int]) -> Grad[
+impl[T : Tensor] Tensor for Grad[T] with fn zeros(dims : FixedArray[Int32]) -> Grad[
   T,
 ] {
   no_grad(T::zeros(dims))
@@ -198,7 +200,7 @@ impl[T : Tensor] Tensor for Grad[T] with zeros(dims : FixedArray[Int]) -> Grad[
 
 ///|
 /// scale: z = x * s, ∂z/∂x = s
-impl[T : Tensor] Tensor for Grad[T] with scale(x : Grad[T], s : Float) -> Grad[
+impl[T : Tensor] Tensor for Grad[T] with fn scale(x : Grad[T], s : Float) -> Grad[
   T,
 ] {
   let out : Grad[T] = {
@@ -211,7 +213,9 @@ impl[T : Tensor] Tensor for Grad[T] with scale(x : Grad[T], s : Float) -> Grad[
 
 ///|
 /// mul: z = x * y, ∂z/∂x = y, ∂z/∂y = x
-impl[T : Tensor] Mul for Grad[T] with mul(x : Grad[T], y : Grad[T]) -> Grad[T] {
+impl[T : Tensor] Mul for Grad[T] with fn mul(x : Grad[T], y : Grad[T]) -> Grad[
+  T,
+] {
   let saved_x = x.value
   let saved_y = y.value
   let out : Grad[T] = {
@@ -225,7 +229,7 @@ impl[T : Tensor] Mul for Grad[T] with mul(x : Grad[T], y : Grad[T]) -> Grad[T] {
 
 ///|
 /// square: z = x², ∂z/∂x = 2x
-impl[T : Tensor] Tensor for Grad[T] with square(x : Grad[T]) -> Grad[T] {
+impl[T : Tensor] Tensor for Grad[T] with fn square(x : Grad[T]) -> Grad[T] {
   let saved_x = x.value
   let out : Grad[T] = {
     value: x.value.square(),
@@ -237,7 +241,7 @@ impl[T : Tensor] Tensor for Grad[T] with square(x : Grad[T]) -> Grad[T] {
 
 ///|
 /// mean: z = mean(x), ∂z/∂x_i = 1/n
-impl[T : Tensor] Tensor for Grad[T] with mean(x : Grad[T]) -> Grad[T] {
+impl[T : Tensor] Tensor for Grad[T] with fn mean(x : Grad[T]) -> Grad[T] {
   let n = x.value.size()
   let out : Grad[T] = {
     value: x.value.mean(),
@@ -248,12 +252,12 @@ impl[T : Tensor] Tensor for Grad[T] with mean(x : Grad[T]) -> Grad[T] {
 }
 
 ///|
-impl[T : Tensor] Tensor for Grad[T] with scalar(v : Float) -> Grad[T] {
+impl[T : Tensor] Tensor for Grad[T] with fn scalar(v : Float) -> Grad[T] {
   no_grad(T::scalar(v))
 }
 
 ///|
-impl[T : Tensor] Tensor for Grad[T] with size(x : Grad[T]) -> Int {
+impl[T : Tensor] Tensor for Grad[T] with fn size(x : Grad[T]) -> Int32 {
   x.value.size()
 }
 
@@ -262,7 +266,9 @@ impl[T : Tensor] Tensor for Grad[T] with size(x : Grad[T]) -> Int {
 
 ///|
 /// add: z = x + y, ∂z/∂x = 1, ∂z/∂y = 1
-impl[T : Tensor] Add for Grad[T] with add(x : Grad[T], y : Grad[T]) -> Grad[T] {
+impl[T : Tensor] Add for Grad[T] with fn add(x : Grad[T], y : Grad[T]) -> Grad[
+  T,
+] {
   let out : Grad[T] = {
     value: x.value + y.value,
     grad: T::zeros((x.value + y.value).dims()),
@@ -274,7 +280,9 @@ impl[T : Tensor] Add for Grad[T] with add(x : Grad[T], y : Grad[T]) -> Grad[T] {
 
 ///|
 /// sub: z = x - y, ∂z/∂x = 1, ∂z/∂y = -1
-impl[T : Tensor] Sub for Grad[T] with sub(x : Grad[T], y : Grad[T]) -> Grad[T] {
+impl[T : Tensor] Sub for Grad[T] with fn sub(x : Grad[T], y : Grad[T]) -> Grad[
+  T,
+] {
   let out : Grad[T] = {
     value: x.value - y.value,
     grad: T::zeros((x.value - y.value).dims()),
@@ -299,7 +307,7 @@ fn main {
   // Initialize parameters w=0, b=0, wrapped in Grad for gradient tracking
   let w : Grad[NpArray] = no_grad(NpArray::scalar((0.0 : Float)))
   let b : Grad[NpArray] = no_grad(NpArray::scalar((0.0 : Float)))
-  let model : Linear[Grad[NpArray]] = { w, b }
+  let model : Linear[Grad[NpArray]] = { w, b, }
 
   let lr : Float = (0.01 : Float)
   let params : Array[Grad[NpArray]] = [model.w, model.b]
@@ -341,3 +349,9 @@ fn main {
   println("Learned: w=\{model.w.value.data[0]}, b=\{model.b.value.data[0]}")
   println("Expected: w=3.0, b=1.0")
 }
+
+///|
+extend NpArray with Tensor::{scalar, zeros, dims, scale}
+
+///|
+extend Grad with Tensor::{square}

@@ -7,7 +7,7 @@
 /// label: 0-9
 pub(all) struct Cifar10Example {
   pixels : FixedArray[Float]
-  label : Int
+  label : Int32
 }
 
 ///|
@@ -37,7 +37,7 @@ pub fn load_cifar10_batch(path : String) -> Array[Cifar10Example] raise {
         let pixel = bytes[offset + 1 + j].to_int()
         Float::from_int(pixel) / Float::from_double(255.0)
       })
-      result[i] = Cifar10Example::{ pixels, label }
+      result[i] = Cifar10Example::{ pixels, label, }
     }
     result
   }
@@ -73,8 +73,8 @@ pub fn load_cifar10_test(dir : String) -> Array[Cifar10Example] raise {
 ///   labels_data: [count * 10] one-hot encoded
 pub fn cifar10_to_tensors(
   examples : ArrayView[Cifar10Example],
-  start : Int,
-  count : Int,
+  start : Int32,
+  count : Int32,
 ) -> (FixedArray[Float], FixedArray[Float]) {
   let images = FixedArray::make(count * 3 * 32 * 32, Float::from_double(0.0))
   let labels = FixedArray::make(count * 10, Float::from_double(0.0))
@@ -101,8 +101,8 @@ pub fn cifar10_to_tensors(
 ///   labels_data: [count] integer class indices stored as float (for GPU upload)
 pub fn cifar10_to_tensors_with_labels(
   examples : ArrayView[Cifar10Example],
-  start : Int,
-  count : Int,
+  start : Int32,
+  count : Int32,
 ) -> (FixedArray[Float], FixedArray[Float]) {
   let images = FixedArray::make(count * 3 * 32 * 32, Float::from_double(0.0))
   let labels = FixedArray::make(count, Float::from_double(0.0))
@@ -135,12 +135,12 @@ pub fn[T : @tensor.Tensor] cifar10_loaders(
   let num_train = train_examples.length()
   let num_test = test_examples.length()
   let (train_images, train_labels) = cifar10_to_tensors_with_labels(
-    train_examples.view(),
+    train_examples.exact_view(),
     0,
     num_train,
   )
   let (test_images, test_labels) = cifar10_to_tensors_with_labels(
-    test_examples.view(),
+    test_examples.exact_view(),
     0,
     num_test,
   )
@@ -155,7 +155,7 @@ pub fn[T : @tensor.Tensor] cifar10_loaders(
 fn[T : @tensor.Tensor] _cifar10_loader(
   images : FixedArray[Float],
   labels : FixedArray[Float],
-  num_samples : Int,
+  num_samples : Int32,
 ) -> @dl.DataLoader[T] {
   let image_size = 3 * 32 * 32
   @dl.DataLoader::{

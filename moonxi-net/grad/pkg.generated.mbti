@@ -12,7 +12,7 @@ pub fn[T] no_grad(T) -> Grad[T]
 
 pub fn[T : @moonxi-net.Tensor] record_accumulate(Grad[T], Grad[T], (T) -> T) -> Unit
 
-pub fn tape_length() -> Int
+pub fn tape_length() -> Int32
 
 // Errors
 
@@ -21,11 +21,48 @@ pub(all) struct Grad[T] {
   mut value : T
   mut grad : T??
 }
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor + @moonxi-net.ImageBackwardOps] Grad::adaptive_avg_pool2d(Self[T], Int32) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] Grad::adaptive_avg_pool2d_backward(Self[T], Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::add(Self[T], Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::add_into(Self[T], Self[T]) -> Unit
 pub fn[T : @moonxi-net.Tensor] Grad::backward(Self[T]) -> Unit
 pub fn[T : @moonxi-net.Tensor] Grad::backward_profiled(Self[T], () -> Double) -> Array[Double]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] Grad::batchnorm_backward(Self[T], Self[T], Self[T], Self[T], Self[T], Float) -> (Self[T], Self[T], Self[T])
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor + @moonxi-net.ImageBackwardOps] Grad::batchnorm_inference(Self[T], Self[T], Self[T], Self[T], Self[T], Float) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor + @moonxi-net.ImageBackwardOps] Grad::batchnorm_training(Self[T], Self[T], Self[T], Self[T], Self[T], Float, Float) -> (Self[T], Self[T], Self[T])
+pub fn[T : @moonxi-net.Tensor] Grad::broadcast_to(Self[T], FixedArray[Int32]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor + @moonxi-net.ImageBackwardOps] Grad::conv2d(Self[T], Self[T], Self[T], Int32, Int32) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] Grad::conv2d_backward_bias(Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] Grad::conv2d_backward_data(Self[T], Self[T], Self[T], Int32, Int32) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] Grad::conv2d_backward_weight(Self[T], Self[T], Self[T], Int32, Int32) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor + @moonxi-net.ImageBackwardOps] Grad::cross_entropy_with_labels(Self[T], Self[T], Int32) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::dims(Self[T]) -> FixedArray[Int32]
+pub fn[T : @moonxi-net.Tensor] Grad::div_elem(Self[T], Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::from_host(FixedArray[Float], Array[Int32]) -> Self[T]
 pub fn[T] Grad::grad(Self[T]) -> T??
 pub fn[T] Grad::init(T) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.BlasTensor] Grad::matmul(Self[T], Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor + @moonxi-net.ImageBackwardOps] Grad::maxpool2d(Self[T], Int32, Int32) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] Grad::maxpool2d_backward(Self[T], Self[T], Int32, Int32) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::mean(Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::mul_elem(Self[T], Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::reduce_sum_to(Self[T], FixedArray[Int32]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor + @moonxi-net.ImageBackwardOps] Grad::relu(Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] Grad::relu_backward(Self[T], Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::scalar(Float) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::scale(Self[T], Float) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::size(Self[T]) -> Int32
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] Grad::softmax_ce_backward(Self[T], Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] Grad::softmax_ce_backward_labels(Self[T], Self[T], Int32) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor + @moonxi-net.ImageBackwardOps] Grad::softmax_cross_entropy(Self[T], Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::sqrt(Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::square(Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::sub(Self[T], Self[T]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor + @moonxi-net.BlasTensor] Grad::transpose(Self[T]) -> Self[T]
 pub fn[T] Grad::value(Self[T]) -> T
+pub fn[T : @moonxi-net.Tensor] Grad::view(Self[T], FixedArray[Int32]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::zeros(FixedArray[Int32]) -> Self[T]
+pub fn[T : @moonxi-net.Tensor] Grad::zeros_like(Self[T]) -> Self[T]
 pub impl[T : @moonxi-net.Tensor + @moonxi-net.BlasTensor] @moonxi-net.BlasTensor for Grad[T]
 pub impl[T : @moonxi-net.Tensor + @moonxi-net.ImageBackwardOps] @moonxi-net.ImageBackwardOps for Grad[T]
 pub impl[T : @moonxi-net.Tensor + @moonxi-net.ImageTensor + @moonxi-net.ImageBackwardOps] @moonxi-net.ImageTensor for Grad[T]
@@ -34,4 +71,3 @@ pub impl[T : @moonxi-net.Tensor] @moonxi-net.Tensor for Grad[T]
 // Type aliases
 
 // Traits
-

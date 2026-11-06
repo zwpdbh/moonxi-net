@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: MIT
 
 ///|
-pub impl @tensor.ImageTensor for NpArray with conv2d(
+pub impl @tensor.ImageTensor for NpArray with fn conv2d(
   _input : NpArray,
   _weight : NpArray,
   _bias : NpArray,
-  _stride : Int,
-  _padding : Int,
+  _stride : Int32,
+  _padding : Int32,
 ) -> NpArray {
   abort("NpArray: conv2d not supported on CPU backend")
 }
 
 ///|
-pub impl @tensor.ImageTensor for NpArray with relu(x : NpArray) -> NpArray {
+pub impl @tensor.ImageTensor for NpArray with fn relu(x : NpArray) -> NpArray {
   let n = x.data.length()
   {
     shape: _copy_shape(x.shape),
@@ -28,24 +28,24 @@ pub impl @tensor.ImageTensor for NpArray with relu(x : NpArray) -> NpArray {
 }
 
 ///|
-pub impl @tensor.ImageTensor for NpArray with maxpool2d(
+pub impl @tensor.ImageTensor for NpArray with fn maxpool2d(
   _x : NpArray,
-  _kernel_size : Int,
-  _stride : Int,
+  _kernel_size : Int32,
+  _stride : Int32,
 ) -> NpArray {
   abort("NpArray: maxpool2d not supported on CPU backend")
 }
 
 ///|
-pub impl @tensor.ImageTensor for NpArray with adaptive_avg_pool2d(
+pub impl @tensor.ImageTensor for NpArray with fn adaptive_avg_pool2d(
   _x : NpArray,
-  _output_size : Int,
+  _output_size : Int32,
 ) -> NpArray {
   abort("NpArray: adaptive_avg_pool2d not supported on CPU backend")
 }
 
 ///|
-pub impl @tensor.ImageTensor for NpArray with batchnorm_training(
+pub impl @tensor.ImageTensor for NpArray with fn batchnorm_training(
   _input : NpArray,
   _gamma : NpArray,
   _beta : NpArray,
@@ -58,7 +58,7 @@ pub impl @tensor.ImageTensor for NpArray with batchnorm_training(
 }
 
 ///|
-pub impl @tensor.ImageTensor for NpArray with batchnorm_inference(
+pub impl @tensor.ImageTensor for NpArray with fn batchnorm_inference(
   _input : NpArray,
   _gamma : NpArray,
   _beta : NpArray,
@@ -70,7 +70,7 @@ pub impl @tensor.ImageTensor for NpArray with batchnorm_inference(
 }
 
 ///|
-pub impl @tensor.ImageTensor for NpArray with softmax_cross_entropy(
+pub impl @tensor.ImageTensor for NpArray with fn softmax_cross_entropy(
   _logits : NpArray,
   _targets : NpArray,
 ) -> NpArray {
@@ -80,10 +80,10 @@ pub impl @tensor.ImageTensor for NpArray with softmax_cross_entropy(
 }
 
 ///|
-pub impl @tensor.ImageTensor for NpArray with cross_entropy_with_labels(
+pub impl @tensor.ImageTensor for NpArray with fn cross_entropy_with_labels(
   logits : NpArray,
   labels : NpArray,
-  num_classes : Int,
+  num_classes : Int32,
 ) -> NpArray {
   let batch = logits.shape.shape[0]
   let mut total_loss : Float = 0.0
@@ -114,36 +114,36 @@ pub impl @tensor.ImageTensor for NpArray with cross_entropy_with_labels(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for NpArray with conv2d_backward_data(
+pub impl @tensor.ImageBackwardOps for NpArray with fn conv2d_backward_data(
   _grad_output : NpArray,
   _weight : NpArray,
   _input : NpArray,
-  _stride : Int,
-  _padding : Int,
+  _stride : Int32,
+  _padding : Int32,
 ) -> NpArray {
   abort("NpArray: conv2d_backward_data not supported on CPU backend")
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for NpArray with conv2d_backward_weight(
+pub impl @tensor.ImageBackwardOps for NpArray with fn conv2d_backward_weight(
   _grad_output : NpArray,
   _input : NpArray,
   _weight : NpArray,
-  _stride : Int,
-  _padding : Int,
+  _stride : Int32,
+  _padding : Int32,
 ) -> NpArray {
   abort("NpArray: conv2d_backward_weight not supported on CPU backend")
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for NpArray with conv2d_backward_bias(
+pub impl @tensor.ImageBackwardOps for NpArray with fn conv2d_backward_bias(
   _grad_output : NpArray,
 ) -> NpArray {
   abort("NpArray: conv2d_backward_bias not supported on CPU backend")
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for NpArray with relu_backward(
+pub impl @tensor.ImageBackwardOps for NpArray with fn relu_backward(
   grad_output : NpArray,
   input : NpArray,
 ) -> NpArray {
@@ -155,11 +155,11 @@ pub impl @tensor.ImageBackwardOps for NpArray with relu_backward(
       (0.0 : Float)
     }
   })
-  { shape: _copy_shape(input.shape), data }
+  { shape: _copy_shape(input.shape), data, }
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for NpArray with batchnorm_backward(
+pub impl @tensor.ImageBackwardOps for NpArray with fn batchnorm_backward(
   _grad_output : NpArray,
   _input : NpArray,
   _gamma : NpArray,
@@ -171,17 +171,17 @@ pub impl @tensor.ImageBackwardOps for NpArray with batchnorm_backward(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for NpArray with maxpool2d_backward(
+pub impl @tensor.ImageBackwardOps for NpArray with fn maxpool2d_backward(
   _grad_output : NpArray,
   _input : NpArray,
-  _kernel_size : Int,
-  _stride : Int,
+  _kernel_size : Int32,
+  _stride : Int32,
 ) -> NpArray {
   abort("NpArray: maxpool2d_backward not supported on CPU backend")
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for NpArray with adaptive_avg_pool2d_backward(
+pub impl @tensor.ImageBackwardOps for NpArray with fn adaptive_avg_pool2d_backward(
   _grad_output : NpArray,
   _input : NpArray,
 ) -> NpArray {
@@ -189,7 +189,7 @@ pub impl @tensor.ImageBackwardOps for NpArray with adaptive_avg_pool2d_backward(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for NpArray with softmax_ce_backward(
+pub impl @tensor.ImageBackwardOps for NpArray with fn softmax_ce_backward(
   _logits : NpArray,
   _targets : NpArray,
 ) -> NpArray {
@@ -199,10 +199,10 @@ pub impl @tensor.ImageBackwardOps for NpArray with softmax_ce_backward(
 }
 
 ///|
-pub impl @tensor.ImageBackwardOps for NpArray with softmax_ce_backward_labels(
+pub impl @tensor.ImageBackwardOps for NpArray with fn softmax_ce_backward_labels(
   logits : NpArray,
   labels : NpArray,
-  num_classes : Int,
+  num_classes : Int32,
 ) -> NpArray {
   let batch = labels.data.length()
   let result = FixedArray::make(batch * num_classes, (0.0 : Float))
@@ -235,5 +235,8 @@ pub impl @tensor.ImageBackwardOps for NpArray with softmax_ce_backward_labels(
         Float::from_int(batch)
     }
   }
-  { shape: @tensor.ShapeTensor::from_array([batch, num_classes]), data: result }
+  {
+    shape: @tensor.ShapeTensor::from_array([batch, num_classes]),
+    data: result,
+  }
 }

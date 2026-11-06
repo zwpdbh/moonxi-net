@@ -2,6 +2,7 @@
 // Contains CUDA kernels and cuBLAS wrappers called from the C stub.
 // Functions are exported for dynamic loading via LoadLibrary/GetProcAddress.
 
+#include <cuda.h>
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <cudnn.h>
@@ -21,6 +22,8 @@
 // ============================================================================
 // CUDA initialization helper (cuDNN 9.21 requires active CUDA context)
 // ============================================================================
+
+static const CUresult cuda_driver_init_result = cuInit(0);
 
 static void ensure_cuda_init(void) {
     static int cuda_initialized = 0;
@@ -199,7 +202,7 @@ CUDA_EXPORT void cuda_free_device(void* ptr) {
 
 CUDA_EXPORT int cuda_memset_zero(void* dst, int64_t count) {
   cudaError_t err = cudaMemset(dst, 0, count * sizeof(float));
-  return (err == cudaSuccess) ? 0 : -1;
+  return (int)err;
 }
 
 CUDA_EXPORT int cuda_copy_h2d(void* dst, const float* src, int64_t count) {

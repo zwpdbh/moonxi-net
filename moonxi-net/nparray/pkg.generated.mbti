@@ -19,8 +19,63 @@ pub(all) struct NpArray {
   mut shape : @moonxi-net.ShapeTensor
   mut data : FixedArray[Float]
 } derive(@debug.Debug)
+pub fn NpArray::adaptive_avg_pool2d(Self, Int32) -> Self
+pub fn NpArray::adaptive_avg_pool2d_backward(Self, Self) -> Self
+pub fn NpArray::add(Self, Self) -> Self
+pub fn NpArray::add_into(Self, Self) -> Unit
+pub fn NpArray::argmax_last(Self) -> Self
+pub fn NpArray::batch_sgd_momentum_autoclip(Array[Self], Array[Self], Array[Self], @optimizer.SgdMomentumConfig) -> Unit
+pub fn NpArray::batched_matmul(Self, Self) -> Self
+pub fn NpArray::batchnorm_backward(Self, Self, Self, Self, Self, Float) -> (Self, Self, Self)
+pub fn NpArray::batchnorm_inference(Self, Self, Self, Self, Self, Float) -> Self
+pub fn NpArray::batchnorm_training(Self, Self, Self, Self, Self, Float, Float) -> (Self, Self, Self)
+pub fn NpArray::broadcast_to(Self, FixedArray[Int32]) -> Self
+pub fn NpArray::concat(Array[Self], dim~ : Int32) -> Self
+pub fn NpArray::conv2d(Self, Self, Self, Int32, Int32) -> Self
+pub fn NpArray::conv2d_backward_bias(Self) -> Self
+pub fn NpArray::conv2d_backward_data(Self, Self, Self, Int32, Int32) -> Self
+pub fn NpArray::conv2d_backward_weight(Self, Self, Self, Int32, Int32) -> Self
+pub fn NpArray::cross_entropy_with_labels(Self, Self, Int32) -> Self
+pub fn NpArray::dims(Self) -> FixedArray[Int32]
+pub fn NpArray::div_elem(Self, Self) -> Self
+pub fn NpArray::embedding(Self, Array[Int32]) -> Self
+pub fn NpArray::expand(Self, Array[Int32]) -> Self
 pub fn NpArray::from1d(ArrayView[Float]) -> Self
 pub fn NpArray::from2d(ArrayView[ArrayView[Float]]) -> Self
+pub fn NpArray::from_host(FixedArray[Float], Array[Int32]) -> Self
+pub fn NpArray::linear(Self, Self) -> Self
+pub fn NpArray::masked_fill(Self, Self, value~ : Float) -> Self
+pub fn NpArray::matmul(Self, Self) -> Self
+pub fn NpArray::maxpool2d(Self, Int32, Int32) -> Self
+pub fn NpArray::maxpool2d_backward(Self, Self, Int32, Int32) -> Self
+pub fn NpArray::mean(Self) -> Self
+pub fn NpArray::mul_elem(Self, Self) -> Self
+pub fn NpArray::narrow(Self, dim~ : Int32, start~ : Int32, length~ : Int32) -> Self
+pub fn NpArray::permute(Self, Array[Int32]) -> Self
+pub fn NpArray::reduce_sum_to(Self, FixedArray[Int32]) -> Self
+pub fn NpArray::relu(Self) -> Self
+pub fn NpArray::relu_backward(Self, Self) -> Self
+pub fn NpArray::repeat_interleave(Self, repeats~ : Int32, dim~ : Int32) -> Self
+pub fn NpArray::rms_norm(Self, Self, eps~ : Float) -> Self
+pub fn NpArray::scalar(Float) -> Self
+pub fn NpArray::scale(Self, Float) -> Self
+pub fn NpArray::select(Self, dim~ : Int32, index~ : Int32) -> Self
+pub fn NpArray::silu(Self) -> Self
+pub fn NpArray::size(Self) -> Int32
+pub fn NpArray::softmax_ce_backward(Self, Self) -> Self
+pub fn NpArray::softmax_ce_backward_labels(Self, Self, Int32) -> Self
+pub fn NpArray::softmax_cross_entropy(Self, Self) -> Self
+pub fn NpArray::softmax_last(Self) -> Self
+pub fn NpArray::sqrt(Self) -> Self
+pub fn NpArray::square(Self) -> Self
+pub fn NpArray::sub(Self, Self) -> Self
+pub fn NpArray::to_repr(Self) -> @debug.Repr
+pub fn NpArray::transpose(Self) -> Self
+pub fn NpArray::unsqueeze(Self, dim~ : Int32) -> Self
+pub fn NpArray::value(Self) -> @moonxi-net.TensorData
+pub fn NpArray::view(Self, FixedArray[Int32]) -> Self
+pub fn NpArray::zeros(FixedArray[Int32]) -> Self
+pub fn NpArray::zeros_like(Self) -> Self
 pub impl @moonxi-net.BlasTensor for NpArray
 pub impl @moonxi-net.ImageBackwardOps for NpArray
 pub impl @moonxi-net.ImageTensor for NpArray
@@ -32,4 +87,3 @@ pub impl Sub for NpArray
 // Type aliases
 
 // Traits
-

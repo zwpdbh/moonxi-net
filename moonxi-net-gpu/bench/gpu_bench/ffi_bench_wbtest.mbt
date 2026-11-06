@@ -23,12 +23,12 @@ test (b : @bench.T) {
   let conv_ctx = @cuda.get_context(0)
 
   let mut _counter = 0
-  let tape_ops : Array[() -> Unit] = Array::new()
+  let tape_ops : Array[() -> Unit] = Array(capacity=0)
   for _ in 0..<122 {
     tape_ops.push(fn() { _counter += 1 })
   }
 
-  let tape_ffi_ops : Array[() -> Unit] = Array::new()
+  let tape_ffi_ops : Array[() -> Unit] = Array(capacity=0)
   for _ in 0..<122 {
     tape_ffi_ops.push(fn() { let _ = @cuda.memset_zero(buf1, 1L) })
   }

@@ -43,7 +43,7 @@ pub(all) struct RmspropConfig {
 /// Fine-grained: only the method momentum_sgd actually uses.
 /// Add new optimizers by defining new traits — no monolithic OptimStep.
 pub(open) trait BatchSgdMomentumAutoclip {
-  batch_sgd_momentum_autoclip(
+  fn batch_sgd_momentum_autoclip(
     params : Array[Self],
     grads : Array[Self],
     velocities : Array[Self],
@@ -54,7 +54,7 @@ pub(open) trait BatchSgdMomentumAutoclip {
 ///|
 /// Backend trait for fused batch Adam with auto gradient clipping.
 pub(open) trait BatchAdamAutoclip {
-  batch_adam_autoclip(
+  fn batch_adam_autoclip(
     params : Array[Self],
     grads : Array[Self],
     m : Array[Self],
@@ -66,7 +66,7 @@ pub(open) trait BatchAdamAutoclip {
 ///|
 /// Backend trait for fused batch RMSprop with auto gradient clipping.
 pub(open) trait BatchRmspropAutoclip {
-  batch_rmsprop_autoclip(
+  fn batch_rmsprop_autoclip(
     params : Array[Self],
     grads : Array[Self],
     v : Array[Self],
@@ -87,7 +87,7 @@ pub fn[T : @tensor.Tensor + BatchSgdMomentumAutoclip] momentum_sgd(
   max_grad_norm : Double,
 ) -> Optimizer[T] {
   let velocities = params.map(fn(p : @grad.Grad[T]) -> T {
-    T::zeros_like(p.value)
+    @tensor.Tensor::zeros_like(p.value)
   })
   let momentum_f = Float::from_double(momentum)
   let weight_decay_f = Float::from_double(weight_decay)
@@ -112,12 +112,17 @@ pub fn[T : @tensor.Tensor + BatchSgdMomentumAutoclip] momentum_sgd(
         return
       }
 
-      T::batch_sgd_momentum_autoclip(param_vals, grad_vals, velocities, {
-        lr,
-        momentum: momentum_f,
-        weight_decay: weight_decay_f,
-        max_grad_norm: max_grad_norm_f,
-      })
+      BatchSgdMomentumAutoclip::batch_sgd_momentum_autoclip(
+        param_vals,
+        grad_vals,
+        velocities,
+        {
+          lr,
+          momentum: momentum_f,
+          weight_decay: weight_decay_f,
+          max_grad_norm: max_grad_norm_f,
+        },
+      )
     },
   }
 }

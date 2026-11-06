@@ -5,9 +5,12 @@
 
 ///|
 /// Helper: create a dummy Cifar10Example with given label and pixel pattern.
-fn make_dummy_example(label : Int, pixel_val : Float) -> Cifar10Example {
+fn make_dummy_example(
+  label : Int32,
+  pixel_val : Float,
+) -> @cifar10.Cifar10Example {
   let pixels = FixedArray::makei(3072, fn(_) { pixel_val })
-  Cifar10Example::{ pixels, label }
+  @cifar10.Cifar10Example::{ pixels, label, }
 }
 
 ///|
@@ -15,8 +18,8 @@ test "one_hot encoding correctness" {
   // Create a single dummy example
   let ex = make_dummy_example(3, 0.5)
   // Convert to tensors with count=1
-  let view = [ex].view()
-  let (images, labels) = cifar10_to_tensors(view, 0, 1)
+  let view = [ex].exact_view()
+  let (images, labels) = @cifar10.cifar10_to_tensors(view, 0, 1)
   let _ = images // unused
   // Label 3 should be one-hot as [0,0,0,1,0,0,0,0,0,0]
   assert_eq(labels[0], 0.0)
@@ -38,9 +41,9 @@ test "cifar10_to_tensors shape" {
   let ex1 = make_dummy_example(5, 0.2)
   let ex2 = make_dummy_example(9, 0.3)
   let examples = [ex0, ex1, ex2]
-  let view = examples.view()
+  let view = examples.exact_view()
   // Convert all 3
-  let (images, labels) = cifar10_to_tensors(view, 0, 3)
+  let (images, labels) = @cifar10.cifar10_to_tensors(view, 0, 3)
   // images: [batch * 3 * 32 * 32] = [3 * 3072] = 9216
   assert_eq(images.length(), 9216)
   // labels: [batch * 10] = [3 * 10] = 30
@@ -65,9 +68,9 @@ test "cifar10_to_tensors partial slice" {
   let examples = Array::makei(5, fn(i) {
     make_dummy_example(i, Float::from_int(i + 1) * Float::from_double(0.1))
   })
-  let view = examples.view()
+  let view = examples.exact_view()
   // Extract only 2 examples starting at index 1 (labels 1 and 2)
-  let (images, labels) = cifar10_to_tensors(view, 1, 2)
+  let (images, labels) = @cifar10.cifar10_to_tensors(view, 1, 2)
   // Verify shape
   assert_eq(images.length(), 6144)
   assert_eq(labels.length(), 20)
@@ -81,7 +84,7 @@ test "cifar10_to_tensors partial slice" {
 
 ///|
 test "cifar10_labels length and content" {
-  assert_eq(cifar10_labels.length(), 10)
-  assert_eq(cifar10_labels[0], "airplane")
-  assert_eq(cifar10_labels[9], "truck")
+  assert_eq(@cifar10.cifar10_labels.length(), 10)
+  assert_eq(@cifar10.cifar10_labels[0], "airplane")
+  assert_eq(@cifar10.cifar10_labels[9], "truck")
 }

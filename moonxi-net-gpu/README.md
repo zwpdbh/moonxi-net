@@ -6,12 +6,20 @@ GPU backend for [moonxi-net](../moonxi-net): CUDA/cuDNN-accelerated tensor opera
 
 | Dependency | Version | Purpose |
 |---|---|---|
-| [MoonBit (CUDA fork)](https://github.com/chnlkw/moon/tree/support_cuda) | latest | Compiler with CUDA compilation support |
+| MoonBit | current standard toolchain | MoonBit code and C stubs |
 | CUDA Toolkit | 12.8+ | nvcc, cuBLAS, CUDA Runtime |
 | cuDNN | 9.21+ | Conv2d, BatchNorm, Pooling |
 | NVIDIA GPU | Compute Capability 7.5+ | GPU training |
 
-> **Note:** The standard MoonBit toolchain does **not** support CUDA compilation. You must use the [CUDA-patched fork](https://github.com/chnlkw/moon/tree/support_cuda).
+The standard MoonBit compiler is sufficient. Build the CUDA kernels separately:
+
+```bash
+scripts/build_cuda_kernels.sh
+```
+
+Set `NVCC`, `CUDA_HOME`, `NVCC_FLAGS`, `CUDNN_INCLUDE`, or `CUDA_BUILD_DIR` when
+needed. `build_config.js` propagates the generated static library and native
+link settings to dependent executables and tests.
 
 ## Installation
 
@@ -117,7 +125,7 @@ moon run moonxi-net-gpu/examples/cifar10 --target native --release -- -o adam   
 ## Build & Test
 
 ```bash
-# Requires CUDA-patched MoonBit + CUDA toolkit
+# Build the CUDA kernels first with scripts/build_cuda_kernels.sh
 moon test --target native
 moon build --target native
 ```

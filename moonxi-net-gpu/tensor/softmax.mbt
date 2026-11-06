@@ -32,7 +32,7 @@ pub fn gpu_softmax_cross_entropy(
 pub fn gpu_cross_entropy_with_labels(
   logits : GpuTensor,
   labels : GpuTensor,
-  num_classes : Int,
+  num_classes : Int32,
 ) -> GpuTensor {
   let loss_output = GpuTensor::alloc_st(
     @ts.ShapeTensor::cross_entropy_with_labels(
@@ -60,7 +60,7 @@ pub fn gpu_cross_entropy_with_labels(
 pub fn gpu_softmax_ce_backward_labels(
   logits : GpuTensor,
   labels : GpuTensor,
-  num_classes : Int,
+  num_classes : Int32,
 ) -> GpuTensor {
   let grad_logits = GpuTensor::alloc_st(logits.shape)
   let batch = logits.dim(0)

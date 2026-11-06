@@ -7,7 +7,10 @@
 
 ///|
 /// Compute prefix-sum block offsets for multi-block-per-tensor kernels.
-fn compute_block_offsets(sizes : FixedArray[Int], n : Int) -> FixedArray[Int] {
+fn compute_block_offsets(
+  sizes : FixedArray[Int32],
+  n : Int32,
+) -> FixedArray[Int32] {
   FixedArray::makei(
     n,
     {
@@ -32,8 +35,8 @@ priv struct OptCache {
   mut d_sizes : @cuda.GpuBuffer
   mut d_offsets : @cuda.GpuBuffer
   mut norm_buf : @cuda.GpuBuffer
-  mut cached_n : Int
-  mut total_blocks : Int
+  mut cached_n : Int32
+  mut total_blocks : Int32
 }
 
 ///|
@@ -46,8 +49,8 @@ priv struct OptAdamCache {
   mut d_sizes : @cuda.GpuBuffer
   mut d_offsets : @cuda.GpuBuffer
   mut norm_buf : @cuda.GpuBuffer
-  mut cached_n : Int
-  mut total_blocks : Int
+  mut cached_n : Int32
+  mut total_blocks : Int32
 }
 
 ///|
@@ -60,8 +63,8 @@ priv struct OptRmspropCache {
   mut d_sizes : @cuda.GpuBuffer
   mut d_offsets : @cuda.GpuBuffer
   mut norm_buf : @cuda.GpuBuffer
-  mut cached_n : Int
-  mut total_blocks : Int
+  mut cached_n : Int32
+  mut total_blocks : Int32
 }
 
 ///|
@@ -103,13 +106,13 @@ let opt_rmsprop_cache : OptRmspropCache = {
 }
 
 ///|
-pub impl @optimizer.BatchSgdMomentumAutoclip for GpuTensor with batch_sgd_momentum_autoclip(
+pub impl @optimizer.BatchSgdMomentumAutoclip for GpuTensor with fn batch_sgd_momentum_autoclip(
   params : Array[GpuTensor],
   grads : Array[GpuTensor],
   velocities : Array[GpuTensor],
   config : @optimizer.SgdMomentumConfig,
 ) -> Unit {
-  let { lr, momentum, weight_decay, max_grad_norm } = config
+  let { lr, momentum, weight_decay, max_grad_norm, } = config
   let n = params.length()
   let ptrs_bytes = Int64::from_int(n * 8)
   let sizes_bytes = Int64::from_int(n * 4)
@@ -178,7 +181,7 @@ pub impl @optimizer.BatchSgdMomentumAutoclip for GpuTensor with batch_sgd_moment
 }
 
 ///|
-pub impl @optimizer.BatchAdamAutoclip for GpuTensor with batch_adam_autoclip(
+pub impl @optimizer.BatchAdamAutoclip for GpuTensor with fn batch_adam_autoclip(
   params : Array[GpuTensor],
   grads : Array[GpuTensor],
   m : Array[GpuTensor],
@@ -275,7 +278,7 @@ pub impl @optimizer.BatchAdamAutoclip for GpuTensor with batch_adam_autoclip(
 }
 
 ///|
-pub impl @optimizer.BatchRmspropAutoclip for GpuTensor with batch_rmsprop_autoclip(
+pub impl @optimizer.BatchRmspropAutoclip for GpuTensor with fn batch_rmsprop_autoclip(
   params : Array[GpuTensor],
   grads : Array[GpuTensor],
   v : Array[GpuTensor],

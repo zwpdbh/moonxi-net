@@ -46,7 +46,7 @@ pub fn[T : @tensor.ImageTensor] cross_entropy(logits : T, targets : T) -> T {
 pub fn[T : @tensor.ImageTensor] cross_entropy_with_labels(
   logits : T,
   labels : T,
-  num_classes : Int,
+  num_classes : Int32,
 ) -> T {
   logits.cross_entropy_with_labels(labels, num_classes)
 }
@@ -56,13 +56,13 @@ pub fn[T : @tensor.ImageTensor] cross_entropy_with_labels(
 ///|
 /// MSE loss as a `LossFn`: mean((y_hat - y)^2)
 pub fn[T : @tensor.Tensor] mse_loss() -> LossFn[T] {
-  { loss: fn(y_hat : T, y : T) -> T { y_hat.sub(y).square().mean() } }
+  { loss: fn(y_hat : T, y : T) -> T { y_hat.sub(y).square().mean() }, }
 }
 
 ///|
 /// Cross-entropy loss with integer class labels (avoids one-hot encoding).
 pub fn[T : @tensor.ImageTensor] cross_entropy_loss(
-  num_classes : Int,
+  num_classes : Int32,
 ) -> LossFn[T] {
   {
     loss: fn(logits : T, labels : T) -> T {

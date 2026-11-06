@@ -7,12 +7,12 @@
 /// label: 0-9
 pub(all) struct MnistExample {
   pixels : FixedArray[Float]
-  label : Int
+  label : Int32
 }
 
 ///|
 /// Read a big-endian 32-bit integer from bytes at given offset.
-fn be32(bytes : Bytes, offset : Int) -> Int {
+fn be32(bytes : Bytes, offset : Int32) -> Int32 {
   (bytes[offset].to_int() << 24) |
   (bytes[offset + 1].to_int() << 16) |
   (bytes[offset + 2].to_int() << 8) |
@@ -22,7 +22,7 @@ fn be32(bytes : Bytes, offset : Int) -> Int {
 ///|
 /// Parse MNIST IDX image file header.
 /// Returns (count, rows, cols).
-fn parse_idx_image_header(bytes : Bytes) -> (Int, Int, Int) {
+fn parse_idx_image_header(bytes : Bytes) -> (Int32, Int32, Int32) {
   (be32(bytes, 4), be32(bytes, 8), be32(bytes, 12))
 }
 
@@ -44,7 +44,7 @@ pub fn load_mnist_images(
       let pixel = img_bytes[16 + i * pixel_count + j].to_int()
       Float::from_int(pixel) / Float::from_double(255.0)
     })
-    MnistExample::{ pixels, label }
+    MnistExample::{ pixels, label, }
   })
   result
 }
@@ -54,8 +54,8 @@ pub fn load_mnist_images(
 /// Returns (images_data [count * 784], labels_data [count * 10] one-hot)
 pub fn mnist_to_tensors(
   examples : ArrayView[MnistExample],
-  start : Int,
-  count : Int,
+  start : Int32,
+  count : Int32,
 ) -> (FixedArray[Float], FixedArray[Float]) {
   let features = 784
   let num_classes = 10
@@ -82,8 +82,8 @@ pub fn mnist_to_tensors(
 /// Returns (images_data [count * 784], labels_data [count] integer labels as float)
 pub fn mnist_to_tensors_with_labels(
   examples : ArrayView[MnistExample],
-  start : Int,
-  count : Int,
+  start : Int32,
+  count : Int32,
 ) -> (FixedArray[Float], FixedArray[Float]) {
   let features = 784
   let images = FixedArray::make(count * features, Float::from_double(0.0))
@@ -131,12 +131,12 @@ pub fn[T : @tensor.Tensor] mnist_loaders(
   let num_test = test_examples.length()
 
   let (train_images, train_labels) = mnist_to_tensors_with_labels(
-    train_examples.view(),
+    train_examples.exact_view(),
     0,
     num_train,
   )
   let (test_images, test_labels) = mnist_to_tensors_with_labels(
-    test_examples.view(),
+    test_examples.exact_view(),
     0,
     num_test,
   )
@@ -152,7 +152,7 @@ pub fn[T : @tensor.Tensor] mnist_loaders(
 fn[T : @tensor.Tensor] _mnist_loader(
   images : FixedArray[Float],
   labels : FixedArray[Float],
-  num_samples : Int,
+  num_samples : Int32,
 ) -> @dl.DataLoader[T] {
   let features = 784
   @dl.DataLoader::{

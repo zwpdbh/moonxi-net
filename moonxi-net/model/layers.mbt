@@ -60,7 +60,7 @@ pub fn[T : @tensor.Tensor + @tensor.BlasTensor] Linear::forward(
   self : Linear[T],
   x : T,
 ) -> T {
-  x.matmul(self.w).add(self.b)
+  @tensor.Tensor::add(@tensor.BlasTensor::matmul(x, self.w), self.b)
 }
 
 ///|
@@ -69,77 +69,93 @@ pub fn[T : @tensor.Tensor + @tensor.ImageTensor] BasicBlock::forward(
   self : BasicBlock[T],
   input : T,
   is_training~ : Bool,
-  stride : Int,
+  stride : Int32,
 ) -> T {
-  // conv1: 3x3, given stride, padding=1
-  let conv1_out = input.conv2d(self.conv1.weight, self.conv1.bias, stride, 1)
-
-  // bn1 + relu
+  let conv1_out = @tensor.ImageTensor::conv2d(
+    input,
+    self.conv1.weight,
+    self.conv1.bias,
+    stride,
+    1,
+  )
   let bn1_out = if is_training {
-    conv1_out.batchnorm_training(
+    @tensor.ImageTensor::batchnorm_training(
+      conv1_out,
       self.bn1.gamma,
       self.bn1.beta,
       self.bn1.running_mean,
       self.bn1.running_var,
-      (0.1 : Float),
-      (0.00001 : Float),
+      0.1F,
+      0.00001F,
     ).0
   } else {
-    conv1_out.batchnorm_inference(
+    @tensor.ImageTensor::batchnorm_inference(
+      conv1_out,
       self.bn1.gamma,
       self.bn1.beta,
       self.bn1.running_mean,
       self.bn1.running_var,
-      (0.00001 : Float),
+      0.00001F,
     )
   }
-  let relu1 = bn1_out.relu()
-
-  // conv2: 3x3, stride=1, padding=1
-  let conv2_out = relu1.conv2d(self.conv2.weight, self.conv2.bias, 1, 1)
-
-  // bn2
+  let relu1 = @tensor.ImageTensor::relu(bn1_out)
+  let conv2_out = @tensor.ImageTensor::conv2d(
+    relu1,
+    self.conv2.weight,
+    self.conv2.bias,
+    1,
+    1,
+  )
   let bn2_out = if is_training {
-    conv2_out.batchnorm_training(
+    @tensor.ImageTensor::batchnorm_training(
+      conv2_out,
       self.bn2.gamma,
       self.bn2.beta,
       self.bn2.running_mean,
       self.bn2.running_var,
-      (0.1 : Float),
-      (0.00001 : Float),
+      0.1F,
+      0.00001F,
     ).0
   } else {
-    conv2_out.batchnorm_inference(
+    @tensor.ImageTensor::batchnorm_inference(
+      conv2_out,
       self.bn2.gamma,
       self.bn2.beta,
       self.bn2.running_mean,
       self.bn2.running_var,
-      (0.00001 : Float),
+      0.00001F,
     )
   }
 
-  // Shortcut: identity or projection
   let shortcut : T = match self.shortcut {
     Some(sc) => {
-      let sc_conv = input.conv2d(sc.weight, sc.bias, stride, 0) // 1x1
+      let sc_conv = @tensor.ImageTensor::conv2d(
+        input,
+        sc.weight,
+        sc.bias,
+        stride,
+        0,
+      )
       match self.shortcut_bn {
         Some(sc_bn) =>
           if is_training {
-            sc_conv.batchnorm_training(
+            @tensor.ImageTensor::batchnorm_training(
+              sc_conv,
               sc_bn.gamma,
               sc_bn.beta,
               sc_bn.running_mean,
               sc_bn.running_var,
-              (0.1 : Float),
-              (0.00001 : Float),
+              0.1F,
+              0.00001F,
             ).0
           } else {
-            sc_conv.batchnorm_inference(
+            @tensor.ImageTensor::batchnorm_inference(
+              sc_conv,
               sc_bn.gamma,
               sc_bn.beta,
               sc_bn.running_mean,
               sc_bn.running_var,
-              (0.00001 : Float),
+              0.00001F,
             )
           }
         None => sc_conv
@@ -147,9 +163,7 @@ pub fn[T : @tensor.Tensor + @tensor.ImageTensor] BasicBlock::forward(
     }
     None => input
   }
-
-  // Add + ReLU
-  bn2_out.add(shortcut).relu()
+  @tensor.ImageTensor::relu(@tensor.Tensor::add(bn2_out, shortcut))
 }
 
 ///|
@@ -159,7 +173,7 @@ pub fn[T : @tensor.Tensor + @tensor.ImageTensor] ResNetLayer::forward(
   self : ResNetLayer[T],
   input : T,
   is_training~ : Bool,
-  first_stride : Int,
+  first_stride : Int32,
 ) -> T {
   let mut x = input
   for i in 0..<self.blocks.length() {
@@ -177,45 +191,45 @@ pub fn[T : @tensor.Tensor + @tensor.ImageTensor] ResNet18::forward_features(
   input : T,
   is_training~ : Bool,
 ) -> T {
-  // Stem: Conv7x7(3, 64, stride=2, pad=3)
-  let x = input.conv2d(self.stem_conv.weight, self.stem_conv.bias, 2, 3)
-
-  // Stem BN + ReLU
+  let x = @tensor.ImageTensor::conv2d(
+    input,
+    self.stem_conv.weight,
+    self.stem_conv.bias,
+    2,
+    3,
+  )
   let x = if is_training {
-    x.batchnorm_training(
+    @tensor.ImageTensor::batchnorm_training(
+      x,
       self.stem_bn.gamma,
       self.stem_bn.beta,
       self.stem_bn.running_mean,
       self.stem_bn.running_var,
-      (0.1 : Float),
-      (0.00001 : Float),
+      0.1F,
+      0.00001F,
     ).0
   } else {
-    x.batchnorm_inference(
+    @tensor.ImageTensor::batchnorm_inference(
+      x,
       self.stem_bn.gamma,
       self.stem_bn.beta,
       self.stem_bn.running_mean,
       self.stem_bn.running_var,
-      (0.00001 : Float),
+      0.00001F,
     )
   }
-  let x = x.relu()
-
-  // MaxPool 3x3, stride=2, padding=1
-  let x = x.maxpool2d(3, 2)
-
-  // 4 residual layers
+  let x = @tensor.ImageTensor::relu(x)
+  let x = @tensor.ImageTensor::maxpool2d(x, 3, 2)
   let x = self.layer1.forward(x, is_training~, 1)
   let x = self.layer2.forward(x, is_training~, 2)
   let x = self.layer3.forward(x, is_training~, 2)
   let x = self.layer4.forward(x, is_training~, 2)
-
-  // Adaptive Average Pooling to [batch, 512, 1, 1]
-  let x = x.adaptive_avg_pool2d(1)
-
-  // Flatten to [batch, 512]
-  let n = x.dims()[0]
-  x.view(FixedArray::makei(2, fn(i) { if i == 0 { n } else { 512 } }))
+  let x = @tensor.ImageTensor::adaptive_avg_pool2d(x, 1)
+  let n = @tensor.Tensor::dims(x)[0]
+  @tensor.Tensor::view(
+    x,
+    FixedArray::makei(2, i => if i == 0 { n } else { 512 }),
+  )
 }
 
 ///|
@@ -226,7 +240,13 @@ pub fn[T : @tensor.Tensor + @tensor.BlasTensor + @tensor.ImageTensor] ResNet18::
   is_training~ : Bool,
 ) -> T {
   let x = self.forward_features(input, is_training~)
-  x.matmul(self.head_weight.transpose()).add(self.head_bias)
+  @tensor.Tensor::add(
+    @tensor.BlasTensor::matmul(
+      x,
+      @tensor.BlasTensor::transpose(self.head_weight),
+    ),
+    self.head_bias,
+  )
 }
 
 ///|

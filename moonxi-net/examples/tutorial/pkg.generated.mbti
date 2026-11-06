@@ -20,4 +20,3 @@ type NpArray derive(@debug.Debug)
 
 // Traits
 trait Tensor : Add + Sub + Mul
-

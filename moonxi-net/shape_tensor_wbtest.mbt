@@ -3,7 +3,7 @@
 
 ///|
 /// Helper: assert a ShapeTensor's shape matches an expected Array[Int].
-fn assert_shape(tensor : ShapeTensor, expected : Array[Int]) -> Unit {
+fn assert_shape(tensor : ShapeTensor, expected : Array[Int32]) -> Unit {
   let s = tensor.shape
   guard s.length() == expected.length() else {
     abort("assert_shape: ndim mismatch: \{s.length()} vs \{expected.length()}")
@@ -28,7 +28,7 @@ test "shape_numel" {
 
 ///|
 test "ShapeTensor::numel" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()), }
   assert_eq(t.numel(), 6)
 }
 
@@ -77,7 +77,7 @@ test "shape_broadcast (2,1) + (1,3)" {
 
 ///|
 test "Tensor: dims" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3, 4].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3, 4].iter()), }
   let d = ShapeTensor::dims(t)
   assert_eq(d.length(), 3)
   assert_eq(d[0], 2)
@@ -94,7 +94,7 @@ test "Tensor: zeros" {
 
 ///|
 test "Tensor: zeros_like" {
-  let original : ShapeTensor = { shape: FixedArray::from_iter([3, 7].iter()) }
+  let original : ShapeTensor = { shape: FixedArray::from_iter([3, 7].iter()), }
   let t = ShapeTensor::zeros_like(original)
   assert_shape(t, [3, 7])
 }
@@ -108,37 +108,37 @@ test "Tensor: from_host" {
 
 ///|
 test "Tensor: square preserves shape" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()), }
   let s = ShapeTensor::square(t)
   assert_shape(s, [2, 3])
 }
 
 ///|
 test "Tensor: mean returns scalar shape" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([4, 5, 6].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([4, 5, 6].iter()), }
   let m = ShapeTensor::mean(t)
   assert_shape(m, [1])
 }
 
 ///|
 test "Tensor: scale preserves shape" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()), }
   let s = ShapeTensor::scale(t, 2.5)
   assert_shape(s, [3, 4])
 }
 
 ///|
 test "Tensor: mul_elem broadcasts shapes" {
-  let a : ShapeTensor = { shape: FixedArray::from_iter([2, 1].iter()) }
-  let b : ShapeTensor = { shape: FixedArray::from_iter([1, 3].iter()) }
+  let a : ShapeTensor = { shape: FixedArray::from_iter([2, 1].iter()), }
+  let b : ShapeTensor = { shape: FixedArray::from_iter([1, 3].iter()), }
   let result = ShapeTensor::mul_elem(a, b)
   assert_shape(result, [2, 3])
 }
 
 ///|
 test "Tensor: mul_elem same shape" {
-  let a : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()) }
-  let b : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()) }
+  let a : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()), }
+  let b : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()), }
   let result = ShapeTensor::mul_elem(a, b)
   assert_shape(result, [3, 4])
 }
@@ -151,19 +151,19 @@ test "Tensor: scalar" {
 
 ///|
 test "Tensor: size" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3, 4].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3, 4].iter()), }
   assert_eq(ShapeTensor::size(t), 24)
 }
 
 ///|
 test "Tensor: size scalar" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([1].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([1].iter()), }
   assert_eq(ShapeTensor::size(t), 1)
 }
 
 ///|
 test "Tensor: reduce_sum_to" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3, 4].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3, 4].iter()), }
   let target = FixedArray::from_iter([1, 3, 4].iter())
   let result = ShapeTensor::reduce_sum_to(t, target)
   assert_shape(result, [1, 3, 4])
@@ -171,7 +171,7 @@ test "Tensor: reduce_sum_to" {
 
 ///|
 test "Tensor: value returns TensorData" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()), }
   let v = ShapeTensor::value(t)
   assert_eq(v.dims.length(), 2)
   assert_eq(v.dims[0], 2)
@@ -181,7 +181,7 @@ test "Tensor: value returns TensorData" {
 
 ///|
 test "Tensor: view changes shape" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()), }
   let new_shape = FixedArray::from_iter([3, 2].iter())
   let v = ShapeTensor::view(t, new_shape)
   assert_shape(v, [3, 2])
@@ -189,7 +189,7 @@ test "Tensor: view changes shape" {
 
 ///|
 test "Tensor: view 4D reshape" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([8].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([8].iter()), }
   let new_shape = FixedArray::from_iter([2, 2, 2].iter())
   let v = ShapeTensor::view(t, new_shape)
   assert_shape(v, [2, 2, 2])
@@ -197,38 +197,38 @@ test "Tensor: view 4D reshape" {
 
 ///|
 test "Tensor: add broadcasts" {
-  let a : ShapeTensor = { shape: FixedArray::from_iter([4, 1].iter()) }
-  let b : ShapeTensor = { shape: FixedArray::from_iter([1, 5].iter()) }
+  let a : ShapeTensor = { shape: FixedArray::from_iter([4, 1].iter()), }
+  let b : ShapeTensor = { shape: FixedArray::from_iter([1, 5].iter()), }
   let result = ShapeTensor::add(a, b)
   assert_shape(result, [4, 5])
 }
 
 ///|
 test "Tensor: add same shape" {
-  let a : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()) }
-  let b : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()) }
+  let a : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()), }
+  let b : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()), }
   let result = ShapeTensor::add(a, b)
   assert_shape(result, [3, 4])
 }
 
 ///|
 test "Tensor: add_into matching shapes" {
-  let a : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()) }
-  let b : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()) }
+  let a : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()), }
+  let b : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()), }
   ShapeTensor::add_into(a, b)
 }
 
 ///|
 test "Tensor: sub broadcasts" {
-  let a : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()) }
-  let b : ShapeTensor = { shape: FixedArray::from_iter([1, 3].iter()) }
+  let a : ShapeTensor = { shape: FixedArray::from_iter([2, 3].iter()), }
+  let b : ShapeTensor = { shape: FixedArray::from_iter([1, 3].iter()), }
   let result = ShapeTensor::sub(a, b)
   assert_shape(result, [2, 3])
 }
 
 ///|
 test "Tensor: broadcast_to" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([1].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([1].iter()), }
   let target = FixedArray::from_iter([3, 4].iter())
   let result = ShapeTensor::broadcast_to(t, target)
   assert_shape(result, [3, 4])
@@ -240,23 +240,23 @@ test "Tensor: broadcast_to" {
 
 ///|
 test "BlasTensor: matmul" {
-  let a : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()) }
-  let b : ShapeTensor = { shape: FixedArray::from_iter([4, 5].iter()) }
+  let a : ShapeTensor = { shape: FixedArray::from_iter([3, 4].iter()), }
+  let b : ShapeTensor = { shape: FixedArray::from_iter([4, 5].iter()), }
   let c = ShapeTensor::matmul(a, b)
   assert_shape(c, [3, 5])
 }
 
 ///|
 test "BlasTensor: matmul square" {
-  let a : ShapeTensor = { shape: FixedArray::from_iter([2, 2].iter()) }
-  let b : ShapeTensor = { shape: FixedArray::from_iter([2, 2].iter()) }
+  let a : ShapeTensor = { shape: FixedArray::from_iter([2, 2].iter()), }
+  let b : ShapeTensor = { shape: FixedArray::from_iter([2, 2].iter()), }
   let c = ShapeTensor::matmul(a, b)
   assert_shape(c, [2, 2])
 }
 
 ///|
 test "BlasTensor: transpose" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([3, 5].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([3, 5].iter()), }
   let r = ShapeTensor::transpose(t)
   assert_shape(r, [5, 3])
 }
@@ -274,7 +274,7 @@ test "ImageTensor: conv2d basic" {
   let weight : ShapeTensor = {
     shape: FixedArray::from_iter([16, 3, 3, 3].iter()),
   }
-  let bias : ShapeTensor = { shape: FixedArray::from_iter([16].iter()) }
+  let bias : ShapeTensor = { shape: FixedArray::from_iter([16].iter()), }
   let result = ShapeTensor::conv2d(input, weight, bias, 1, 1)
   // OH = (32 + 2*1 - 3) / 1 + 1 = 32, OW = 32
   assert_shape(result, [1, 16, 32, 32])
@@ -289,7 +289,7 @@ test "ImageTensor: conv2d stride=2 no padding" {
   let weight : ShapeTensor = {
     shape: FixedArray::from_iter([4, 1, 3, 3].iter()),
   }
-  let bias : ShapeTensor = { shape: FixedArray::from_iter([4].iter()) }
+  let bias : ShapeTensor = { shape: FixedArray::from_iter([4].iter()), }
   let result = ShapeTensor::conv2d(input, weight, bias, 2, 0)
   // OH = (8 + 0 - 3) / 2 + 1 = 3, OW = 3
   assert_shape(result, [2, 4, 3, 3])
@@ -304,7 +304,7 @@ test "ImageTensor: conv2d large kernel with padding" {
   let weight : ShapeTensor = {
     shape: FixedArray::from_iter([32, 3, 5, 5].iter()),
   }
-  let bias : ShapeTensor = { shape: FixedArray::from_iter([32].iter()) }
+  let bias : ShapeTensor = { shape: FixedArray::from_iter([32].iter()), }
   let result = ShapeTensor::conv2d(input, weight, bias, 1, 2)
   // OH = (28 + 4 - 5) / 1 + 1 = 28, OW = 28
   assert_shape(result, [1, 32, 28, 28])
@@ -312,7 +312,7 @@ test "ImageTensor: conv2d large kernel with padding" {
 
 ///|
 test "ImageTensor: relu preserves shape" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3, 8, 8].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 3, 8, 8].iter()), }
   let r = ShapeTensor::relu(t)
   assert_shape(r, [2, 3, 8, 8])
 }
@@ -320,7 +320,7 @@ test "ImageTensor: relu preserves shape" {
 ///|
 test "ImageTensor: maxpool2d basic" {
   // input [1, 3, 32, 32], kernel=2, stride=2
-  let t : ShapeTensor = { shape: FixedArray::from_iter([1, 3, 32, 32].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([1, 3, 32, 32].iter()), }
   let r = ShapeTensor::maxpool2d(t, 2, 2)
   // OH = (32 - 2) / 2 + 1 = 16, OW = 16
   assert_shape(r, [1, 3, 16, 16])
@@ -329,7 +329,7 @@ test "ImageTensor: maxpool2d basic" {
 ///|
 test "ImageTensor: maxpool2d non-divisible" {
   // input [1, 1, 7, 7], kernel=3, stride=2
-  let t : ShapeTensor = { shape: FixedArray::from_iter([1, 1, 7, 7].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([1, 1, 7, 7].iter()), }
   let r = ShapeTensor::maxpool2d(t, 3, 2)
   // OH = (7 - 3) / 2 + 1 = 3, OW = 3
   assert_shape(r, [1, 1, 3, 3])
@@ -337,14 +337,16 @@ test "ImageTensor: maxpool2d non-divisible" {
 
 ///|
 test "ImageTensor: adaptive_avg_pool2d" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([4, 64, 8, 8].iter()) }
+  let t : ShapeTensor = { shape: FixedArray::from_iter([4, 64, 8, 8].iter()), }
   let r = ShapeTensor::adaptive_avg_pool2d(t, 1)
   assert_shape(r, [4, 64, 1, 1])
 }
 
 ///|
 test "ImageTensor: adaptive_avg_pool2d output_size=4" {
-  let t : ShapeTensor = { shape: FixedArray::from_iter([2, 32, 16, 16].iter()) }
+  let t : ShapeTensor = {
+    shape: FixedArray::from_iter([2, 32, 16, 16].iter()),
+  }
   let r = ShapeTensor::adaptive_avg_pool2d(t, 4)
   assert_shape(r, [2, 32, 4, 4])
 }
@@ -354,10 +356,12 @@ test "ImageTensor: batchnorm_training" {
   let input : ShapeTensor = {
     shape: FixedArray::from_iter([8, 64, 16, 16].iter()),
   }
-  let gamma : ShapeTensor = { shape: FixedArray::from_iter([64].iter()) }
-  let beta : ShapeTensor = { shape: FixedArray::from_iter([64].iter()) }
-  let running_mean : ShapeTensor = { shape: FixedArray::from_iter([64].iter()) }
-  let running_var : ShapeTensor = { shape: FixedArray::from_iter([64].iter()) }
+  let gamma : ShapeTensor = { shape: FixedArray::from_iter([64].iter()), }
+  let beta : ShapeTensor = { shape: FixedArray::from_iter([64].iter()), }
+  let running_mean : ShapeTensor = {
+    shape: FixedArray::from_iter([64].iter()),
+  }
+  let running_var : ShapeTensor = { shape: FixedArray::from_iter([64].iter()), }
   let (output, save_mean, save_inv_var) = ShapeTensor::batchnorm_training(
     input, gamma, beta, running_mean, running_var, 0.1, 0.00001,
   )
@@ -371,10 +375,10 @@ test "ImageTensor: batchnorm_inference" {
   let input : ShapeTensor = {
     shape: FixedArray::from_iter([4, 32, 8, 8].iter()),
   }
-  let gamma : ShapeTensor = { shape: FixedArray::from_iter([32].iter()) }
-  let beta : ShapeTensor = { shape: FixedArray::from_iter([32].iter()) }
-  let rm : ShapeTensor = { shape: FixedArray::from_iter([32].iter()) }
-  let rv : ShapeTensor = { shape: FixedArray::from_iter([32].iter()) }
+  let gamma : ShapeTensor = { shape: FixedArray::from_iter([32].iter()), }
+  let beta : ShapeTensor = { shape: FixedArray::from_iter([32].iter()), }
+  let rm : ShapeTensor = { shape: FixedArray::from_iter([32].iter()), }
+  let rv : ShapeTensor = { shape: FixedArray::from_iter([32].iter()), }
   let output = ShapeTensor::batchnorm_inference(
     input, gamma, beta, rm, rv, 0.00001,
   )
@@ -383,16 +387,16 @@ test "ImageTensor: batchnorm_inference" {
 
 ///|
 test "ImageTensor: softmax_cross_entropy returns scalar" {
-  let logits : ShapeTensor = { shape: FixedArray::from_iter([8, 10].iter()) }
-  let targets : ShapeTensor = { shape: FixedArray::from_iter([8, 10].iter()) }
+  let logits : ShapeTensor = { shape: FixedArray::from_iter([8, 10].iter()), }
+  let targets : ShapeTensor = { shape: FixedArray::from_iter([8, 10].iter()), }
   let loss = ShapeTensor::softmax_cross_entropy(logits, targets)
   assert_shape(loss, [1])
 }
 
 ///|
 test "ImageTensor: cross_entropy_with_labels returns scalar" {
-  let logits : ShapeTensor = { shape: FixedArray::from_iter([4, 10].iter()) }
-  let labels : ShapeTensor = { shape: FixedArray::from_iter([4].iter()) }
+  let logits : ShapeTensor = { shape: FixedArray::from_iter([4, 10].iter()), }
+  let labels : ShapeTensor = { shape: FixedArray::from_iter([4].iter()), }
   let loss = ShapeTensor::cross_entropy_with_labels(logits, labels, 10)
   assert_shape(loss, [1])
 }
@@ -464,9 +468,11 @@ test "ImageTensor: batchnorm_backward returns all grads" {
   let input : ShapeTensor = {
     shape: FixedArray::from_iter([4, 32, 8, 8].iter()),
   }
-  let gamma : ShapeTensor = { shape: FixedArray::from_iter([32].iter()) }
-  let save_mean : ShapeTensor = { shape: FixedArray::from_iter([32].iter()) }
-  let save_inv_var : ShapeTensor = { shape: FixedArray::from_iter([32].iter()) }
+  let gamma : ShapeTensor = { shape: FixedArray::from_iter([32].iter()), }
+  let save_mean : ShapeTensor = { shape: FixedArray::from_iter([32].iter()), }
+  let save_inv_var : ShapeTensor = {
+    shape: FixedArray::from_iter([32].iter()),
+  }
   let (grad_input, grad_gamma, grad_beta) = ShapeTensor::batchnorm_backward(
     grad_output, input, gamma, save_mean, save_inv_var, 0.00001,
   )
@@ -501,16 +507,16 @@ test "ImageTensor: adaptive_avg_pool2d_backward returns input shape" {
 
 ///|
 test "ImageTensor: softmax_ce_backward returns logits shape" {
-  let logits : ShapeTensor = { shape: FixedArray::from_iter([8, 10].iter()) }
-  let targets : ShapeTensor = { shape: FixedArray::from_iter([8, 10].iter()) }
+  let logits : ShapeTensor = { shape: FixedArray::from_iter([8, 10].iter()), }
+  let targets : ShapeTensor = { shape: FixedArray::from_iter([8, 10].iter()), }
   let grad = ShapeTensor::softmax_ce_backward(logits, targets)
   assert_shape(grad, [8, 10])
 }
 
 ///|
 test "ImageTensor: softmax_ce_backward_labels returns logits shape" {
-  let logits : ShapeTensor = { shape: FixedArray::from_iter([4, 10].iter()) }
-  let labels : ShapeTensor = { shape: FixedArray::from_iter([4].iter()) }
+  let logits : ShapeTensor = { shape: FixedArray::from_iter([4, 10].iter()), }
+  let labels : ShapeTensor = { shape: FixedArray::from_iter([4].iter()), }
   let grad = ShapeTensor::softmax_ce_backward_labels(logits, labels, 10)
   assert_shape(grad, [4, 10])
 }
@@ -528,8 +534,8 @@ test "ResNet-like forward shape propagation" {
   )
 
   // Conv1: 3→16, kernel=3, stride=1, padding=1
-  let w1 : ShapeTensor = { shape: FixedArray::from_iter([16, 3, 3, 3].iter()) }
-  let b1 : ShapeTensor = { shape: FixedArray::from_iter([16].iter()) }
+  let w1 : ShapeTensor = { shape: FixedArray::from_iter([16, 3, 3, 3].iter()), }
+  let b1 : ShapeTensor = { shape: FixedArray::from_iter([16].iter()), }
   let x = ShapeTensor::conv2d(x, w1, b1, 1, 1)
   assert_shape(x, [1, 16, 32, 32])
 
@@ -542,8 +548,10 @@ test "ResNet-like forward shape propagation" {
   assert_shape(x, [1, 16, 16, 16])
 
   // Conv2: 16→32, kernel=3, stride=1, padding=1
-  let w2 : ShapeTensor = { shape: FixedArray::from_iter([32, 16, 3, 3].iter()) }
-  let b2 : ShapeTensor = { shape: FixedArray::from_iter([32].iter()) }
+  let w2 : ShapeTensor = {
+    shape: FixedArray::from_iter([32, 16, 3, 3].iter()),
+  }
+  let b2 : ShapeTensor = { shape: FixedArray::from_iter([32].iter()), }
   let x = ShapeTensor::conv2d(x, w2, b2, 1, 1)
   assert_shape(x, [1, 32, 16, 16])
 
@@ -563,12 +571,12 @@ test "ResNet-like forward shape propagation" {
   assert_shape(x, [1, 32])
 
   // Linear (matmul): [1, 32] @ [32, 10] → [1, 10]
-  let w_fc : ShapeTensor = { shape: FixedArray::from_iter([32, 10].iter()) }
+  let w_fc : ShapeTensor = { shape: FixedArray::from_iter([32, 10].iter()), }
   let logits = ShapeTensor::matmul(x, w_fc)
   assert_shape(logits, [1, 10])
 
   // Cross-entropy loss
-  let labels : ShapeTensor = { shape: FixedArray::from_iter([1].iter()) }
+  let labels : ShapeTensor = { shape: FixedArray::from_iter([1].iter()), }
   let loss = ShapeTensor::cross_entropy_with_labels(logits, labels, 10)
   assert_shape(loss, [1])
 }

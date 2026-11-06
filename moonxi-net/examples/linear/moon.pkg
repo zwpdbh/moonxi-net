@@ -1,9 +1,7 @@
 import {
   "chnlkw/moonxi-net" @tensor,
-  "chnlkw/moonxi-net/nparray" @nparray,
-  "chnlkw/moonxi-net/grad" @grad,
+  "chnlkw/moonxi-net/nparray",
+  "chnlkw/moonxi-net/grad",
 }
 
-options(
-  "is-main": true,
-)
+pkgtype(kind: "executable")

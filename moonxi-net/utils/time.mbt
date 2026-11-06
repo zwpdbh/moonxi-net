@@ -17,7 +17,7 @@ pub(all) struct Stopwatch {
 
 ///|
 pub fn Stopwatch::new() -> Stopwatch {
-  { start_ms: 0.0 }
+  { start_ms: 0.0, }
 }
 
 ///|

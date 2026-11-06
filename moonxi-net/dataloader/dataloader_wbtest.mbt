@@ -5,15 +5,15 @@
 /// Helper: create a simple DataLoader for testing.
 /// get(i) returns a scalar tensor with value float(i) for both input and target.
 /// batch gathers multiple scalars into a 1d tensor.
-fn make_test_loader(num_samples : Int) -> DataLoader[@nparray.NpArray] {
+fn make_test_loader(num_samples : Int32) -> DataLoader[@nparray.NpArray] {
   {
     num_samples,
-    get: fn(i : Int) -> (@nparray.NpArray, @nparray.NpArray) {
+    get: fn(i : Int32) -> (@nparray.NpArray, @nparray.NpArray) {
       let v = @nparray.NpArray::from1d([Float::from_int(i)])
       (v, v)
     },
     batch: fn(
-      indices : ArrayView[Int],
+      indices : ArrayView[Int32],
     ) -> (@nparray.NpArray, @nparray.NpArray) {
       let data = indices.map(fn(i) { Float::from_int(i) })
       let t = @nparray.NpArray::from1d(data)
@@ -60,7 +60,7 @@ test "DataLoader::batches yields correct number with remainder" {
 test "DataLoader::batches last batch has correct size (partial)" {
   let loader = make_test_loader(7)
   let batch_size = 3
-  let batch_sizes : Array[Int] = []
+  let batch_sizes : Array[Int32] = []
   for batch in loader.batches(batch_size) {
     let (input, _) = batch
     batch_sizes.push(input.dims()[0])

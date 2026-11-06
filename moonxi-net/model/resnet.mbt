@@ -21,7 +21,7 @@ fn box_muller() -> Float {
 
 ///|
 /// Kaiming He initialization for conv weights (fan_in).
-fn[T : @tensor.Tensor] kaiming_init(shape : Array[Int]) -> T {
+fn[T : @tensor.Tensor] kaiming_init(shape : Array[Int32]) -> T {
   let fan_in = shape[1] * shape[2] * shape[3]
   let std = Float::sqrt(Float::from_double(2.0) / Float::from_int(fan_in))
   let numel = shape[0] * shape[1] * shape[2] * shape[3]
@@ -31,15 +31,20 @@ fn[T : @tensor.Tensor] kaiming_init(shape : Array[Int]) -> T {
 
 ///|
 /// Initialize ResNet-18 using Kaiming He initialization (generic).
-pub fn[T : @tensor.Tensor] init_resnet18(num_classes : Int) -> ResNet18[T] {
+pub fn[T : @tensor.Tensor] init_resnet18(num_classes : Int32) -> ResNet18[T] {
   // Helper: create a conv with Kaiming He init, bias=zeros
-  fn make_conv(out_ch : Int, in_ch : Int, kh : Int, kw : Int) -> Conv2d[T] {
+  fn make_conv(
+    out_ch : Int32,
+    in_ch : Int32,
+    kh : Int32,
+    kw : Int32,
+  ) -> Conv2d[T] {
     let shape = [out_ch, in_ch, kh, kw]
-    Conv2d::{ weight: kaiming_init(shape), bias: T::zeros([out_ch]) }
+    Conv2d::{ weight: kaiming_init(shape), bias: T::zeros([out_ch]), }
   }
 
   // Helper: create BN params (gamma=1, beta=0, running_mean=0, running_var=1)
-  fn make_bn(channels : Int) -> BatchNorm2d[T] {
+  fn make_bn(channels : Int32) -> BatchNorm2d[T] {
     let ones = FixedArray::make(channels, Float::from_double(1.0))
     let zeros = FixedArray::make(channels, Float::from_double(0.0))
     BatchNorm2d::{
@@ -51,7 +56,7 @@ pub fn[T : @tensor.Tensor] init_resnet18(num_classes : Int) -> ResNet18[T] {
   }
 
   // Helper: create a BasicBlock
-  fn make_block(in_c : Int, out_c : Int, stride : Int) -> BasicBlock[T] {
+  fn make_block(in_c : Int32, out_c : Int32, stride : Int32) -> BasicBlock[T] {
     let has_shortcut = in_c != out_c || stride != 1
     BasicBlock::{
       conv1: make_conv(out_c, in_c, 3, 3),
@@ -72,7 +77,11 @@ pub fn[T : @tensor.Tensor] init_resnet18(num_classes : Int) -> ResNet18[T] {
   }
 
   // Helper: create a layer with 2 BasicBlocks
-  fn make_layer(in_c : Int, out_c : Int, first_stride : Int) -> ResNetLayer[T] {
+  fn make_layer(
+    in_c : Int32,
+    out_c : Int32,
+    first_stride : Int32,
+  ) -> ResNetLayer[T] {
     let blocks : Array[BasicBlock[T]] = []
     blocks.push(make_block(in_c, out_c, first_stride))
     blocks.push(make_block(out_c, out_c, 1))

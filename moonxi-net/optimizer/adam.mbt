@@ -16,8 +16,12 @@ pub fn[T : @tensor.Tensor + BatchAdamAutoclip] adam(
   eps : Double,
   weight_decay : Double,
 ) -> Optimizer[T] {
-  let m = params.map(fn(p : @grad.Grad[T]) -> T { T::zeros_like(p.value) })
-  let v = params.map(fn(p : @grad.Grad[T]) -> T { T::zeros_like(p.value) })
+  let m = params.map(fn(p : @grad.Grad[T]) -> T {
+    @tensor.Tensor::zeros_like(p.value)
+  })
+  let v = params.map(fn(p : @grad.Grad[T]) -> T {
+    @tensor.Tensor::zeros_like(p.value)
+  })
   let mut t = 0
   let beta1_f = beta1
   let beta2_f = beta2
@@ -50,7 +54,7 @@ pub fn[T : @tensor.Tensor + BatchAdamAutoclip] adam(
       if has_grad == false {
         return
       }
-      T::batch_adam_autoclip(param_vals, grad_vals, m, v, {
+      BatchAdamAutoclip::batch_adam_autoclip(param_vals, grad_vals, m, v, {
         lr,
         beta1: Float::from_double(beta1_f),
         beta2: Float::from_double(beta2_f),

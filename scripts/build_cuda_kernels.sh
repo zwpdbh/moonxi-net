@@ -2,9 +2,11 @@
 set -euo pipefail
 
 PROJECT="$(cd "$(dirname "$0")/.." && pwd)"
-SOURCE="$PROJECT/moonxi-net-gpu/cuda/cuda_kernels.cu"
+SOURCES=(
+  "$PROJECT/moonxi-net-gpu/cuda/cuda_kernels.cu"
+  "$PROJECT/moonxi-net-gpu/cuda/bf16_kernels.cu"
+)
 OUTPUT_DIR="${CUDA_BUILD_DIR:-$PROJECT/_build/cuda}"
-OBJECT="$OUTPUT_DIR/cuda_kernels.o"
 LIBRARY="$OUTPUT_DIR/libmoonxi_cuda_kernels.a"
 STAMP="$OUTPUT_DIR/build.sha256"
 
@@ -35,7 +37,7 @@ fi
 mkdir -p "$OUTPUT_DIR"
 FINGERPRINT="$(
   {
-    sha256sum "$SOURCE"
+    sha256sum "${SOURCES[@]}"
     printf '%s\n' "$NVCC_BIN" "$FLAGS" "${CUDNN_INCLUDE:-}"
   } | sha256sum | cut -d' ' -f1
 )"
@@ -45,8 +47,13 @@ if [[ -f "$LIBRARY" && -f "$STAMP" ]] && [[ "$(<"$STAMP")" == "$FINGERPRINT" ]];
   exit 0
 fi
 
-"$NVCC_BIN" -std=c++17 -Xcompiler -fPIC "${INCLUDE_ARGS[@]}" \
-  "${FLAG_ARGS[@]}" -c "$SOURCE" -o "$OBJECT"
-"${AR:-ar}" rcs "$LIBRARY" "$OBJECT"
+OBJECTS=()
+for SOURCE in "${SOURCES[@]}"; do
+  OBJECT="$OUTPUT_DIR/$(basename "${SOURCE%.cu}").o"
+  "$NVCC_BIN" -std=c++17 -Xcompiler -fPIC "${INCLUDE_ARGS[@]}" \
+    "${FLAG_ARGS[@]}" -c "$SOURCE" -o "$OBJECT"
+  OBJECTS+=("$OBJECT")
+done
+"${AR:-ar}" rcs "$LIBRARY" "${OBJECTS[@]}"
 printf '%s\n' "$FINGERPRINT" > "$STAMP"
 echo "Built CUDA kernels: $LIBRARY"

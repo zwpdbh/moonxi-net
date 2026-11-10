@@ -67,6 +67,40 @@ pub fn multi_tensor_state_new(Array[GpuTensor], Array[GpuTensor]) -> MultiTensor
 // Errors
 
 // Types and methods
+pub struct Bf16Tensor {
+  data : @cuda.GpuBuffer
+  shape : @moonxi-net.ShapeTensor
+}
+pub fn Bf16Tensor::add(Self, Self) -> Self
+pub fn Bf16Tensor::alloc_shape(Array[Int32]) -> Self
+pub fn Bf16Tensor::alloc_st(@moonxi-net.ShapeTensor) -> Self
+pub fn Bf16Tensor::argmax_last(Self) -> Self
+pub fn Bf16Tensor::batched_matmul(Self, Self) -> Self
+pub fn Bf16Tensor::concat(Array[Self], dim~ : Int32) -> Self
+pub fn Bf16Tensor::dim(Self, Int32) -> Int32
+pub fn Bf16Tensor::embedding(Self, Array[Int32]) -> Self
+pub fn Bf16Tensor::expand(Self, Array[Int32]) -> Self
+pub fn Bf16Tensor::from_host(FixedArray[Float], Array[Int32]) -> Self
+pub fn Bf16Tensor::item(Self) -> Float
+pub fn Bf16Tensor::linear(Self, Self) -> Self
+pub fn Bf16Tensor::masked_fill(Self, Self, value~ : Float) -> Self
+pub fn Bf16Tensor::mul_elem(Self, Self) -> Self
+pub fn Bf16Tensor::narrow(Self, dim~ : Int32, start~ : Int32, length~ : Int32) -> Self
+pub fn Bf16Tensor::ndim(Self) -> Int32
+pub fn Bf16Tensor::numel(Self) -> Int32
+pub fn Bf16Tensor::permute(Self, Array[Int32]) -> Self
+pub fn Bf16Tensor::persistent(Self) -> Self
+pub fn Bf16Tensor::repeat_interleave(Self, repeats~ : Int32, dim~ : Int32) -> Self
+pub fn Bf16Tensor::rms_norm(Self, Self, eps~ : Float) -> Self
+pub fn Bf16Tensor::scale(Self, Float) -> Self
+pub fn Bf16Tensor::select(Self, dim~ : Int32, index~ : Int32) -> Self
+pub fn Bf16Tensor::silu(Self) -> Self
+pub fn Bf16Tensor::softmax_last(Self) -> Self
+pub fn Bf16Tensor::to_host(Self) -> FixedArray[Float]
+pub fn Bf16Tensor::unsqueeze(Self, dim~ : Int32) -> Self
+pub fn Bf16Tensor::view(Self, Array[Int32]) -> Self
+pub impl Add for Bf16Tensor
+
 pub(all) struct ContiguousOptimState {
   flat_params : @cuda.GpuBuffer
   flat_grads : @cuda.GpuBuffer

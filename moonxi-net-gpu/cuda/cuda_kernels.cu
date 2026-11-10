@@ -213,7 +213,7 @@ CUDA_EXPORT int cuda_copy_h2d(void* dst, const float* src, int64_t count) {
 // Raw byte copy host→device (for int arrays, pointer arrays, etc.)
 CUDA_EXPORT int cuda_raw_h2d(void* dst, const void* src, int64_t bytes) {
   cudaError_t err = cudaMemcpy(dst, src, bytes, cudaMemcpyHostToDevice);
-  return (err == cudaSuccess) ? 0 : -1;
+  return (int)err;
 }
 
 CUDA_EXPORT int cuda_copy_ptrs_h2d(void* dst, void** src, int32_t count) {
@@ -2555,17 +2555,24 @@ CUDA_EXPORT int cuda_llm_batched_matmul(
   void* handle, float* left, float* right, float* output,
   int batch, int m, int k, int p, int transpose_right
 ) {
-  for (int i = 0; i < batch; i++) {
-    int status = cuda_matmul(
-      handle,
-      left + i * m * k,
-      right + i * k * p,
-      output + i * m * p,
-      m, k, p, 0, transpose_right, 1.0f, 0.0f
-    );
-    if (status != 0) return status;
-  }
-  return 0;
+  if (batch == 0) return 0;
+  cublasOperation_t op_right = transpose_right ? CUBLAS_OP_T : CUBLAS_OP_N;
+  float alpha = 1.0f;
+  float beta = 0.0f;
+  cublasStatus_t status = cublasGemmStridedBatchedEx(
+    (cublasHandle_t)handle,
+    op_right, CUBLAS_OP_N,
+    p, m, k,
+    &alpha,
+    right, CUDA_R_32F, transpose_right ? k : p, (long long)k * p,
+    left, CUDA_R_32F, k, (long long)m * k,
+    &beta,
+    output, CUDA_R_32F, p, (long long)m * p,
+    batch,
+    CUBLAS_COMPUTE_32F,
+    CUBLAS_GEMM_DEFAULT_TENSOR_OP
+  );
+  return (status == CUBLAS_STATUS_SUCCESS) ? 0 : (int)status;
 }
 
 __global__ void llm_softmax_kernel(const float* input, float* output, int width, int rows) {
@@ -2603,23 +2610,35 @@ CUDA_EXPORT int cuda_llm_silu(const float* input, float* output, int n) {
 __global__ void llm_rms_norm_kernel(
   const float* input, const float* weight, float* output, int width, int rows, float eps
 ) {
-  int row = blockIdx.x * blockDim.x + threadIdx.x;
+  int row = blockIdx.x;
   if (row >= rows) return;
   int base = row * width;
-  float mean = 0.0f;
-  for (int i = 0; i < width; i++) {
+  int tid = threadIdx.x;
+  __shared__ float partial[256];
+  __shared__ float scale;
+
+  float sum = 0.0f;
+  for (int i = tid; i < width; i += blockDim.x) {
     float value = input[base + i];
-    mean += value * value;
+    sum += value * value;
   }
-  float scale = sqrtf(mean / width + eps);
-  for (int i = 0; i < width; i++) output[base + i] = input[base + i] / scale * weight[i];
+  partial[tid] = sum;
+  __syncthreads();
+  for (int stride = blockDim.x / 2; stride > 0; stride >>= 1) {
+    if (tid < stride) partial[tid] += partial[tid + stride];
+    __syncthreads();
+  }
+  if (tid == 0) scale = sqrtf(partial[0] / width + eps);
+  __syncthreads();
+  for (int i = tid; i < width; i += blockDim.x)
+    output[base + i] = input[base + i] / scale * weight[i];
 }
 
 CUDA_EXPORT int cuda_llm_rms_norm(
   const float* input, const float* weight, float* output, int width, int rows, float eps
 ) {
   if (rows == 0) return 0;
-  llm_rms_norm_kernel<<<(rows + 31) / 32, 32>>>(input, weight, output, width, rows, eps);
+  llm_rms_norm_kernel<<<rows, 256>>>(input, weight, output, width, rows, eps);
   return (int)cudaGetLastError();
 }
 

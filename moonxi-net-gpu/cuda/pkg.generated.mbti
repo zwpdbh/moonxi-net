@@ -28,6 +28,34 @@ pub fn batchnorm_destroy(BatchNormContext) -> Unit
 
 pub fn batchnorm_forward(BatchNormContext, CudnnHandle, GpuBuffer, GpuBuffer, GpuBuffer, GpuBuffer, GpuBuffer, GpuBuffer, GpuBuffer, GpuBuffer, Float, Float, Bool) -> Int32
 
+pub fn bf16_add(GpuBuffer, GpuBuffer, GpuBuffer, Int32) -> Int32
+
+pub fn bf16_argmax(GpuBuffer, GpuBuffer, Int32, Int32) -> Int32
+
+pub fn bf16_batched_matmul(CublasHandle, GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Int32, Int32, Int32) -> Int32
+
+pub fn bf16_concat2(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Int32, Int32) -> Int32
+
+pub fn bf16_direct_layout(GpuBuffer, GpuBuffer, GpuBuffer, Int32) -> Int32
+
+pub fn bf16_gather(GpuBuffer, GpuBuffer, GpuBuffer, Int32) -> Int32
+
+pub fn bf16_linear(CublasHandle, GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Int32) -> Int32
+
+pub fn bf16_masked_fill(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Float) -> Int32
+
+pub fn bf16_mul(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32) -> Int32
+
+pub fn bf16_rms_norm(GpuBuffer, GpuBuffer, GpuBuffer, Int32, Int32, Float) -> Int32
+
+pub fn bf16_scale(GpuBuffer, GpuBuffer, Int32, Float) -> Int32
+
+pub fn bf16_silu(GpuBuffer, GpuBuffer, Int32) -> Int32
+
+pub fn bf16_softmax(GpuBuffer, GpuBuffer, Int32, Int32) -> Int32
+
+pub fn bf16_to_host(GpuBuffer, FixedArray[Float], Int32) -> Int32
+
 pub fn bias_add_nchw(GpuBuffer, GpuBuffer, Int32, Int32, Int32) -> Int32
 
 pub fn check_error() -> Int32

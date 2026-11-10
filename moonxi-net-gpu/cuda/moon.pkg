@@ -5,5 +5,5 @@ import {
 pkgtype(kind: "library")
 
 options(
-  "native-stub": [ "cuda_stub.c", "llm_stub.c" ],
+  "native-stub": [ "cuda_stub.c", "llm_stub.c", "bf16_stub.c" ],
 )

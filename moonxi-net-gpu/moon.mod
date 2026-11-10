@@ -28,6 +28,5 @@ options(
 
 import {
   "chnlkw/moonxi-net@0.1.1",
-  "brickfrog/moontrace@0.14.0",
   "moonbitlang/x@0.5.5",
 }

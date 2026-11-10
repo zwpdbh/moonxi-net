@@ -137,6 +137,14 @@ fn gpu_llm_direct_layout(
 }
 
 ///|
+/// Copy a tensor into storage that survives temporary workspace resets.
+pub fn GpuTensor::persistent(self : GpuTensor) -> GpuTensor {
+  gpu_with_permanent_allocation(() => {
+    gpu_llm_direct_layout(self, self.shape.shape.iter().collect(), 4, 0, 0, [])
+  })
+}
+
+///|
 pub fn GpuTensor::permute(self : GpuTensor, axes : Array[Int32]) -> GpuTensor {
   let rank = self.ndim()
   if axes.length() != rank {

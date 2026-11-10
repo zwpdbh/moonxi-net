@@ -10,7 +10,6 @@ import {
   "chnlkw/moonxi-net/optimizer",
   "chnlkw/moonxi-net/train",
   "chnlkw/moonxi-net/nparray",
-  "brickfrog/moontrace/console" @log_console,
   "moonbitlang/core/argparse",
   "moonbitlang/core/string",
 }

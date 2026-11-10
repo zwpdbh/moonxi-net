@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 ///|
+#derive(Debug)
 pub(all) struct TensorData {
   dims : FixedArray[Int32]
   data : FixedArray[Float]
-} derive(Debug)
+}
 
 ///|
 pub(open) trait Tensor {

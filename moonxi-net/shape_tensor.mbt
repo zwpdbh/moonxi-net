@@ -4,9 +4,10 @@
 ///|
 /// A shape-only tensor that computes output shapes without actual data.
 /// Aborts when shape constraints are violated.
+#derive(Debug)
 pub(all) struct ShapeTensor {
   shape : FixedArray[Int32]
-} derive(Debug)
+}
 
 ///|
 fn ShapeTensor::numel(self : ShapeTensor) -> Int32 {

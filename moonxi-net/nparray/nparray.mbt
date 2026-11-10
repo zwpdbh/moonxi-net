@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 ///|
+#derive(Debug)
 pub(all) struct NpArray {
   mut shape : @tensor.ShapeTensor
   mut data : FixedArray[Float]
-} derive(Debug)
+}
 
 ///|
 fn[T : Compare] max(a : T, b : T) -> T {

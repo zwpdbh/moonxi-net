@@ -4,5 +4,4 @@ import {
   "chnlkw/moonxi-net/grad",
   "chnlkw/moonxi-net/train" @cpu_train,
   "chnlkw/moonxi-net/dataloader" @dl,
-  "brickfrog/moontrace" @log,
 }

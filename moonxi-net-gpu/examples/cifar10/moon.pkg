@@ -5,8 +5,6 @@ import {
   "chnlkw/moonxi-net/model",
   "chnlkw/moonxi-net/optimizer",
   "chnlkw/moonxi-net/train",
-  "brickfrog/moontrace" @log,
-  "brickfrog/moontrace/console" @log_console,
   "moonbitlang/core/argparse",
   "moonbitlang/core/string",
 }

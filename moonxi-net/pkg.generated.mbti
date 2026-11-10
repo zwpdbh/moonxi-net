@@ -8,30 +8,35 @@ import {
 // Values
 
 // Errors
+#derive(@debug.Debug)
 pub(all) suberror CudaError {
   CudaError(String)
-} derive(@debug.Debug)
+}
 pub fn CudaError::to_repr(Self) -> @debug.Repr
 
+#derive(@debug.Debug)
 pub(all) suberror IoError {
   IoError(String)
-} derive(@debug.Debug)
+}
 pub fn IoError::to_repr(Self) -> @debug.Repr
 
+#derive(@debug.Debug)
 pub(all) suberror ShapeError {
   ShapeError(String)
-} derive(@debug.Debug)
+}
 pub fn ShapeError::to_repr(Self) -> @debug.Repr
 
+#derive(@debug.Debug)
 pub(all) suberror UnsupportedError {
   UnsupportedError(String)
-} derive(@debug.Debug)
+}
 pub fn UnsupportedError::to_repr(Self) -> @debug.Repr
 
 // Types and methods
+#derive(@debug.Debug)
 pub(all) struct ShapeTensor {
   shape : FixedArray[Int32]
-} derive(@debug.Debug)
+}
 pub fn ShapeTensor::adaptive_avg_pool2d(Self, Int32) -> Self
 pub fn ShapeTensor::adaptive_avg_pool2d_backward(Self, Self) -> Self
 pub fn ShapeTensor::add(Self, Self) -> Self
@@ -82,10 +87,11 @@ pub impl ImageBackwardOps for ShapeTensor
 pub impl ImageTensor for ShapeTensor
 pub impl Tensor for ShapeTensor
 
+#derive(@debug.Debug)
 pub(all) struct TensorData {
   dims : FixedArray[Int32]
   data : FixedArray[Float]
-} derive(@debug.Debug)
+}
 pub fn TensorData::to_repr(Self) -> @debug.Repr
 
 // Type aliases

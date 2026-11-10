@@ -24,7 +24,6 @@ fn[
 
 ///|
 fn main raise {
-  @log_console.initialize()
   let m = @argparse.Command(
     "mnist",
     options=[

@@ -15,10 +15,11 @@ pub fn fused_linear_relu(input~ : NpArray, weight~ : NpArray, bias~ : NpArray) -
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub(all) struct NpArray {
   mut shape : @moonxi-net.ShapeTensor
   mut data : FixedArray[Float]
-} derive(@debug.Debug)
+}
 pub fn NpArray::adaptive_avg_pool2d(Self, Int32) -> Self
 pub fn NpArray::adaptive_avg_pool2d_backward(Self, Self) -> Self
 pub fn NpArray::add(Self, Self) -> Self

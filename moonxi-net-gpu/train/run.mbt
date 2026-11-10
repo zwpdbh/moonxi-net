@@ -60,7 +60,7 @@ pub fn run_gpu(
         None =>
           // Default: log every 100 batches or last batch
           if n % 100 == 0 || n == total_batches {
-            @log.info(
+            println(
               "epoch=\{epoch + 1}/\{epochs} batch=\{n}/\{total_batches} loss=\{loss_scalar}",
             )
           }
@@ -85,7 +85,7 @@ pub fn run_gpu(
       None => {
         // Default: log epoch summary + CSV row
         let lr = experiment.lr_scheduler.lr
-        @log.info(
+        println(
           "Epoch \{epoch + 1}/\{epochs} lr=\{lr} loss=\{avg_loss} train_acc=\{train_acc * 100.0}% test_acc=\{test_acc * 100.0}% time=\{epoch_train_s}s",
         )
         println(

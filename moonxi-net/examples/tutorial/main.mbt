@@ -34,10 +34,11 @@ trait Tensor: Add + Sub + Mul {
 // =============================================================================
 
 ///|
+#derive(Debug)
 struct NpArray {
   dims : FixedArray[Int32]
   data : FixedArray[Float]
-} derive(Debug)
+}
 
 ///|
 fn total_size(dims : FixedArray[Int32]) -> Int32 {

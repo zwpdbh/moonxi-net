@@ -3,7 +3,6 @@
 
 ///|
 fn main raise {
-  @log_console.initialize()
   let cmd = @argparse.Command("cifar10", options=[
     @argparse.OptionArg(
       "epochs",
@@ -37,5 +36,5 @@ fn main raise {
     epochs=num_epochs,
     eval_loader=test_loader,
   )
-  @log.info("CIFAR-10 integration test passed")
+  println("CIFAR-10 integration test passed")
 }

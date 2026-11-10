@@ -54,6 +54,8 @@ pub fn gpu_softmax_cross_entropy(GpuTensor, GpuTensor, @cuda.CublasHandle) -> Gp
 
 pub fn[T] gpu_with_inference(Bool, () -> T) -> T
 
+pub fn[T] gpu_with_permanent_allocation(() -> T) -> T
+
 pub fn gpu_workspace_reset() -> Unit
 
 pub fn llm_profiler() -> LlmProfiler
@@ -128,6 +130,7 @@ pub fn GpuTensor::narrow(Self, dim~ : Int32, start~ : Int32, length~ : Int32) ->
 pub fn GpuTensor::ndim(Self) -> Int32
 pub fn GpuTensor::numel(Self) -> Int32
 pub fn GpuTensor::permute(Self, Array[Int32]) -> Self
+pub fn GpuTensor::persistent(Self) -> Self
 pub fn GpuTensor::reduce_sum_to(Self, FixedArray[Int32]) -> Self
 pub fn GpuTensor::relu(Self) -> Self
 pub fn GpuTensor::relu_backward(Self, Self) -> Self

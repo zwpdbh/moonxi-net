@@ -111,6 +111,8 @@ pub fn LlmProfiler::print(self : LlmProfiler) -> Unit {
     }
   }
   if self.enabled {
+    output.write_string("\nworkspace_peak_bytes: \{gpu_pool_peak()}")
+    output.write_string("\nworkspace_used_bytes: \{gpu_pool_used()}")
     output.write_string(
       "\nCUDA event timing synchronizes each measured operation.",
     )

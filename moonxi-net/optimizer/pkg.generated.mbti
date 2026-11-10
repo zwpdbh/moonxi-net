@@ -19,6 +19,7 @@ pub fn[T : @moonxi-net.Tensor + BatchRmspropAutoclip] rmsprop(Array[@grad.Grad[T
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub(all) struct AdamConfig {
   lr : Float
   beta1 : Float
@@ -30,7 +31,7 @@ pub(all) struct AdamConfig {
   eps : Float
   weight_decay : Float
   max_grad_norm : Float
-} derive(@debug.Debug)
+}
 pub fn AdamConfig::to_repr(Self) -> @debug.Repr
 
 pub(all) struct Optimizer[T] {
@@ -40,6 +41,7 @@ pub(all) struct Optimizer[T] {
 pub fn[T] Optimizer::step(Self[T], Float) -> Unit
 pub fn[T] Optimizer::zero_grad(Self[T]) -> Unit
 
+#derive(@debug.Debug)
 pub(all) struct RmspropConfig {
   lr : Float
   alpha : Float
@@ -49,15 +51,16 @@ pub(all) struct RmspropConfig {
   momentum : Float
   has_momentum : Bool
   max_grad_norm : Float
-} derive(@debug.Debug)
+}
 pub fn RmspropConfig::to_repr(Self) -> @debug.Repr
 
+#derive(@debug.Debug)
 pub(all) struct SgdMomentumConfig {
   lr : Float
   momentum : Float
   weight_decay : Float
   max_grad_norm : Float
-} derive(@debug.Debug)
+}
 pub fn SgdMomentumConfig::to_repr(Self) -> @debug.Repr
 
 pub(all) struct StepLR {

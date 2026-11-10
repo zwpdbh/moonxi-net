@@ -2731,6 +2731,9 @@ __global__ void llm_direct_layout_kernel(
       for (int i = 0; i < rank; i++) input_coords[i] = output_coords[i];
       input_coords[dim] /= argument;
       break;
+    case 4:
+      for (int i = 0; i < rank; i++) input_coords[i] = output_coords[i];
+      break;
   }
   output[index] = input[llm_coords_offset(input_coords, input_shape, rank)];
 }

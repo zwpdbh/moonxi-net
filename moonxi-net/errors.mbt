@@ -2,21 +2,25 @@
 // SPDX-License-Identifier: MIT
 
 ///|
+#derive(Debug)
 pub(all) suberror ShapeError {
   ShapeError(String)
-} derive(Debug)
+}
 
 ///|
+#derive(Debug)
 pub(all) suberror IoError {
   IoError(String)
-} derive(Debug)
+}
 
 ///|
+#derive(Debug)
 pub(all) suberror CudaError {
   CudaError(String)
-} derive(Debug)
+}
 
 ///|
+#derive(Debug)
 pub(all) suberror UnsupportedError {
   UnsupportedError(String)
-} derive(Debug)
+}

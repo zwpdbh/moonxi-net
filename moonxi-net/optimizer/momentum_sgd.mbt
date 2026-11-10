@@ -3,15 +3,17 @@
 
 ///|
 /// Config struct for SGD+momentum hyperparameters.
+#derive(Debug)
 pub(all) struct SgdMomentumConfig {
   lr : Float
   momentum : Float
   weight_decay : Float
   max_grad_norm : Float
-} derive(Debug)
+}
 
 ///|
 /// Config struct for Adam hyperparameters.
+#derive(Debug)
 pub(all) struct AdamConfig {
   lr : Float
   beta1 : Float
@@ -23,10 +25,11 @@ pub(all) struct AdamConfig {
   eps : Float
   weight_decay : Float
   max_grad_norm : Float
-} derive(Debug)
+}
 
 ///|
 /// Config struct for RMSprop hyperparameters.
+#derive(Debug)
 pub(all) struct RmspropConfig {
   lr : Float
   alpha : Float
@@ -36,7 +39,7 @@ pub(all) struct RmspropConfig {
   momentum : Float
   has_momentum : Bool
   max_grad_norm : Float
-} derive(Debug)
+}
 
 ///|
 /// Backend trait for fused batch SGD+momentum with auto gradient clipping.

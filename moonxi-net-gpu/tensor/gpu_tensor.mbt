@@ -80,7 +80,17 @@ pub fn gpu_enable_pool(capacity : Int64) -> Unit {
 }
 
 ///|
+pub fn[T] gpu_with_permanent_allocation(operation : () -> T) -> T {
+  let previous = gpu_pool_state.use_pool
+  gpu_pool_state.use_pool = false
+  let result = operation()
+  gpu_pool_state.use_pool = previous
+  result
+}
+
+///|
 pub fn gpu_workspace_reset() -> Unit {
+  llm_profiler().count("workspace_resets", 1L)
   if gpu_pool_state.use_pool {
     match gpu_pool_state.pool {
       Some(p) => @cuda.pool_reset(p)

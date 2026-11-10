@@ -14,7 +14,8 @@ type Grad[T]
 
 type Linear[T]
 
-type NpArray derive(@debug.Debug)
+#derive(@debug.Debug)
+type NpArray
 
 // Type aliases
 
